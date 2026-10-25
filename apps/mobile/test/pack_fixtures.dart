@@ -11,6 +11,7 @@ import 'package:crypto/crypto.dart';
   String mediaPath = 'audio/00000000-0000-4000-8000-000000000101.opus',
   List<int>? audioBytes,
   String? declaredAudioSha,
+  bool rich = false,
 }) {
   final audio = audioBytes ?? List<int>.generate(2000, (i) => i % 251);
   const audioId = '00000000-0000-4000-8000-000000000101';
@@ -38,6 +39,50 @@ import 'package:crypto/crypto.dart';
             ],
           },
         ],
+        if (rich) ...{
+          'screens': [
+            {
+              'id': '00000000-0000-4000-8000-000000000011',
+              'order': 1,
+              'type': 'explain',
+              'body': {
+                'te': 'రోజు సమయాన్ని బట్టి పలకరింపు మారుతుంది.',
+                'en': 'The greeting depends on the time of day.',
+              },
+              'examples': [
+                {'text': 'Guten Morgen!', 'audio': audioId},
+              ],
+            },
+            {
+              'id': '00000000-0000-4000-8000-000000000012',
+              'order': 2,
+              'type': 'vocab',
+              'vocabIds': ['00000000-0000-4000-8000-000000000201'],
+            },
+            {
+              'id': '00000000-0000-4000-8000-000000000013',
+              'order': 3,
+              'type': 'dialogue',
+              'lines': [
+                {
+                  'speaker': 'Anna',
+                  'german': {'text': 'Wie geht es Ihnen?', 'audio': audioId},
+                  'meaning': {'te': 'మీరు ఎలా ఉన్నారు?', 'en': 'How are you?'},
+                },
+              ],
+            },
+            {
+              'id': '00000000-0000-4000-8000-000000000014',
+              'order': 4,
+              'type': 'practice',
+              'prompt': {
+                'te': 'ఉదయం పలకరించండి',
+                'en': 'Greet someone in the morning',
+              },
+              'target': {'text': 'Guten Morgen!', 'audio': audioId},
+            },
+          ],
+        },
         'questions': [
           {
             'id': '00000000-0000-4000-8000-000000000301',
@@ -53,7 +98,18 @@ import 'package:crypto/crypto.dart';
         ],
       },
     ],
-    'vocab': <Object>[],
+    'vocab': rich
+        ? [
+            {
+              'id': '00000000-0000-4000-8000-000000000201',
+              'german': {'text': 'Hammer', 'audio': audioId},
+              'article': 'der',
+              'plural': 'Hämmer',
+              'meaning': {'te': 'సుత్తి', 'en': 'hammer'},
+              'tradeTags': ['construction'],
+            },
+          ]
+        : <Object>[],
     'media': [
       {
         'id': audioId,

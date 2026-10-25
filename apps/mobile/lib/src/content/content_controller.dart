@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 
 import '../api/api_client.dart';
+import '../player/audio_service.dart';
 import 'pack_models.dart';
 import 'pack_store.dart';
 
@@ -20,6 +21,7 @@ class ContentController extends ChangeNotifier {
     required this.api,
     required this.store,
     required this.tempDir,
+    required this.audio,
   });
 
   static const levels = ['A1', 'A2', 'B1'];
@@ -27,6 +29,7 @@ class ContentController extends ChangeNotifier {
   final ApiClient api;
   final PackStore store;
   final Future<Directory> Function() tempDir;
+  final AudioService audio;
 
   final Map<String, PackInfo> remote = {};
   final Map<String, LessonPack> installed = {};

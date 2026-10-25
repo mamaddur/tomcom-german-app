@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../l10n/app_localizations.dart';
+import '../player/lesson_player_screen.dart';
 import 'content_controller.dart';
 
 /// Levels and their offline packs (FR-307). Downloading asks first and shows the size, so the
@@ -142,6 +143,17 @@ class _LevelCard extends StatelessWidget {
                   leading: CircleAvatar(child: Text('${lesson.order}')),
                   title: Text(lesson.title.of(locale)),
                   subtitle: Text(t.minutes(lesson.estMinutes)),
+                  trailing: const Icon(Icons.play_circle_outline),
+                  onTap: () => Navigator.of(context).push(
+                    MaterialPageRoute<void>(
+                      builder: (_) => LessonPlayerScreen(
+                        pack: pack,
+                        lesson: lesson,
+                        mediaFile: (id) => content.store.mediaFile(level, id),
+                        audio: content.audio,
+                      ),
+                    ),
+                  ),
                 ),
             ],
           ],

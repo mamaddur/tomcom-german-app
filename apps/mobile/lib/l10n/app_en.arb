@@ -328,5 +328,71 @@
   "errorPackDamaged": "The download was damaged, so it was not installed. Please try again.",
   "@errorPackDamaged": {
     "description": "Checksum or integrity failure."
+  },
+  "next": "Next",
+  "@next": {
+    "description": "Go to the next lesson screen."
+  },
+  "back": "Back",
+  "@back": {
+    "description": "Go to the previous lesson screen."
+  },
+  "normalSpeed": "Normal 1×",
+  "@normalSpeed": {
+    "description": "Audio speed switch, normal (FR-304)."
+  },
+  "slowSpeed": "Slow 0.75×",
+  "@slowSpeed": {
+    "description": "Audio speed switch, slow (FR-304)."
+  },
+  "screenOf": "{current} of {total}",
+  "@screenOf": {
+    "description": "Position in the lesson.",
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "showTranslation": "Show {language}",
+  "@showTranslation": {
+    "description": "Show explanations in the other language too (FR-303).",
+    "placeholders": {
+      "language": {
+        "type": "String"
+      }
+    }
+  },
+  "hideTranslation": "Hide translation",
+  "@hideTranslation": {
+    "description": "Hide the second language."
+  },
+  "playGerman": "Play: {text}",
+  "@playGerman": {
+    "description": "Screen-reader label of a play button.",
+    "placeholders": {
+      "text": {
+        "type": "String"
+      }
+    }
+  },
+  "audioMissing": "This recording is not available.",
+  "@audioMissing": {
+    "description": "Audio file missing from the pack."
+  },
+  "lessonFinished": "Lesson finished. Well done!",
+  "@lessonFinished": {
+    "description": "End of a lesson."
+  },
+  "quizNext": "The quiz for this lesson unlocks the next one. Quizzes come in the next update.",
+  "@quizNext": {
+    "description": "Explains that quizzes follow (step 5)."
+  },
+  "backToLessons": "Back to lessons",
+  "@backToLessons": {
+    "description": "Close the lesson."
   }
 }
