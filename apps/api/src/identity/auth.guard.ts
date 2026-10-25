@@ -8,11 +8,15 @@ import {
 import { Reflector } from '@nestjs/core';
 import type { Request } from 'express';
 import { ApiError } from '../common/api-error.js';
+import type { Role } from '../generated/prisma/client.js';
 import { TokenService, type AccessClaims } from './token.service.js';
 
 const IS_PUBLIC = 'isPublic';
+const ROLES = 'roles';
 /** Marks a route as reachable without a token. Everything else requires one (deny by default). */
 export const Public = () => SetMetadata(IS_PUBLIC, true);
+/** Restricts a route (or controller) to these roles (NFR-11). */
+export const Roles = (...roles: Role[]) => SetMetadata(ROLES, roles);
 
 export type AuthedRequest = Request & { auth?: AccessClaims };
 
@@ -40,6 +44,11 @@ export class AuthGuard implements CanActivate {
     const [scheme, token] = (req.headers.authorization ?? '').split(' ');
     if (scheme !== 'Bearer' || !token) throw new ApiError(401, 'unauthorized');
     req.auth = await this.tokens.verifyAccess(token);
+    const roles = this.reflector.getAllAndOverride<Role[] | undefined>(ROLES, [
+      ctx.getHandler(),
+      ctx.getClass(),
+    ]);
+    if (roles && !roles.includes(req.auth.role)) throw new ApiError(403, 'forbidden');
     return true;
   }
 }

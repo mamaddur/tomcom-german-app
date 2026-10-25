@@ -6,6 +6,7 @@ import type { AccessClaims } from '../src/identity/token.service.js';
 import { PrismaService } from '../src/infra/prisma.service.js';
 import { RedisService } from '../src/infra/redis.service.js';
 import { createTestApp } from './app.factory.js';
+import { resetState } from './helpers.js';
 
 /** Test-only protected route: proves routes need a token unless marked @Public(). */
 @Controller('test-protected')
@@ -36,8 +37,7 @@ describe('learner sign-in and registration (FR-101, FR-104, FR-107, story 1)', (
   });
   afterAll(() => app.close());
   beforeEach(async () => {
-    await (await app.get(RedisService).connected()).flushdb();
-    await prisma.db.$executeRaw`TRUNCATE users, consents, devices, refresh_tokens CASCADE`;
+    await resetState(app);
   });
 
   async function verify(phone = PHONE, clientId?: string) {

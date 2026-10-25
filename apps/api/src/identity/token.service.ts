@@ -6,9 +6,19 @@ import { ENV, type Env } from '../config/env.js';
 import type { Role } from '../generated/prisma/client.js';
 import { PrismaService } from '../infra/prisma.service.js';
 
-export const ACCESS_TTL_SECONDS = 15 * 60;
-/** Learners stay signed in on their own phone; staff sessions are handled in step 2c. */
-export const LEARNER_REFRESH_TTL_DAYS = 60;
+/**
+ * Session policy per role (NFR-10).
+ * Learners stay signed in on their own phone (sliding 60 days).
+ * Staff: 5-min access tokens, refresh expires after 25 idle minutes, so an idle admin session
+ * ends within 30 minutes; at most 12 hours in total, then a full login with 2FA.
+ */
+export const LEARNER_POLICY = {
+  accessSeconds: 15 * 60,
+  idleSeconds: 60 * 86_400,
+  maxSeconds: Infinity,
+};
+export const STAFF_POLICY = { accessSeconds: 5 * 60, idleSeconds: 25 * 60, maxSeconds: 12 * 3600 };
+export const policyFor = (role: Role) => (role === 'learner' ? LEARNER_POLICY : STAFF_POLICY);
 const ISSUER = 'tomcom-api';
 const AUDIENCE = 'tomcom';
 
@@ -37,25 +47,29 @@ export class TokenService {
     this.key = new Uint8Array(Buffer.from(env.JWT_SECRET, 'base64'));
   }
 
-  async issue(claims: AccessClaims, familyId: string = randomUUID()): Promise<TokenPair> {
-    return (await this.issueWithId(claims, familyId)).pair;
+  /** Starts a new session (a new refresh-token family). */
+  async issue(claims: AccessClaims): Promise<TokenPair> {
+    return (await this.issueWithId(claims, randomUUID(), new Date())).pair;
   }
 
-  private async issueWithId(claims: AccessClaims, familyId: string) {
+  private async issueWithId(claims: AccessClaims, familyId: string, sessionStartedAt: Date) {
+    const policy = policyFor(claims.role);
     const refreshToken = randomBytes(32).toString('base64url');
+    const idleDeadline = Date.now() + policy.idleSeconds * 1000;
+    const hardDeadline = sessionStartedAt.getTime() + policy.maxSeconds * 1000;
     const row = await this.prisma.db.refreshToken.create({
       data: {
         userId: claims.userId,
         deviceId: claims.deviceId,
         familyId,
         tokenHash: sha256(refreshToken),
-        expiresAt: new Date(Date.now() + LEARNER_REFRESH_TTL_DAYS * 86_400_000),
+        expiresAt: new Date(Math.min(idleDeadline, hardDeadline)),
       },
     });
     const pair: TokenPair = {
-      accessToken: await this.signAccess(claims),
+      accessToken: await this.signAccess(claims, policy.accessSeconds),
       refreshToken,
-      expiresInSeconds: ACCESS_TTL_SECONDS,
+      expiresInSeconds: policy.accessSeconds,
       tokenType: 'Bearer',
     };
     return { pair, id: row.id };
@@ -85,9 +99,15 @@ export class TokenService {
       await this.revokeFamily(current.familyId);
       throw new ApiError(401, 'refresh_reused');
     }
+    const first = await db.refreshToken.findFirstOrThrow({
+      where: { familyId: current.familyId },
+      orderBy: { createdAt: 'asc' },
+      select: { createdAt: true },
+    });
     const next = await this.issueWithId(
       { userId: current.userId, role: current.user.role, deviceId: current.deviceId },
       current.familyId,
+      first.createdAt,
     );
     await db.refreshToken.update({ where: { id: current.id }, data: { replacedBy: next.id } });
     return next.pair;
@@ -116,14 +136,14 @@ export class TokenService {
     }
   }
 
-  private signAccess(claims: AccessClaims): Promise<string> {
+  private signAccess(claims: AccessClaims, ttlSeconds: number): Promise<string> {
     return new SignJWT({ typ: 'access', role: claims.role, did: claims.deviceId })
       .setProtectedHeader({ alg: 'HS256' })
       .setSubject(claims.userId)
       .setIssuer(ISSUER)
       .setAudience(AUDIENCE)
       .setIssuedAt()
-      .setExpirationTime(`${ACCESS_TTL_SECONDS}s`)
+      .setExpirationTime(`${ttlSeconds}s`)
       .sign(this.key);
   }
 

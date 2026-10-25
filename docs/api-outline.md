@@ -11,7 +11,7 @@ All writes from the mobile app accept `Idempotency-Key` or carry a `clientId`.
 | POST | `/auth/otp/verify` `{phone, code, device}` → session, or `registration_required` + registration token for new numbers | public | FR-101, FR-107 |
 | POST | `/auth/register` `{registrationToken, locale, consent, device}` → session. Creates user + consent + device in one transaction | public | FR-102, FR-104 |
 | POST | `/auth/refresh` · `/auth/logout` | any | NFR-10 |
-| POST | `/admin-auth/login` `{phone/email, password}` → OTP step → `/admin-auth/verify` | staff | NFR-10 |
+| POST | `/staff-auth/login` `{phone, password}` → challenge (OTP sent) → `/staff-auth/verify` `{challengeToken, code, device}` → session | staff | NFR-10 |
 | GET | `/consent/notice?locale=` (public; consent itself is given in `/auth/register`) | public | FR-104, NFR-13 |
 | GET/PUT | `/me` · `/me/profile` | learner | FR-102, FR-103, FR-802 |
 | POST | `/me/enrolments` `{batchCode}` | learner | FR-106 |
@@ -70,17 +70,24 @@ All writes from the mobile app accept `Idempotency-Key` or carry a `clientId`.
 | PUT | `/admin/writing/{id}/override` | FR-407 |
 | GET/PUT | `/admin/tutor-flags` | FR-608 |
 | CRUD | `/admin/users` (staff, roles) · GET `/admin/audit-log` | FR-908, FR-909 (super_admin) |
-| GET/PUT | `/admin/settings` · `/admin/feature-flags` · `/admin/app-versions` | FR-1101–1103 (super_admin) |
+| GET / PUT | `/admin/settings` · `/admin/settings/{key}` `{value}` · `/admin/feature-flags` · `/admin/feature-flags/{key}` `{enabled}` (read: super_admin, tomcom_admin; write: super_admin) | FR-1101, FR-1103 |
+| GET | `/app/config` (public): feature switches and learner limits | FR-1103 |
+| GET/PUT | `/admin/app-versions` (step 10) | FR-1102 |
 
-## Content studio (author, reviewer)
-| Method | Path | Req |
-|---|---|---|
-| CRUD | `/studio/levels` · `/studio/lessons` · `/studio/lessons/{id}/screens` · `/studio/vocab` · `/studio/questions` · `/studio/checkpoints` | FR-1001 |
-| POST | `/studio/media` (presigned upload) → transcode job | FR-1002 |
-| POST | `/studio/{entity}/{id}/transition` `{to: in_review/approved/draft, comment}` | FR-1003 |
-| POST | `/studio/levels/{id}/publish` → builds `pack_version` (reviewer) | FR-1004 |
-| GET | `/studio/{entity}/{id}/revisions` · POST `/…/rollback/{rev}` | FR-1005 |
-| POST | `/studio/ai/draft-questions` · `/studio/ai/translate` (always lands as draft) | FR-1006 |
+## Content studio (author, reviewer; super_admin read-only)
+| Method | Path | Role | Req |
+|---|---|---|---|
+| GET | `/studio/levels` · `/studio/lessons?level=&status=` · `/studio/lessons/{id}` | all content roles | FR-1001 |
+| POST | `/studio/lessons` `{level, title}` → new draft at the end of the level | author | FR-1001 |
+| PUT | `/studio/lessons/{id}` `{expectedRevision, title, description, estMinutes, tradeTags, screens[], questions[]}` → new revision (409 on stale revision) | author | FR-1001, FR-1005 |
+| POST | `/studio/lessons/{id}/transition` `{to: in_review/approved/draft, comment?}` | author submits/withdraws; reviewer approves/sends back | FR-1003 |
+| POST | `/studio/lessons/{id}/comments` | author, reviewer | FR-1003 |
+| GET / POST | `/studio/lessons/{id}/revisions` · `/studio/lessons/{id}/rollback {revision}` | read all / author | FR-1005 |
+| PUT | `/studio/levels/{level}/lesson-order {lessonIds}` | author | FR-1001 |
+| GET / POST / PUT | `/studio/vocab?q=` · `/studio/vocab/{id}` | read all / author | FR-1001, FR-306 |
+| POST | `/studio/levels/{level}/publish` → immutable pack version (step 3b) | reviewer | FR-1004 |
+| POST | `/studio/media` (step 3c) | author | FR-1002 |
+| POST | `/studio/ai/*` (with the tutor, step 7) | author | FR-1006 |
 
 ## Internal / ops
 `/health/live`, `/health/ready`, `/metrics` (Prometheus, not public).

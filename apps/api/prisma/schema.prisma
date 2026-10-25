@@ -49,6 +49,10 @@ model User {
   consents      Consent[]
   devices       Device[]
   refreshTokens RefreshToken[]
+  profile       LearnerProfile?
+  enrolments    Enrolment[]
+  trainerOf     BatchTrainer[]
+  credential    StaffCredential?
 
   @@map("users")
 }
@@ -118,4 +122,370 @@ model RefreshToken {
 
   @@index([familyId])
   @@map("refresh_tokens")
+}
+
+// ── Profile, reference data, batches (build step 2b) ─────────────────────
+
+/// Telangana districts. Reference data loaded by migration; names keyed by locale (ADR-007).
+model District {
+  code  String @id
+  name  Json
+  order Int
+
+  profiles LearnerProfile[]
+  batches  Batch[]
+
+  @@map("districts")
+}
+
+/// Trades TOMCOM places workers in. Placeholder list until TOMCOM confirms it [A].
+model Trade {
+  code  String @id
+  name  Json
+  order Int
+
+  profiles LearnerProfile[]
+  batches  Batch[]
+
+  @@map("trades")
+}
+
+enum GermanLevel {
+  none
+  A1
+  A2
+  B1
+}
+
+/// FR-103. Name lives on User; everything learner-specific lives here.
+model LearnerProfile {
+  userId            String      @id @map("user_id") @db.Uuid
+  districtCode      String      @map("district_code")
+  tradeCode         String      @map("trade_code")
+  targetJob         String?     @map("target_job")
+  selfDeclaredLevel GermanLevel @map("self_declared_level")
+  createdAt         DateTime    @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt         DateTime    @updatedAt @map("updated_at") @db.Timestamptz
+
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  district District @relation(fields: [districtCode], references: [code])
+  trade    Trade    @relation(fields: [tradeCode], references: [code])
+
+  @@map("learner_profiles")
+}
+
+enum BatchStatus {
+  active
+  closed
+}
+
+/// A TOMCOM training group (FR-106, FR-901). Learners join with the batch code.
+model Batch {
+  id           String      @id @default(uuid(7)) @db.Uuid
+  code         String      @unique
+  name         String
+  districtCode String?     @map("district_code")
+  tradeCode    String?     @map("trade_code")
+  startDate    DateTime?   @map("start_date") @db.Date
+  status       BatchStatus @default(active)
+  createdAt    DateTime    @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt    DateTime    @updatedAt @map("updated_at") @db.Timestamptz
+
+  district   District?      @relation(fields: [districtCode], references: [code])
+  trade      Trade?         @relation(fields: [tradeCode], references: [code])
+  trainers   BatchTrainer[]
+  enrolments Enrolment[]
+
+  @@map("batches")
+}
+
+/// Which trainers look after which batch (FR-908 scoping).
+model BatchTrainer {
+  batchId   String @map("batch_id") @db.Uuid
+  trainerId String @map("trainer_id") @db.Uuid
+
+  batch   Batch @relation(fields: [batchId], references: [id], onDelete: Cascade)
+  trainer User  @relation(fields: [trainerId], references: [id], onDelete: Cascade)
+
+  @@id([batchId, trainerId])
+  @@map("batch_trainers")
+}
+
+enum EnrolmentSource {
+  code
+  admin
+  bulk
+}
+
+/// A learner is in at most one batch at a time (partial unique index in the migration).
+model Enrolment {
+  id         String          @id @default(uuid(7)) @db.Uuid
+  learnerId  String          @map("learner_id") @db.Uuid
+  batchId    String          @map("batch_id") @db.Uuid
+  source     EnrolmentSource
+  enrolledAt DateTime        @default(now()) @map("enrolled_at") @db.Timestamptz
+  leftAt     DateTime?       @map("left_at") @db.Timestamptz
+
+  learner User  @relation(fields: [learnerId], references: [id], onDelete: Cascade)
+  batch   Batch @relation(fields: [batchId], references: [id])
+
+  @@index([batchId])
+  @@map("enrolments")
+}
+
+// ── Staff authentication and audit (build step 2c) ───────────────────────
+
+/// Password for staff (never learners). Second factor is an OTP to the staff phone (NFR-10).
+model StaffCredential {
+  userId            String    @id @map("user_id") @db.Uuid
+  passwordHash      String    @map("password_hash")
+  failedAttempts    Int       @default(0) @map("failed_attempts")
+  lockedUntil       DateTime? @map("locked_until") @db.Timestamptz
+  passwordChangedAt DateTime  @default(now()) @map("password_changed_at") @db.Timestamptz
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("staff_credentials")
+}
+
+/// FR-909, NFR-11. Append-only: a trigger in the migration rejects UPDATE and DELETE.
+/// `details` never holds request bodies or PII, only route parameters and outcomes.
+model AuditLog {
+  id         BigInt   @id @default(autoincrement())
+  at         DateTime @default(now()) @db.Timestamptz
+  actorId    String?  @map("actor_id") @db.Uuid
+  actorRole  String?  @map("actor_role")
+  action     String
+  entityType String?  @map("entity_type")
+  entityId   String?  @map("entity_id")
+  outcome    String
+  details    Json?
+  ipHash     String?  @map("ip_hash")
+
+  @@index([at])
+  @@index([actorId, at])
+  @@map("audit_log")
+}
+
+// ── Content (build step 3a) ──────────────────────────────────────────────
+// Authors edit lessons as a unit (lesson + screens + questions). Every save is a revision;
+// publishing (3b) snapshots approved lessons into an immutable pack per level (ADR-008).
+
+enum LevelCode {
+  A1
+  A2
+  B1
+}
+
+model Level {
+  id    String    @id @default(uuid(7)) @db.Uuid
+  code  LevelCode @unique
+  title Json // locale-keyed (ADR-007)
+  order Int
+
+  lessons Lesson[]
+  packs   PackVersion[]
+
+  @@map("levels")
+}
+
+enum ContentStatus {
+  draft
+  in_review
+  approved
+  published
+}
+
+enum ScreenType {
+  explain
+  vocab
+  dialogue
+  practice
+}
+
+enum QuestionType {
+  mcq
+  listen_choose
+  match_pairs
+  fill_gap
+  word_order
+}
+
+/// Stable id: progress and attempts point here, never at a revision (ADR-008).
+model Lesson {
+  id                String        @id @default(uuid(7)) @db.Uuid
+  levelId           String        @map("level_id") @db.Uuid
+  order             Int
+  title             Json
+  description       Json
+  estMinutes        Int           @map("est_minutes")
+  tradeTags         String[]      @map("trade_tags")
+  status            ContentStatus @default(draft)
+  /// Increments on every save; clients send it back to avoid lost updates.
+  revision          Int           @default(1)
+  /// Revision currently live in a published pack, if any.
+  publishedRevision Int?          @map("published_revision")
+  createdBy         String        @map("created_by") @db.Uuid
+  updatedBy         String        @map("updated_by") @db.Uuid
+  createdAt         DateTime      @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt         DateTime      @updatedAt @map("updated_at") @db.Timestamptz
+
+  level     Level            @relation(fields: [levelId], references: [id])
+  screens   Screen[]
+  questions Question[]
+  comments  ReviewComment[]
+  revisions LessonRevision[]
+
+  @@index([levelId, order])
+  @@map("lessons")
+}
+
+/// FR-301. `body` holds the type-specific fields validated by @tomcom/content-schema.
+model Screen {
+  id       String     @id @db.Uuid
+  lessonId String     @map("lesson_id") @db.Uuid
+  order    Int
+  type     ScreenType
+  body     Json
+
+  lesson Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  @@index([lessonId, order])
+  @@map("screens")
+}
+
+/// FR-401, FR-403: the lesson's question bank (15–20 per lesson planned).
+model Question {
+  id          String       @id @db.Uuid
+  lessonId    String       @map("lesson_id") @db.Uuid
+  type        QuestionType
+  prompt      Json
+  payload     Json
+  answer      Json
+  explanation Json
+  difficulty  Int
+
+  lesson Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  @@index([lessonId])
+  @@map("questions")
+}
+
+/// FR-302, FR-306. Reused across lessons; goes live when a level is next published.
+model VocabItem {
+  id        String   @id @default(uuid(7)) @db.Uuid
+  german    String
+  audioId   String?  @map("audio_id") @db.Uuid
+  article   String?
+  plural    String?
+  meaning   Json
+  imageId   String?  @map("image_id") @db.Uuid
+  tradeTags String[] @map("trade_tags")
+  createdBy String   @map("created_by") @db.Uuid
+  updatedBy String   @map("updated_by") @db.Uuid
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  @@index([german])
+  @@map("vocab_items")
+}
+
+/// FR-1003: reviewer and author discussion on a lesson revision.
+model ReviewComment {
+  id         String    @id @default(uuid(7)) @db.Uuid
+  lessonId   String    @map("lesson_id") @db.Uuid
+  revision   Int
+  authorId   String    @map("author_id") @db.Uuid
+  body       String
+  createdAt  DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  resolvedAt DateTime? @map("resolved_at") @db.Timestamptz
+
+  lesson Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  @@index([lessonId, createdAt])
+  @@map("review_comments")
+}
+
+/// FR-1005: full snapshot of every saved revision; rollback restores one as a new draft.
+model LessonRevision {
+  id        String        @id @default(uuid(7)) @db.Uuid
+  lessonId  String        @map("lesson_id") @db.Uuid
+  revision  Int
+  status    ContentStatus
+  snapshot  Json
+  createdBy String        @map("created_by") @db.Uuid
+  createdAt DateTime      @default(now()) @map("created_at") @db.Timestamptz
+
+  lesson Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  @@unique([lessonId, revision])
+  @@map("lesson_revisions")
+}
+
+// ── Media (build step 3c) ────────────────────────────────────────────────
+
+enum MediaType {
+  audio
+  image
+  video
+}
+
+/// FR-1002, NFR-04. Stored already compressed for mobile (Opus audio, WebP images).
+model MediaAsset {
+  id         String    @id @default(uuid(7)) @db.Uuid
+  type       MediaType
+  storageKey String    @unique @map("storage_key")
+  mime       String
+  bytes      Int
+  sha256     String
+  durationMs Int?      @map("duration_ms")
+  width      Int?
+  height     Int?
+  createdBy  String    @map("created_by") @db.Uuid
+  createdAt  DateTime  @default(now()) @map("created_at") @db.Timestamptz
+
+  @@map("media_assets")
+}
+
+// ── Lesson packs (build step 3b) ─────────────────────────────────────────
+
+/// FR-1004, FR-307, ADR-008: one immutable, versioned pack per level. Never edited after publish.
+model PackVersion {
+  id          String   @id @default(uuid(7)) @db.Uuid
+  levelId     String   @map("level_id") @db.Uuid
+  version     Int
+  zipKey      String   @map("zip_key")
+  manifestKey String   @map("manifest_key")
+  bytes       Int
+  sha256      String
+  lessonCount Int      @map("lesson_count")
+  publishedBy String   @map("published_by") @db.Uuid
+  publishedAt DateTime @default(now()) @map("published_at") @db.Timestamptz
+
+  level Level @relation(fields: [levelId], references: [id])
+
+  @@unique([levelId, version])
+  @@map("pack_versions")
+}
+
+// ── Platform settings and feature flags (build step 3d) ──────────────────
+
+/// FR-1101. Keys and allowed values are defined in code (src/settings/registry.ts); rows hold overrides.
+model Setting {
+  key       String   @id
+  value     Json
+  updatedBy String   @map("updated_by") @db.Uuid
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  @@map("settings")
+}
+
+/// FR-1103. Module switches; keys defined in code, rows hold overrides.
+model FeatureFlag {
+  key       String   @id
+  enabled   Boolean
+  updatedBy String   @map("updated_by") @db.Uuid
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  @@map("feature_flags")
 }

@@ -1,4 +1,4 @@
-# Local dev services only. S3-compatible storage is added in build step 3 (media).
+# Local dev services only.
 # Synthetic data only — never load real learner data here.
 name: tomcom-dev
 services:
@@ -23,5 +23,14 @@ services:
       test: ['CMD', 'redis-cli', 'ping']
       interval: 2s
       retries: 30
+  # S3-compatible object storage for media and lesson packs (dev only; production uses the cloud store).
+  s3:
+    image: rustfs/rustfs:1.0.3
+    environment:
+      RUSTFS_ACCESS_KEY: tomcom-dev
+      RUSTFS_SECRET_KEY: tomcom-dev-secret
+    ports: ['9000:9000']
+    volumes: [s3data:/data]
 volumes:
   pgdata:
+  s3data:

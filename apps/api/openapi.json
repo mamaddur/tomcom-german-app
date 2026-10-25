@@ -1,6 +1,237 @@
 {
   "openapi": "3.0.0",
   "paths": {
+    "/v1/admin/audit-log": {
+      "get": {
+        "operationId": "AuditController_list",
+        "parameters": [
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "maximum": 200,
+              "default": 50,
+              "type": "number"
+            }
+          },
+          {
+            "name": "beforeId",
+            "required": false,
+            "in": "query",
+            "description": "Return entries older than this id (pagination)",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "actorId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AuditEntryDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "admin"
+        ]
+      }
+    },
+    "/v1/admin/settings": {
+      "get": {
+        "operationId": "SettingsController_list",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SettingDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "admin"
+        ]
+      }
+    },
+    "/v1/admin/settings/{key}": {
+      "put": {
+        "operationId": "SettingsController_set",
+        "parameters": [
+          {
+            "name": "key",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetSettingDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SettingDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "admin"
+        ]
+      }
+    },
+    "/v1/admin/feature-flags": {
+      "get": {
+        "operationId": "SettingsController_flags",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/FeatureFlagDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "admin"
+        ]
+      }
+    },
+    "/v1/admin/feature-flags/{key}": {
+      "put": {
+        "operationId": "SettingsController_setFlag",
+        "parameters": [
+          {
+            "name": "key",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetFlagDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FeatureFlagDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "admin"
+        ]
+      }
+    },
+    "/v1/app/config": {
+      "get": {
+        "operationId": "SettingsController_appConfig",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AppConfigDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "admin"
+        ]
+      }
+    },
     "/v1/health/live": {
       "get": {
         "operationId": "HealthController_live",
@@ -234,6 +465,1102 @@
           "consent"
         ]
       }
+    },
+    "/v1/staff-auth/login": {
+      "post": {
+        "operationId": "StaffAuthController_login",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StaffLoginDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StaffChallengeDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "staff-auth"
+        ]
+      }
+    },
+    "/v1/staff-auth/verify": {
+      "post": {
+        "operationId": "StaffAuthController_verify",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StaffVerifyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "staff-auth"
+        ]
+      }
+    },
+    "/v1/reference/districts": {
+      "get": {
+        "operationId": "ReferenceController_districts",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ReferenceItemDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "reference"
+        ]
+      }
+    },
+    "/v1/reference/trades": {
+      "get": {
+        "operationId": "ReferenceController_trades",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ReferenceItemDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "reference"
+        ]
+      }
+    },
+    "/v1/me": {
+      "get": {
+        "operationId": "MeController_get",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MeDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "me"
+        ]
+      }
+    },
+    "/v1/me/locale": {
+      "put": {
+        "operationId": "MeController_setLocale",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateLocaleDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MeDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "me"
+        ]
+      }
+    },
+    "/v1/me/profile": {
+      "put": {
+        "operationId": "MeController_setProfile",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateProfileDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MeDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "me"
+        ]
+      }
+    },
+    "/v1/me/batch": {
+      "post": {
+        "operationId": "MeController_joinBatch",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/JoinBatchDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MeDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "me"
+        ]
+      }
+    },
+    "/v1/studio/levels": {
+      "get": {
+        "operationId": "StudioController_levels",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/LevelDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "studio"
+        ]
+      }
+    },
+    "/v1/studio/lessons": {
+      "get": {
+        "operationId": "StudioController_list",
+        "parameters": [
+          {
+            "name": "level",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "enum": [
+                "A1",
+                "A2",
+                "B1"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "enum": [
+                "draft",
+                "in_review",
+                "approved",
+                "published"
+              ],
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/LessonSummaryDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "studio"
+        ]
+      },
+      "post": {
+        "operationId": "StudioController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateLessonDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LessonDetailDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "studio"
+        ]
+      }
+    },
+    "/v1/studio/lessons/{id}": {
+      "get": {
+        "operationId": "StudioController_get",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LessonDetailDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "studio"
+        ]
+      },
+      "put": {
+        "operationId": "StudioController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateLessonDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LessonDetailDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "studio"
+        ]
+      }
+    },
+    "/v1/studio/lessons/{id}/transition": {
+      "post": {
+        "operationId": "StudioController_transition",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TransitionDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LessonDetailDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "studio"
+        ]
+      }
+    },
+    "/v1/studio/lessons/{id}/comments": {
+      "post": {
+        "operationId": "StudioController_comment",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CommentDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LessonDetailDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "studio"
+        ]
+      }
+    },
+    "/v1/studio/lessons/{id}/revisions": {
+      "get": {
+        "operationId": "StudioController_revisions",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/RevisionDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "studio"
+        ]
+      }
+    },
+    "/v1/studio/lessons/{id}/rollback": {
+      "post": {
+        "operationId": "StudioController_rollback",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RollbackDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LessonDetailDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "studio"
+        ]
+      }
+    },
+    "/v1/studio/levels/{level}/lesson-order": {
+      "put": {
+        "operationId": "StudioController_reorder",
+        "parameters": [
+          {
+            "name": "level",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LessonOrderDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/LessonSummaryDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "studio"
+        ]
+      }
+    },
+    "/v1/studio/vocab": {
+      "get": {
+        "operationId": "StudioController_searchVocab",
+        "parameters": [
+          {
+            "name": "q",
+            "required": false,
+            "in": "query",
+            "description": "Search the German word",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/VocabDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "studio"
+        ]
+      },
+      "post": {
+        "operationId": "StudioController_createVocab",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VocabInputDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VocabDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "studio"
+        ]
+      }
+    },
+    "/v1/studio/vocab/{id}": {
+      "get": {
+        "operationId": "StudioController_getVocab",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VocabDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "studio"
+        ]
+      },
+      "put": {
+        "operationId": "StudioController_updateVocab",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VocabInputDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VocabDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "studio"
+        ]
+      }
+    },
+    "/v1/studio/levels/{level}/publish": {
+      "post": {
+        "operationId": "PacksController_publish",
+        "parameters": [
+          {
+            "name": "level",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublishResultDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "packs"
+        ]
+      }
+    },
+    "/v1/studio/levels/{level}/packs": {
+      "get": {
+        "operationId": "PacksController_history",
+        "parameters": [
+          {
+            "name": "level",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PackDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "packs"
+        ]
+      }
+    },
+    "/v1/packs": {
+      "get": {
+        "operationId": "PacksController_latest",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PackDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "packs"
+        ]
+      }
+    },
+    "/v1/packs/{level}/{version}/download": {
+      "get": {
+        "operationId": "PacksController_download",
+        "parameters": [
+          {
+            "name": "level",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "version",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "packs"
+        ]
+      }
+    },
+    "/v1/packs/{level}/{version}/manifest": {
+      "get": {
+        "operationId": "PacksController_manifest",
+        "parameters": [
+          {
+            "name": "level",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "version",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "packs"
+        ]
+      }
+    },
+    "/v1/studio/media": {
+      "post": {
+        "operationId": "MediaController_upload",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                },
+                "required": [
+                  "file"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MediaDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "studio"
+        ]
+      }
+    },
+    "/v1/studio/media/{id}": {
+      "get": {
+        "operationId": "MediaController_get",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MediaDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "studio"
+        ]
+      }
+    },
+    "/v1/studio/media/{id}/content": {
+      "get": {
+        "operationId": "MediaController_content",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "studio"
+        ]
+      }
     }
   },
   "info": {
@@ -253,6 +1580,146 @@
       }
     },
     "schemas": {
+      "AuditEntryDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "actorId": {
+            "type": "string",
+            "nullable": true
+          },
+          "actorRole": {
+            "type": "string",
+            "nullable": true
+          },
+          "action": {
+            "type": "string"
+          },
+          "entityType": {
+            "type": "string",
+            "nullable": true
+          },
+          "entityId": {
+            "type": "string",
+            "nullable": true
+          },
+          "outcome": {
+            "type": "string"
+          },
+          "details": {
+            "type": "object",
+            "nullable": true
+          }
+        },
+        "required": [
+          "id",
+          "at",
+          "action",
+          "outcome"
+        ]
+      },
+      "SettingDto": {
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string",
+            "example": "quiz.passMark"
+          },
+          "value": {
+            "type": "object",
+            "example": 0.8
+          },
+          "default": {
+            "type": "object",
+            "example": 0.8
+          },
+          "description": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "key",
+          "value",
+          "default",
+          "description"
+        ]
+      },
+      "SetSettingDto": {
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": "object",
+            "example": 0.8,
+            "description": "Must be within the range defined for the setting"
+          }
+        },
+        "required": [
+          "value"
+        ]
+      },
+      "FeatureFlagDto": {
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string",
+            "example": "module.tutor"
+          },
+          "enabled": {
+            "type": "boolean"
+          },
+          "default": {
+            "type": "boolean"
+          },
+          "description": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "key",
+          "enabled",
+          "default",
+          "description"
+        ]
+      },
+      "SetFlagDto": {
+        "type": "object",
+        "properties": {
+          "enabled": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "enabled"
+        ]
+      },
+      "AppConfigDto": {
+        "type": "object",
+        "properties": {
+          "features": {
+            "type": "object",
+            "example": {
+              "module.tutor": true
+            },
+            "description": "Which optional modules the app should show"
+          },
+          "limits": {
+            "type": "object",
+            "example": {
+              "tutor.dailyMessageLimit": 30
+            }
+          }
+        },
+        "required": [
+          "features",
+          "limits"
+        ]
+      },
       "HealthDto": {
         "type": "object",
         "properties": {
@@ -634,6 +2101,987 @@
           "title",
           "text",
           "purposes"
+        ]
+      },
+      "StaffLoginDto": {
+        "type": "object",
+        "properties": {
+          "phone": {
+            "type": "string",
+            "example": "+915599990001"
+          },
+          "password": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          }
+        },
+        "required": [
+          "phone",
+          "password"
+        ]
+      },
+      "StaffChallengeDto": {
+        "type": "object",
+        "properties": {
+          "challengeToken": {
+            "type": "string",
+            "description": "Pass to POST /staff-auth/verify with the OTP"
+          },
+          "expiresInSeconds": {
+            "type": "number"
+          },
+          "resendAfterSeconds": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "challengeToken",
+          "expiresInSeconds",
+          "resendAfterSeconds"
+        ]
+      },
+      "StaffVerifyDto": {
+        "type": "object",
+        "properties": {
+          "challengeToken": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string",
+            "example": "123456"
+          },
+          "device": {
+            "$ref": "#/components/schemas/DeviceDto"
+          }
+        },
+        "required": [
+          "challengeToken",
+          "code",
+          "device"
+        ]
+      },
+      "ReferenceItemDto": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "example": "warangal"
+          },
+          "name": {
+            "type": "object",
+            "example": {
+              "te": "వరంగల్",
+              "en": "Warangal"
+            },
+            "description": "Name keyed by locale"
+          }
+        },
+        "required": [
+          "code",
+          "name"
+        ]
+      },
+      "ProfileDto": {
+        "type": "object",
+        "properties": {
+          "districtCode": {
+            "type": "string"
+          },
+          "tradeCode": {
+            "type": "string"
+          },
+          "targetJob": {
+            "type": "string",
+            "nullable": true
+          },
+          "selfDeclaredLevel": {
+            "type": "string",
+            "enum": [
+              "none",
+              "A1",
+              "A2",
+              "B1"
+            ]
+          }
+        },
+        "required": [
+          "districtCode",
+          "tradeCode",
+          "selfDeclaredLevel"
+        ]
+      },
+      "BatchSummaryDto": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "enrolledAt": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "required": [
+          "code",
+          "name",
+          "enrolledAt"
+        ]
+      },
+      "MeOnboardingDto": {
+        "type": "object",
+        "properties": {
+          "profileComplete": {
+            "type": "boolean"
+          },
+          "batchJoined": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "profileComplete",
+          "batchJoined"
+        ]
+      },
+      "MeDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string"
+          },
+          "uiLocale": {
+            "type": "string",
+            "enum": [
+              "te",
+              "en"
+            ]
+          },
+          "firstName": {
+            "type": "string",
+            "nullable": true
+          },
+          "lastName": {
+            "type": "string",
+            "nullable": true
+          },
+          "profile": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ProfileDto"
+              }
+            ]
+          },
+          "batch": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/BatchSummaryDto"
+              }
+            ]
+          },
+          "onboarding": {
+            "$ref": "#/components/schemas/MeOnboardingDto"
+          }
+        },
+        "required": [
+          "id",
+          "role",
+          "uiLocale",
+          "onboarding"
+        ]
+      },
+      "UpdateLocaleDto": {
+        "type": "object",
+        "properties": {
+          "locale": {
+            "type": "string",
+            "enum": [
+              "te",
+              "en"
+            ]
+          }
+        },
+        "required": [
+          "locale"
+        ]
+      },
+      "UpdateProfileDto": {
+        "type": "object",
+        "properties": {
+          "firstName": {
+            "type": "string",
+            "example": "Ravi",
+            "maxLength": 50
+          },
+          "lastName": {
+            "type": "string",
+            "example": "Kumar",
+            "maxLength": 50
+          },
+          "districtCode": {
+            "type": "string",
+            "example": "warangal",
+            "description": "Code from GET /reference/districts"
+          },
+          "tradeCode": {
+            "type": "string",
+            "example": "electrician",
+            "description": "Code from GET /reference/trades"
+          },
+          "targetJob": {
+            "type": "string",
+            "example": "Electrician in Munich",
+            "maxLength": 80
+          },
+          "selfDeclaredLevel": {
+            "type": "string",
+            "enum": [
+              "none",
+              "A1",
+              "A2",
+              "B1"
+            ],
+            "description": "Self-declared current German level"
+          }
+        },
+        "required": [
+          "firstName",
+          "districtCode",
+          "tradeCode",
+          "selfDeclaredLevel"
+        ]
+      },
+      "JoinBatchDto": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "example": "TST-001",
+            "maxLength": 20
+          }
+        },
+        "required": [
+          "code"
+        ]
+      },
+      "LevelDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string",
+            "enum": [
+              "A1",
+              "A2",
+              "B1"
+            ]
+          },
+          "title": {
+            "type": "object",
+            "example": {
+              "te": "A1 – ప్రారంభ స్థాయి",
+              "en": "A1 – Beginner"
+            }
+          },
+          "lessonCount": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "id",
+          "code",
+          "title",
+          "lessonCount"
+        ]
+      },
+      "LessonSummaryDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "level": {
+            "type": "string",
+            "enum": [
+              "A1",
+              "A2",
+              "B1"
+            ]
+          },
+          "order": {
+            "type": "number"
+          },
+          "title": {
+            "type": "object",
+            "example": {
+              "te": "పలకరింపులు",
+              "en": "Greetings"
+            }
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "draft",
+              "in_review",
+              "approved",
+              "published"
+            ]
+          },
+          "revision": {
+            "type": "number"
+          },
+          "publishedRevision": {
+            "type": "number",
+            "nullable": true
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "level",
+          "order",
+          "title",
+          "status",
+          "revision",
+          "updatedAt"
+        ]
+      },
+      "CreateLessonDto": {
+        "type": "object",
+        "properties": {
+          "level": {
+            "type": "string",
+            "enum": [
+              "A1",
+              "A2",
+              "B1"
+            ]
+          },
+          "title": {
+            "type": "object",
+            "example": {
+              "te": "పలకరింపులు",
+              "en": "Greetings"
+            }
+          }
+        },
+        "required": [
+          "level",
+          "title"
+        ]
+      },
+      "ScreenDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Stable id chosen by the studio (UUID); keep it across saves"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "explain",
+              "vocab",
+              "dialogue",
+              "practice"
+            ]
+          },
+          "body": {
+            "type": "object",
+            "description": "Type-specific fields as in the lesson-pack schema (body, vocabIds, lines, prompt/target)"
+          },
+          "order": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "id",
+          "type",
+          "body",
+          "order"
+        ]
+      },
+      "QuestionInputDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Stable id (UUID). Never reuse an id for a different question (ADR-008)"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "mcq",
+              "listen_choose",
+              "match_pairs",
+              "fill_gap",
+              "word_order"
+            ]
+          },
+          "prompt": {
+            "type": "object",
+            "example": {
+              "te": "పలకరింపులు",
+              "en": "Greetings"
+            }
+          },
+          "payload": {
+            "type": "object",
+            "example": {
+              "options": [
+                "Hallo",
+                "Tschüss"
+              ]
+            }
+          },
+          "answer": {
+            "type": "object",
+            "example": 0,
+            "description": "Shape depends on the question type"
+          },
+          "explanation": {
+            "type": "object",
+            "example": {
+              "te": "పలకరింపులు",
+              "en": "Greetings"
+            }
+          },
+          "difficulty": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 3
+          }
+        },
+        "required": [
+          "id",
+          "type",
+          "prompt",
+          "payload",
+          "answer",
+          "explanation",
+          "difficulty"
+        ]
+      },
+      "ReviewCommentDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "revision": {
+            "type": "number"
+          },
+          "authorId": {
+            "type": "string"
+          },
+          "body": {
+            "type": "string"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "revision",
+          "authorId",
+          "body",
+          "createdAt"
+        ]
+      },
+      "LessonDetailDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "level": {
+            "type": "string",
+            "enum": [
+              "A1",
+              "A2",
+              "B1"
+            ]
+          },
+          "order": {
+            "type": "number"
+          },
+          "title": {
+            "type": "object",
+            "example": {
+              "te": "పలకరింపులు",
+              "en": "Greetings"
+            }
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "draft",
+              "in_review",
+              "approved",
+              "published"
+            ]
+          },
+          "revision": {
+            "type": "number"
+          },
+          "publishedRevision": {
+            "type": "number",
+            "nullable": true
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "description": {
+            "type": "object",
+            "example": {
+              "te": "పలకరింపులు",
+              "en": "Greetings"
+            }
+          },
+          "estMinutes": {
+            "type": "number"
+          },
+          "tradeTags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "screens": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ScreenDto"
+            }
+          },
+          "questions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/QuestionInputDto"
+            }
+          },
+          "comments": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ReviewCommentDto"
+            }
+          },
+          "updatedBy": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "level",
+          "order",
+          "title",
+          "status",
+          "revision",
+          "updatedAt",
+          "description",
+          "estMinutes",
+          "tradeTags",
+          "screens",
+          "questions",
+          "comments",
+          "updatedBy"
+        ]
+      },
+      "ScreenInputDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Stable id chosen by the studio (UUID); keep it across saves"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "explain",
+              "vocab",
+              "dialogue",
+              "practice"
+            ]
+          },
+          "body": {
+            "type": "object",
+            "description": "Type-specific fields as in the lesson-pack schema (body, vocabIds, lines, prompt/target)"
+          }
+        },
+        "required": [
+          "id",
+          "type",
+          "body"
+        ]
+      },
+      "UpdateLessonDto": {
+        "type": "object",
+        "properties": {
+          "expectedRevision": {
+            "type": "number",
+            "description": "The revision this edit started from; a newer one on the server gives 409"
+          },
+          "title": {
+            "type": "object",
+            "example": {
+              "te": "పలకరింపులు",
+              "en": "Greetings"
+            }
+          },
+          "description": {
+            "type": "object",
+            "example": {
+              "te": "పలకరింపులు",
+              "en": "Greetings"
+            }
+          },
+          "estMinutes": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 120
+          },
+          "tradeTags": {
+            "example": [
+              "construction"
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "screens": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ScreenInputDto"
+            }
+          },
+          "questions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/QuestionInputDto"
+            }
+          }
+        },
+        "required": [
+          "expectedRevision",
+          "title",
+          "description",
+          "estMinutes",
+          "tradeTags",
+          "screens",
+          "questions"
+        ]
+      },
+      "TransitionDto": {
+        "type": "object",
+        "properties": {
+          "to": {
+            "type": "string",
+            "enum": [
+              "in_review",
+              "approved",
+              "draft"
+            ]
+          },
+          "comment": {
+            "type": "string",
+            "description": "Required when a reviewer sends a lesson back",
+            "maxLength": 2000
+          }
+        },
+        "required": [
+          "to"
+        ]
+      },
+      "CommentDto": {
+        "type": "object",
+        "properties": {
+          "body": {
+            "type": "string",
+            "maxLength": 2000
+          }
+        },
+        "required": [
+          "body"
+        ]
+      },
+      "RevisionDto": {
+        "type": "object",
+        "properties": {
+          "revision": {
+            "type": "number"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "draft",
+              "in_review",
+              "approved",
+              "published"
+            ]
+          },
+          "createdBy": {
+            "type": "string"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "required": [
+          "revision",
+          "status",
+          "createdBy",
+          "createdAt"
+        ]
+      },
+      "RollbackDto": {
+        "type": "object",
+        "properties": {
+          "revision": {
+            "type": "number",
+            "description": "Revision to restore; it becomes a new draft revision"
+          }
+        },
+        "required": [
+          "revision"
+        ]
+      },
+      "LessonOrderDto": {
+        "type": "object",
+        "properties": {
+          "lessonIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "lessonIds"
+        ]
+      },
+      "VocabDto": {
+        "type": "object",
+        "properties": {
+          "german": {
+            "type": "string",
+            "example": "Hallo"
+          },
+          "audioId": {
+            "type": "string",
+            "description": "Media id of the native-speaker recording (FR-302)"
+          },
+          "article": {
+            "type": "string",
+            "enum": [
+              "der",
+              "die",
+              "das"
+            ]
+          },
+          "plural": {
+            "type": "string"
+          },
+          "meaning": {
+            "type": "object",
+            "example": {
+              "te": "హలో",
+              "en": "hello"
+            }
+          },
+          "imageId": {
+            "type": "string"
+          },
+          "tradeTags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "id": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "required": [
+          "german",
+          "meaning",
+          "tradeTags",
+          "id",
+          "updatedAt"
+        ]
+      },
+      "VocabInputDto": {
+        "type": "object",
+        "properties": {
+          "german": {
+            "type": "string",
+            "example": "Hallo"
+          },
+          "audioId": {
+            "type": "string",
+            "description": "Media id of the native-speaker recording (FR-302)"
+          },
+          "article": {
+            "type": "string",
+            "enum": [
+              "der",
+              "die",
+              "das"
+            ]
+          },
+          "plural": {
+            "type": "string"
+          },
+          "meaning": {
+            "type": "object",
+            "example": {
+              "te": "హలో",
+              "en": "hello"
+            }
+          },
+          "imageId": {
+            "type": "string"
+          },
+          "tradeTags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "german",
+          "meaning",
+          "tradeTags"
+        ]
+      },
+      "PackDto": {
+        "type": "object",
+        "properties": {
+          "level": {
+            "type": "string",
+            "enum": [
+              "A1",
+              "A2",
+              "B1"
+            ]
+          },
+          "version": {
+            "type": "number"
+          },
+          "bytes": {
+            "type": "number",
+            "description": "Size of the zip download"
+          },
+          "sha256": {
+            "type": "string",
+            "description": "SHA-256 of the zip, to verify the download"
+          },
+          "lessonCount": {
+            "type": "number"
+          },
+          "publishedAt": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "required": [
+          "level",
+          "version",
+          "bytes",
+          "sha256",
+          "lessonCount",
+          "publishedAt"
+        ]
+      },
+      "PublishResultDto": {
+        "type": "object",
+        "properties": {
+          "pack": {
+            "$ref": "#/components/schemas/PackDto"
+          },
+          "skippedLessonIds": {
+            "description": "Lessons left out because they were never approved",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "pack",
+          "skippedLessonIds"
+        ]
+      },
+      "MediaDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "audio",
+              "image",
+              "video"
+            ]
+          },
+          "mime": {
+            "type": "string",
+            "example": "audio/ogg"
+          },
+          "bytes": {
+            "type": "number"
+          },
+          "sha256": {
+            "type": "string"
+          },
+          "durationMs": {
+            "type": "number",
+            "nullable": true
+          },
+          "width": {
+            "type": "number",
+            "nullable": true
+          },
+          "height": {
+            "type": "number",
+            "nullable": true
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "type",
+          "mime",
+          "bytes",
+          "sha256",
+          "createdAt"
         ]
       }
     }

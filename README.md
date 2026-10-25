@@ -20,6 +20,11 @@ pnpm --filter @tomcom/web dev       # http://localhost:3001/te
 scripts/verify.sh                   # everything CI checks
 ```
 
+Dev sign-in uses synthetic numbers only, with OTP `123456` (no SMS is sent):
+- **Learner:** any `+9155…` number in the app; batch codes `TST-001` … `TST-008`
+- **Staff:** super admin `+915599990001`, TOMCOM admin `+915599990002`; password is `DEV_STAFF_PASSWORD` in `apps/api/.env.local`
+- **First real super admin:** `STAFF_PASSWORD='…' pnpm --filter @tomcom/api staff:create --role super_admin --phone … --first …`
+
 | Path | What |
 |---|---|
 | `apps/api` | NestJS API (modular monolith) |

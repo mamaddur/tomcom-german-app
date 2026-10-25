@@ -39,6 +39,8 @@ export class AccountService {
 
   async signIn(phone: VerifiedPhone, device: DeviceDto): Promise<SignInResult> {
     const user = await this.prisma.db.user.findUnique({ where: { phoneHmac: phone.phoneHmac } });
+    // Staff must use password + OTP (POST /staff-auth/login); OTP alone is one factor.
+    if (user && user.role !== 'learner') throw new ApiError(403, 'use_staff_login');
     if (user && user.status === 'active') {
       const deviceId = await this.upsertDevice(user.id, device);
       await this.prisma.db.user.update({

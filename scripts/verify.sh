@@ -23,6 +23,7 @@ step "Build";                     pnpm -s build
 
 if [ "$FAST" != "--fast" ]; then
   step "API integration tests";   pnpm -s --filter @tomcom/api test:int
+  step "Web end-to-end (browser)"; scripts/e2e-web.sh
   if command -v flutter >/dev/null || [ -x /opt/flutter/bin/flutter ]; then
     export PATH="/opt/flutter/bin:$PATH"
     step "Flutter analyze + test"

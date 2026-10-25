@@ -27,7 +27,6 @@ apps/
   api/             NestJS modular monolith        (has its own CLAUDE.md)
 packages/
   api-client-ts/   generated from OpenAPI (web)
-  api-client-dart/ generated from OpenAPI (mobile)
   content-schema/  JSON Schema for lesson packs (shared by api, studio, mobile)
 infra/             Terraform — added once hosting is decided (ADR-011, ADR-014)
 scripts/           dev-services.sh, verify.sh, install-tools.sh
@@ -72,7 +71,7 @@ CI green (lint, types, tests, SAST, dependency scan, secret scan), acceptance cr
 
 ## Commands
 
-Requirements: Node 22, pnpm 10, Docker, Flutter 3.47.8 (`/opt/flutter/bin` on the build machine).
+Requirements: Node 22, pnpm 10, Docker, ffmpeg (media conversion), Flutter 3.47.8 (`/opt/flutter/bin` on the build machine).
 
 | Task | Command |
 |---|---|
@@ -82,6 +81,7 @@ Requirements: Node 22, pnpm 10, Docker, Flutter 3.47.8 (`/opt/flutter/bin` on th
 | Lint / types / unit tests / build, all JS packages | `pnpm lint` / `pnpm typecheck` / `pnpm test` / `pnpm build` |
 | Synthetic data | `pnpm --filter @tomcom/seed generate --learners 200` |
 | Stop a background dev server | `scripts/stop-port.sh 3000 3001` |
+| Browser tests of the admin portal | `scripts/e2e-web.sh` |
 
 Each app's own CLAUDE.md lists its `dev`, `test`, `lint` and `build` commands.
 

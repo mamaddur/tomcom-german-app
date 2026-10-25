@@ -56,6 +56,9 @@ A **worker** process runs from the same codebase and image and consumes BullMQ q
 4. Unlock rules (pass mark, default 80%, FR-402) ship in the pack's settings block. The app unlocks the next lesson at once, offline too (story 2), and the server confirms on sync.
 5. A new pack version only adds or changes content. Retired lessons keep their IDs and stay visible as "completed". A question is never re-used with a different meaning under the same ID.
 
+### 3.1a Publishing (FR-1004, implemented in step 3b)
+A reviewer publishes a level. Per lesson: **approved** → current content (now published); **published** → current; **edited after publishing** → the last published revision from history (work in progress never reaches learners); **never approved** → left out. The pack is validated with `@tomcom/content-schema` (te + en everywhere, audio for every German phrase, media limits) before anything is stored. It is stored as `packs/{level}/v{n}.zip` plus `manifest.json` and never changed afterwards.
+
 ### 3.2 AI tutor (FR-601–608, NFR-15, NFR-22)
 1. The app sends `POST /v1/tutor/messages`, either as text or as audio that first goes through STT on the server.
 2. The orchestrator checks the daily limit and the monthly budget in Redis. If the learner is over the limit, it returns `429` with `resumesAt` (story 4).
@@ -83,7 +86,8 @@ Story 1 needs both "after the OTP the learner reaches language selection" and "c
 - TLS 1.2+ everywhere. Encryption at rest is on for RDS, S3 and ElastiCache. Secrets live in AWS Secrets Manager.
 - Phone numbers are stored encrypted at the application level (KMS envelope), with an HMAC column for lookup. Names and districts rely on DB-level encryption.
 - RBAC is enforced in a guard on every route. Trainers are row-scoped to their batches by the query layer, not by the UI (FR-908).
-- Every admin, trainer and studio mutation passes through an audit interceptor that writes to an append-only `audit_log` (FR-909).
+- Every admin, trainer and studio mutation passes through an audit interceptor that writes to an append-only `audit_log` (FR-909). A database trigger rejects UPDATE, DELETE and TRUNCATE on it. Entries hold route, parameters and outcome, never request bodies.
+- Staff can't sign in with the learner OTP flow (OTP alone is one factor); they use `/staff-auth` (password + OTP).
 - OTP rate limits apply per phone, device and IP. OTPs are 6 digits, expire in 5 minutes, and allow at most 5 tries.
 - DPDP: a versioned consent notice in Telugu and English, with consent recorded before any profile data is saved (story 1). Learners can export their data and request erasure (FR-804). A named grievance officer is shown in the app. Breach runbook.
 - CI runs CodeQL/Semgrep, OSV/Dependabot and gitleaks. The mobile app follows the MASVS checklist (certificate pinning optional, no secrets in the app bundle).

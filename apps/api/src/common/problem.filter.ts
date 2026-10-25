@@ -56,6 +56,10 @@ function defaultCode(status: number): string {
       return 'not_found';
     case 409:
       return 'conflict';
+    case 413:
+      return 'file_too_large';
+    case 415:
+      return 'unsupported_media';
     case 429:
       return 'rate_limited';
     case 503:

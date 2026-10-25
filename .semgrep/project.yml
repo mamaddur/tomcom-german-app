@@ -12,10 +12,18 @@ rules:
     languages: [typescript]
     severity: ERROR
     message: Request bodies and headers can contain PII (phone, OTP, names). Log IDs, not payloads (NFR-09).
-    pattern-either:
-      - pattern: $LOG.$METHOD(..., $REQ.body, ...)
-      - pattern: $LOG.$METHOD(..., $REQ.headers, ...)
-      - pattern: '$LOG.$METHOD(..., {..., body: $REQ.body, ...}, ...)'
+    patterns:
+      - pattern-either:
+          - pattern: $LOG.$METHOD(..., $REQ.body, ...)
+          - pattern: $LOG.$METHOD(..., $REQ.headers, ...)
+          - pattern: '$LOG.$METHOD(..., {..., body: $REQ.body, ...}, ...)'
+      # Only logger calls (logger.info, this.logger.warn, console.log …), not e.g. JSON.stringify(x.body).
+      - metavariable-regex:
+          metavariable: $LOG
+          regex: (?i)(.*\.)?(log|logger|console)$
+      - metavariable-regex:
+          metavariable: $METHOD
+          regex: ^(log|info|warn|error|debug|trace|fatal|verbose)$
 
   - id: vendor-sdk-only-in-adapters
     languages: [typescript]
