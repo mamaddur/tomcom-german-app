@@ -384,7 +384,6 @@ function GermanInput({
   onChange: (v: German) => void;
   t: T;
 }) {
-  const [state, setState] = useState<'idle' | 'uploading' | string>('idle');
   const id = `german-${useId()}`;
   return (
     <div className="german">
@@ -395,33 +394,49 @@ function GermanInput({
         value={value.text}
         onChange={(e) => onChange({ ...value, text: e.target.value })}
       />
-      <div className="row">
-        <label className="file">
-          {state === 'uploading' ? t('editor.uploading') : t('editor.upload')}
-          <input
-            type="file"
-            accept="audio/*"
-            onChange={async (e) => {
-              const file = e.target.files?.[0];
-              if (!file) return;
-              setState('uploading');
-              const form = new FormData();
-              form.append('file', file);
-              const r = await uploadMedia(form);
-              if (r.ok) {
-                onChange({ ...value, audio: r.data.id });
-                setState('idle');
-              } else setState(errorText(t, r.code));
-            }}
-          />
-        </label>
-        {value.audio ? (
-          <audio controls src={`/api/media/${value.audio}`} aria-label={t('editor.audioReady')} />
-        ) : (
-          <small>{t('editor.noAudio')}</small>
-        )}
-        {state !== 'idle' && state !== 'uploading' && <small className="error">{state}</small>}
-      </div>
+      <AudioUpload audio={value.audio} onChange={(audio) => onChange({ ...value, audio })} t={t} />
+    </div>
+  );
+}
+
+/** Uploads a recording (converted on the server, FR-1002) and plays it back. */
+function AudioUpload({
+  audio,
+  onChange,
+  t,
+}: {
+  audio: string | undefined;
+  onChange: (id: string) => void;
+  t: T;
+}) {
+  const [state, setState] = useState<'idle' | 'uploading' | string>('idle');
+  return (
+    <div className="row">
+      <label className="file">
+        {state === 'uploading' ? t('editor.uploading') : t('editor.upload')}
+        <input
+          type="file"
+          accept="audio/*"
+          onChange={async (e) => {
+            const file = e.target.files?.[0];
+            if (!file) return;
+            setState('uploading');
+            const form = new FormData();
+            form.append('file', file);
+            const r = await uploadMedia(form);
+            if (r.ok) {
+              onChange(r.data.id);
+              setState('idle');
+            } else setState(errorText(t, r.code));
+          }}
+        />
+      </label>
+      {audio ? (
+        <audio controls src={`/api/media/${audio}`} aria-label={t('editor.audioReady')} />
+      ) : (
+        <small>{t('editor.noAudio')}</small>
+      )}
+      {state !== 'idle' && state !== 'uploading' && <small className="error">{state}</small>}
     </div>
   );
 }
@@ -585,82 +600,128 @@ function QuestionFields({
       </label>
     </>
   );
-  if (q.type === 'mcq') {
-    const options = (q.payload.options as string[]) ?? [];
-    return (
-      <>
-        {common}
-        <label>
-          {t('editor.options')}
-          <textarea
-            rows={4}
-            value={options.join('\n')}
-            onChange={(e) =>
-              onChange({ ...q, payload: { ...q.payload, options: e.target.value.split('\n') } })
-            }
-          />
-        </label>
-        <label>
-          {t('editor.correct')}
-          <input
-            type="number"
-            min={1}
-            max={Math.max(options.length, 1)}
-            value={Number(q.answer ?? 0) + 1}
-            onChange={(e) => onChange({ ...q, answer: Number(e.target.value) - 1 })}
-          />
-        </label>
-      </>
-    );
-  }
-  return (
+  const payload = q.payload as {
+    options?: string[];
+    audio?: string;
+    text?: string;
+    left?: string[];
+    right?: string[];
+    words?: string[];
+  };
+  const set = (patch: Partial<typeof payload>, answer: unknown = q.answer) =>
+    onChange({ ...q, payload: { ...payload, ...patch }, answer });
+  const lines = (v: string) => v.split('\n');
+  // Answers are stored as indices (content-schema); authors pick by number or write in order.
+  const choice = (
     <>
-      {common}
-      <JsonField
-        label={t('editor.payloadJson')}
-        value={q.payload}
-        onChange={(payload) => onChange({ ...q, payload: payload as Record<string, unknown> })}
-      />
-      <JsonField
-        label={t('editor.answerJson')}
-        value={q.answer}
-        onChange={(answer) => onChange({ ...q, answer })}
-      />
+      <label>
+        {t('editor.options')}
+        <textarea
+          rows={4}
+          value={(payload.options ?? []).join('\n')}
+          onChange={(e) => set({ options: lines(e.target.value) })}
+        />
+      </label>
+      <label>
+        {t('editor.correct')}
+        <input
+          type="number"
+          min={1}
+          max={Math.max(payload.options?.length ?? 0, 1)}
+          value={Number(q.answer ?? 0) + 1}
+          onChange={(e) => set({}, Number(e.target.value) - 1)}
+        />
+      </label>
     </>
   );
-}
-
-function JsonField({
-  label,
-  value,
-  onChange,
-}: {
-  label: string;
-  value: unknown;
-  onChange: (v: unknown) => void;
-}) {
-  const [text, setText] = useState(() => JSON.stringify(value ?? null, null, 2));
-  const [valid, setValid] = useState(true);
-  return (
-    <label>
-      {label}
-      <textarea
-        rows={4}
-        className={valid ? '' : 'invalid'}
-        aria-invalid={!valid}
-        value={text}
-        onChange={(e) => {
-          setText(e.target.value);
-          try {
-            onChange(JSON.parse(e.target.value));
-            setValid(true);
-          } catch {
-            setValid(false);
-          }
-        }}
-      />
-    </label>
-  );
+  const identity = (n: number) => Array.from({ length: n }, (_, i) => i);
+  switch (q.type) {
+    case 'mcq':
+      return (
+        <>
+          {common}
+          {choice}
+        </>
+      );
+    case 'listen_choose':
+      return (
+        <>
+          {common}
+          <span>{t('editor.listenAudio')}</span>
+          <AudioUpload audio={payload.audio} onChange={(audio) => set({ audio })} t={t} />
+          {choice}
+        </>
+      );
+    case 'fill_gap':
+      return (
+        <>
+          {common}
+          <label>
+            {t('editor.gapSentence')}
+            <input
+              lang="de"
+              value={payload.text ?? ''}
+              onChange={(e) => set({ text: e.target.value })}
+            />
+          </label>
+          <span>{t('editor.sentenceAudio')}</span>
+          <AudioUpload audio={payload.audio} onChange={(audio) => set({ audio })} t={t} />
+          {choice}
+        </>
+      );
+    case 'match_pairs': {
+      const left = payload.left ?? [];
+      const right = payload.right ?? [];
+      return (
+        <>
+          {common}
+          <label>
+            {t('editor.pairs')}
+            <textarea
+              rows={5}
+              lang="de"
+              value={left.map((l, i) => `${l} = ${right[i] ?? ''}`).join('\n')}
+              onChange={(e) => {
+                const rows = lines(e.target.value).map((row) => {
+                  const at = row.indexOf('=');
+                  return at < 0
+                    ? [row.trim(), '']
+                    : [row.slice(0, at).trim(), row.slice(at + 1).trim()];
+                });
+                // Written in matching order; the app shuffles the right-hand side.
+                set(
+                  { left: rows.map((r) => r[0]!), right: rows.map((r) => r[1]!) },
+                  identity(rows.length),
+                );
+              }}
+            />
+          </label>
+        </>
+      );
+    }
+    case 'word_order': {
+      const words = payload.words ?? [];
+      return (
+        <>
+          {common}
+          <label>
+            {t('editor.sentence')}
+            <input
+              lang="de"
+              value={words.join(' ')}
+              onChange={(e) => {
+                const next = e.target.value.split(' ');
+                // Written in the correct order; the app shuffles the words.
+                set({ words: next }, identity(next.length));
+              }}
+            />
+          </label>
+          <span>{t('editor.sentenceAudio')}</span>
+          <AudioUpload audio={payload.audio} onChange={(audio) => set({ audio })} t={t} />
+        </>
+      );
+    }
+  }
 }
 
 function toDraft(l: LessonDetail) {
@@ -693,8 +754,14 @@ function newQuestion(type: Question['type']): Question {
     id: crypto.randomUUID(),
     type,
     prompt: {},
-    payload: type === 'mcq' ? { options: ['', '', ''] } : {},
-    answer: type === 'mcq' ? 0 : null,
+    payload: {
+      mcq: { options: ['', '', ''] },
+      listen_choose: { options: ['', '', ''] },
+      fill_gap: { text: '', options: ['', '', ''] },
+      match_pairs: { left: [], right: [] },
+      word_order: { words: [] },
+    }[type],
+    answer: type === 'match_pairs' || type === 'word_order' ? [] : 0,
     explanation: {},
     difficulty: 1,
   };

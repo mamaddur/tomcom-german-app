@@ -114,8 +114,6 @@
       "explanationTe": "Explanation (Telugu)",
       "explanationEn": "Explanation (English)",
       "difficulty": "Difficulty (1–3)",
-      "payloadJson": "Payload (JSON)",
-      "answerJson": "Answer (JSON)",
       "save": "Save",
       "saved": "Saved as revision {n}.",
       "submit": "Send for review",
@@ -130,7 +128,12 @@
       "locked": "In review: editing is locked.",
       "readOnly": "Read-only for your role.",
       "problems": "Fix these first:",
-      "statusLine": "Status: {status} · revision {n}"
+      "statusLine": "Status: {status} · revision {n}",
+      "listenAudio": "Recording the learner listens to",
+      "gapSentence": "German sentence; write ___ where the gap is",
+      "sentenceAudio": "Recording of the whole sentence",
+      "pairs": "Pairs, one per line: German = meaning",
+      "sentence": "German sentence in the correct order (the app shuffles the words)"
     },
     "publish": {
       "title": "Publish lesson packs",

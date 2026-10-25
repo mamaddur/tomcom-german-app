@@ -211,19 +211,29 @@ class _ContinueCard extends StatelessWidget {
                 '${target.pack.level} · ${target.lesson.title.of(locale)}',
                 style: Theme.of(context).textTheme.titleLarge,
               ),
+              if (target.quiz) Text(t.startQuiz),
               const SizedBox(height: 12),
               FilledButton.icon(
                 key: const Key('continue'),
                 icon: const Icon(Icons.play_arrow),
                 label: Text(t.continueButton),
-                onPressed: () => openLesson(
-                  context,
-                  content: content,
-                  progress: progress,
-                  pack: target.pack,
-                  lesson: target.lesson,
-                  screen: target.screen,
-                ),
+                onPressed: () =>
+                    target.quiz && target.lesson.questions.isNotEmpty
+                    ? openQuiz(
+                        context,
+                        content: content,
+                        progress: progress,
+                        pack: target.pack,
+                        lesson: target.lesson,
+                      )
+                    : openLesson(
+                        context,
+                        content: content,
+                        progress: progress,
+                        pack: target.pack,
+                        lesson: target.lesson,
+                        screen: target.screen,
+                      ),
               ),
             ] else if (packs.isEmpty) ...[
               Text(t.startFirstLesson),
