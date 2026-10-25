@@ -68,6 +68,8 @@ jobs:
         # Retries with short timeouts instead of waiting on a slow mirror.
         run: |
           command -v ffmpeg && exit 0
+          # The man-db trigger can take many minutes on hosted runners; manual pages aren't needed.
+          sudo rm -f /var/lib/man-db/auto-update
           for i in 1 2 3; do
             sudo apt-get -o Acquire::Retries=3 -o Acquire::http::Timeout=20 update -q &&
               sudo apt-get -o Acquire::Retries=3 -o Acquire::http::Timeout=20 install -y -q --no-install-recommends ffmpeg &&
@@ -117,6 +119,8 @@ jobs:
         # Retries with short timeouts instead of waiting on a slow mirror.
         run: |
           command -v ffmpeg && exit 0
+          # The man-db trigger can take many minutes on hosted runners; manual pages aren't needed.
+          sudo rm -f /var/lib/man-db/auto-update
           for i in 1 2 3; do
             sudo apt-get -o Acquire::Retries=3 -o Acquire::http::Timeout=20 update -q &&
               sudo apt-get -o Acquire::Retries=3 -o Acquire::http::Timeout=20 install -y -q --no-install-recommends ffmpeg &&
