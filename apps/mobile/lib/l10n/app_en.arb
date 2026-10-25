@@ -560,5 +560,41 @@
   "clearAnswer": "Clear",
   "@clearAnswer": {
     "description": "Clear a word-order or pairs answer."
+  },
+  "myProfile": "My profile",
+  "@myProfile": {
+    "description": "Opens the learner's profile (FR-801)."
+  },
+  "statsLessonsCompleted": "Lessons completed",
+  "@statsLessonsCompleted": {
+    "description": "Profile statistic."
+  },
+  "statsQuizzesPassed": "Quizzes passed",
+  "@statsQuizzesPassed": {
+    "description": "Profile statistic."
+  },
+  "statsAverageScore": "Average score",
+  "@statsAverageScore": {
+    "description": "Profile statistic."
+  },
+  "statsStreak": "Days in a row",
+  "@statsStreak": {
+    "description": "Profile statistic: streak."
+  },
+  "progressPerLevel": "Progress per level",
+  "@progressPerLevel": {
+    "description": "Profile heading (FR-801)."
+  },
+  "editProfile": "Edit profile",
+  "@editProfile": {
+    "description": "Button and screen title (FR-802)."
+  },
+  "profileSaved": "Profile saved.",
+  "@profileSaved": {
+    "description": "Shown after editing the profile."
+  },
+  "notYet": "Not yet",
+  "@notYet": {
+    "description": "Shown when a statistic has no value yet."
   }
 }

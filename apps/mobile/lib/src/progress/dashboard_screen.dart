@@ -6,6 +6,7 @@ import '../content/content_controller.dart';
 import '../content/levels_screen.dart';
 import '../onboarding/onboarding_controller.dart';
 import '../ui/widgets.dart';
+import '../profile/profile_screen.dart';
 import 'dashboard_controller.dart';
 import 'open_lesson.dart';
 import 'progress_controller.dart';
@@ -67,6 +68,24 @@ class _HomeScreenState extends State<HomeScreen> {
       appBar: AppBar(
         title: Text(t.appTitle),
         actions: [
+          IconButton(
+            key: const Key('my-profile'),
+            tooltip: t.myProfile,
+            icon: const Icon(Icons.person),
+            onPressed: () {
+              // District and trade names; offline, the profile shows codes.
+              c.loadReference();
+              Navigator.of(context).push(
+                MaterialPageRoute<void>(
+                  builder: (_) => MyProfileScreen(
+                    c: c,
+                    content: widget.content,
+                    progress: widget.progress,
+                  ),
+                ),
+              );
+            },
+          ),
           IconButton(
             tooltip: t.signOut,
             icon: const Icon(Icons.logout),

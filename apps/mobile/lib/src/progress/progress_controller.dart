@@ -301,6 +301,26 @@ class ProgressController extends ChangeNotifier {
     return score >= passMark;
   }
 
+  // ── Profile statistics (FR-801) ──
+
+  /// Lessons whose screens have all been seen.
+  int get lessonsCompleted =>
+      _lessons.values.where((r) => r.finished || r.passed).length;
+
+  /// Lessons whose quiz is passed.
+  int get quizzesPassed => _lessons.values.where((r) => r.passed).length;
+
+  /// Mean best quiz score over the lessons attempted, 0–1; null before any quiz.
+  double? get averageScore {
+    final scores = [
+      for (final r in _lessons.values)
+        if (r.bestScore != null) r.bestScore!,
+    ];
+    return scores.isEmpty
+        ? null
+        : scores.reduce((a, b) => a + b) / scores.length;
+  }
+
   // ── Daily goal and streak (FR-204). Days are IST calendar days. ──
 
   static String _istDay(DateTime t) {

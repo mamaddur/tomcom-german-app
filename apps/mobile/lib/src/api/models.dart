@@ -84,6 +84,8 @@ class Me {
     required this.id,
     required this.uiLocale,
     required this.firstName,
+    this.lastName,
+    this.profile,
     required this.batchName,
     required this.profileComplete,
     required this.batchJoined,
@@ -95,6 +97,10 @@ class Me {
       id: j['id'] as String,
       uiLocale: j['uiLocale'] as String,
       firstName: j['firstName'] as String?,
+      lastName: j['lastName'] as String?,
+      profile: j['profile'] == null
+          ? null
+          : ProfileInfo.fromJson(j['profile'] as Map<String, dynamic>),
       batchName: batch?['name'] as String?,
       profileComplete: onboarding['profileComplete'] as bool,
       batchJoined: onboarding['batchJoined'] as bool,
@@ -103,6 +109,8 @@ class Me {
   final String id;
   final String uiLocale;
   final String? firstName;
+  final String? lastName;
+  final ProfileInfo? profile;
   final String? batchName;
   final bool profileComplete;
   final bool batchJoined;
@@ -148,4 +156,24 @@ class Announcement {
 
   String titleIn(String locale) => title[locale] ?? title['en'] ?? '';
   String bodyIn(String locale) => body[locale] ?? body['en'] ?? '';
+}
+
+/// The learner's saved profile (FR-103, FR-802).
+class ProfileInfo {
+  ProfileInfo({
+    required this.districtCode,
+    required this.tradeCode,
+    this.targetJob,
+    required this.selfDeclaredLevel,
+  });
+  factory ProfileInfo.fromJson(Map<String, dynamic> j) => ProfileInfo(
+    districtCode: j['districtCode'] as String,
+    tradeCode: j['tradeCode'] as String,
+    targetJob: j['targetJob'] as String?,
+    selfDeclaredLevel: j['selfDeclaredLevel'] as String,
+  );
+  final String districtCode;
+  final String tradeCode;
+  final String? targetJob;
+  final String selfDeclaredLevel;
 }

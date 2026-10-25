@@ -110,5 +110,14 @@
   "quizFailed": "పాస్ కావడానికి {percent}% కావాలి. మళ్ళీ ప్రయత్నించండి: ప్రతిసారి ప్రశ్నలు మారుతాయి.",
   "reviewMistakes": "మీ తప్పులను చూడండి",
   "retake": "మళ్ళీ ప్రయత్నించండి",
-  "clearAnswer": "తుడిచివేయండి"
+  "clearAnswer": "తుడిచివేయండి",
+  "myProfile": "నా ప్రొఫైల్",
+  "statsLessonsCompleted": "పూర్తి చేసిన పాఠాలు",
+  "statsQuizzesPassed": "పాస్ అయిన క్విజ్‌లు",
+  "statsAverageScore": "సగటు స్కోరు",
+  "statsStreak": "వరుస రోజులు",
+  "progressPerLevel": "స్థాయి వారీగా పురోగతి",
+  "editProfile": "ప్రొఫైల్ మార్చండి",
+  "profileSaved": "ప్రొఫైల్ సేవ్ అయింది.",
+  "notYet": "ఇంకా లేదు"
 }
