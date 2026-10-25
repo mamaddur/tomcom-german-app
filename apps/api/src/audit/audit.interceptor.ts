@@ -5,7 +5,7 @@ import {
   Injectable,
   NestInterceptor,
 } from '@nestjs/common';
-import { catchError, from, mergeMap, Observable, tap, throwError } from 'rxjs';
+import { catchError, from, map, mergeMap, Observable, throwError } from 'rxjs';
 import { ApiError } from '../common/api-error.js';
 import type { AuthedRequest } from '../identity/auth.guard.js';
 import { AuditService } from './audit.service.js';
@@ -34,8 +34,11 @@ export class AuditInterceptor implements NestInterceptor {
       details: Object.keys(req.params).length ? { params: req.params } : undefined,
       ip: req.ip,
     };
+    // The entry is written before the response goes out: a success the caller sees is always on record.
     return next.handle().pipe(
-      tap({ next: () => void this.audit.record({ ...base, outcome: 'success' }) }),
+      mergeMap((value) =>
+        from(this.audit.record({ ...base, outcome: 'success' })).pipe(map(() => value)),
+      ),
       catchError((err: unknown) =>
         from(this.audit.record({ ...base, outcome: `failure:${errorCode(err)}` })).pipe(
           mergeMap(() => throwError(() => err)),
