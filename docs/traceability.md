@@ -18,9 +18,10 @@ Updated in every PR (CLAUDE.md). Only requirements with code are listed; see `bu
 | FR-101 | Done (API) | `apps/api/src/identity/otp.service.ts`, `auth.controller.ts`: OTP request/verify, rate limits, resend cooldown, 5-attempt lock | `apps/api/test/auth.int-spec.ts`, `src/common/phone.spec.ts` |
 | FR-104 | Done (API) | Consent notice v1 (draft) migration; `consent.service.ts`; consent-first `account.service.ts` (architecture §3.5) | `apps/api/test/auth.int-spec.ts` |
 | FR-107 | Done (API) | Sign-in on a new device keeps the same account; devices table | `apps/api/test/auth.int-spec.ts` |
-| NFR-10 | Partial | 15-min JWT access tokens, rotating refresh tokens with reuse detection, OTP rate limits; deny-by-default `AuthGuard`. Staff 2FA in PR 2c | `apps/api/test/auth.int-spec.ts` |
+| NFR-10 | Done (API) | Learners: OTP, 15-min access, 60-day sliding refresh. Staff: password (argon2id, lockout after 5) + OTP, 5-min access, 25-min idle refresh (session ends within 30 idle minutes), 12-h maximum (`src/identity/staff-auth.service.ts`, `token.service.ts`). Staff can't use the learner OTP login | `apps/api/test/auth.int-spec.ts`, `test/staff.int-spec.ts`, `src/identity/passwords.spec.ts` |
 | NFR-13 | Partial | Phone encrypted (AES-256-GCM) + HMAC lookup `src/common/pii-crypto.service.ts`; validation errors never echo values | `src/common/pii-crypto.service.spec.ts`, `test/auth.int-spec.ts` |
 | FR-102 | Done (API) | Locale chosen at `/auth/register`, changed via `PUT /v1/me/locale` (`apps/api/src/learners/`) | `apps/api/test/me.int-spec.ts` |
 | FR-103 | Done (API) | `PUT /v1/me/profile`; districts/trades reference data (te + en) `GET /v1/reference/*` | `apps/api/test/me.int-spec.ts` |
 | FR-106 | Partial (API) | Join by batch code `POST /v1/me/batch` (rate-limited, one active batch per learner). Admin assignment: step 9 | `apps/api/test/me.int-spec.ts` |
-| NFR-11 | Partial | `@Roles()` on routes, checked in `AuthGuard` | `apps/api/test/me.int-spec.ts` |
+| NFR-11 | Partial | `@Roles()` on routes, checked in `AuthGuard`; every staff mutation audited by `AuditInterceptor`. Trainer batch scoping arrives with the step 9 endpoints that need it | `apps/api/test/me.int-spec.ts`, `test/staff.int-spec.ts` |
+| FR-909 | Done (API) | Append-only `audit_log` (DB trigger blocks UPDATE/DELETE/TRUNCATE), staff logins and mutations recorded without PII, `GET /v1/admin/audit-log` for super admins | `apps/api/test/staff.int-spec.ts` |

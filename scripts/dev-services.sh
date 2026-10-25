@@ -12,6 +12,9 @@ case "${1:-up}" in
           apps/api/.env.example > apps/api/.env.local
       echo "Created apps/api/.env.local with random dev keys"
     fi
+    if ! grep -q '^DEV_STAFF_PASSWORD=' apps/api/.env.local; then
+      echo "DEV_STAFF_PASSWORD=$(openssl rand -base64 18)" >> apps/api/.env.local
+    fi
     docker compose up -d --wait
     for db in tomcom_dev tomcom_test; do
       DATABASE_URL="postgresql://tomcom:tomcom@localhost:5432/$db" \

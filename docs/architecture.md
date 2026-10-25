@@ -83,7 +83,8 @@ Story 1 needs both "after the OTP the learner reaches language selection" and "c
 - TLS 1.2+ everywhere. Encryption at rest is on for RDS, S3 and ElastiCache. Secrets live in AWS Secrets Manager.
 - Phone numbers are stored encrypted at the application level (KMS envelope), with an HMAC column for lookup. Names and districts rely on DB-level encryption.
 - RBAC is enforced in a guard on every route. Trainers are row-scoped to their batches by the query layer, not by the UI (FR-908).
-- Every admin, trainer and studio mutation passes through an audit interceptor that writes to an append-only `audit_log` (FR-909).
+- Every admin, trainer and studio mutation passes through an audit interceptor that writes to an append-only `audit_log` (FR-909). A database trigger rejects UPDATE, DELETE and TRUNCATE on it. Entries hold route, parameters and outcome, never request bodies.
+- Staff can't sign in with the learner OTP flow (OTP alone is one factor); they use `/staff-auth` (password + OTP).
 - OTP rate limits apply per phone, device and IP. OTPs are 6 digits, expire in 5 minutes, and allow at most 5 tries.
 - DPDP: a versioned consent notice in Telugu and English, with consent recorded before any profile data is saved (story 1). Learners can export their data and request erasure (FR-804). A named grievance officer is shown in the app. Breach runbook.
 - CI runs CodeQL/Semgrep, OSV/Dependabot and gitleaks. The mobile app follows the MASVS checklist (certificate pinning optional, no secrets in the app bundle).

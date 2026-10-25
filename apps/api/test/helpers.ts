@@ -34,3 +34,49 @@ export async function registerLearner(app: INestApplication, phone: string, loca
     user: { id: string };
   };
 }
+
+/** Creates a synthetic staff account directly (the portal flow for this comes in step 9). */
+export async function createStaff(
+  app: INestApplication,
+  role: 'trainer' | 'tomcom_admin' | 'author' | 'reviewer' | 'super_admin',
+  phone: string,
+  password = 'correct horse battery',
+) {
+  const { PiiCryptoService } = await import('../src/common/pii-crypto.service.js');
+  const { hashPassword } = await import('../src/identity/passwords.js');
+  const crypto = app.get(PiiCryptoService);
+  return app.get(PrismaService).db.user.create({
+    data: {
+      role,
+      phoneHmac: crypto.hmac(phone),
+      phoneEnc: new Uint8Array(crypto.encrypt(phone)),
+      firstName: 'Test-Staff',
+      uiLocale: 'en',
+      credential: { create: { passwordHash: await hashPassword(password) } },
+    },
+  });
+}
+
+/** Full staff sign-in: password, then OTP. */
+export async function staffLogin(
+  app: INestApplication,
+  phone: string,
+  password = 'correct horse battery',
+) {
+  const login = await request(app.getHttpServer())
+    .post('/v1/staff-auth/login')
+    .send({ phone, password })
+    .expect(200);
+  const res = await request(app.getHttpServer())
+    .post('/v1/staff-auth/verify')
+    .send({
+      challengeToken: login.body.challengeToken,
+      code: DEV_OTP,
+      device: device('admin-browser-01'),
+    })
+    .expect(200);
+  return res.body as {
+    tokens: { accessToken: string; refreshToken: string; expiresInSeconds: number };
+    user: { id: string };
+  };
+}

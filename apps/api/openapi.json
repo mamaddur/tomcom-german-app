@@ -1,6 +1,63 @@
 {
   "openapi": "3.0.0",
   "paths": {
+    "/v1/admin/audit-log": {
+      "get": {
+        "operationId": "AuditController_list",
+        "parameters": [
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "maximum": 200,
+              "default": 50,
+              "type": "number"
+            }
+          },
+          {
+            "name": "beforeId",
+            "required": false,
+            "in": "query",
+            "description": "Return entries older than this id (pagination)",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "actorId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AuditEntryDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "admin"
+        ]
+      }
+    },
     "/v1/health/live": {
       "get": {
         "operationId": "HealthController_live",
@@ -235,6 +292,68 @@
         ]
       }
     },
+    "/v1/staff-auth/login": {
+      "post": {
+        "operationId": "StaffAuthController_login",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StaffLoginDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StaffChallengeDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "staff-auth"
+        ]
+      }
+    },
+    "/v1/staff-auth/verify": {
+      "post": {
+        "operationId": "StaffAuthController_verify",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StaffVerifyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "staff-auth"
+        ]
+      }
+    },
     "/v1/reference/districts": {
       "get": {
         "operationId": "ReferenceController_districts",
@@ -435,6 +554,50 @@
       }
     },
     "schemas": {
+      "AuditEntryDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "actorId": {
+            "type": "string",
+            "nullable": true
+          },
+          "actorRole": {
+            "type": "string",
+            "nullable": true
+          },
+          "action": {
+            "type": "string"
+          },
+          "entityType": {
+            "type": "string",
+            "nullable": true
+          },
+          "entityId": {
+            "type": "string",
+            "nullable": true
+          },
+          "outcome": {
+            "type": "string"
+          },
+          "details": {
+            "type": "object",
+            "nullable": true
+          }
+        },
+        "required": [
+          "id",
+          "at",
+          "action",
+          "outcome"
+        ]
+      },
       "HealthDto": {
         "type": "object",
         "properties": {
@@ -816,6 +979,64 @@
           "title",
           "text",
           "purposes"
+        ]
+      },
+      "StaffLoginDto": {
+        "type": "object",
+        "properties": {
+          "phone": {
+            "type": "string",
+            "example": "+915599990001"
+          },
+          "password": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          }
+        },
+        "required": [
+          "phone",
+          "password"
+        ]
+      },
+      "StaffChallengeDto": {
+        "type": "object",
+        "properties": {
+          "challengeToken": {
+            "type": "string",
+            "description": "Pass to POST /staff-auth/verify with the OTP"
+          },
+          "expiresInSeconds": {
+            "type": "number"
+          },
+          "resendAfterSeconds": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "challengeToken",
+          "expiresInSeconds",
+          "resendAfterSeconds"
+        ]
+      },
+      "StaffVerifyDto": {
+        "type": "object",
+        "properties": {
+          "challengeToken": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string",
+            "example": "123456"
+          },
+          "device": {
+            "$ref": "#/components/schemas/DeviceDto"
+          }
+        },
+        "required": [
+          "challengeToken",
+          "code",
+          "device"
         ]
       },
       "ReferenceItemDto": {
