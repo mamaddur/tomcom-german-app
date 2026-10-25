@@ -4,7 +4,9 @@ import { CommonModule } from './common/common.module.js';
 import { HealthModule } from './health/health.module.js';
 import { IdentityModule } from './identity/identity.module.js';
 import { InfraModule } from './infra/infra.module.js';
+import { LearnersModule } from './learners/learners.module.js';
 import { createLoggerModule } from './logging/logger.module.js';
+import { ReferenceModule } from './reference/reference.module.js';
 
 @Module({
   imports: [
@@ -14,6 +16,8 @@ import { createLoggerModule } from './logging/logger.module.js';
     SmsModule,
     HealthModule,
     IdentityModule,
+    ReferenceModule,
+    LearnersModule,
   ],
 })
 export class AppModule {}

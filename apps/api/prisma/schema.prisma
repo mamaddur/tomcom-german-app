@@ -49,6 +49,9 @@ model User {
   consents      Consent[]
   devices       Device[]
   refreshTokens RefreshToken[]
+  profile       LearnerProfile?
+  enrolments    Enrolment[]
+  trainerOf     BatchTrainer[]
 
   @@map("users")
 }
@@ -118,4 +121,113 @@ model RefreshToken {
 
   @@index([familyId])
   @@map("refresh_tokens")
+}
+
+// ── Profile, reference data, batches (build step 2b) ─────────────────────
+
+/// Telangana districts. Reference data loaded by migration; names keyed by locale (ADR-007).
+model District {
+  code  String @id
+  name  Json
+  order Int
+
+  profiles LearnerProfile[]
+  batches  Batch[]
+
+  @@map("districts")
+}
+
+/// Trades TOMCOM places workers in. Placeholder list until TOMCOM confirms it [A].
+model Trade {
+  code  String @id
+  name  Json
+  order Int
+
+  profiles LearnerProfile[]
+  batches  Batch[]
+
+  @@map("trades")
+}
+
+enum GermanLevel {
+  none
+  A1
+  A2
+  B1
+}
+
+/// FR-103. Name lives on User; everything learner-specific lives here.
+model LearnerProfile {
+  userId            String      @id @map("user_id") @db.Uuid
+  districtCode      String      @map("district_code")
+  tradeCode         String      @map("trade_code")
+  targetJob         String?     @map("target_job")
+  selfDeclaredLevel GermanLevel @map("self_declared_level")
+  createdAt         DateTime    @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt         DateTime    @updatedAt @map("updated_at") @db.Timestamptz
+
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  district District @relation(fields: [districtCode], references: [code])
+  trade    Trade    @relation(fields: [tradeCode], references: [code])
+
+  @@map("learner_profiles")
+}
+
+enum BatchStatus {
+  active
+  closed
+}
+
+/// A TOMCOM training group (FR-106, FR-901). Learners join with the batch code.
+model Batch {
+  id           String      @id @default(uuid(7)) @db.Uuid
+  code         String      @unique
+  name         String
+  districtCode String?     @map("district_code")
+  tradeCode    String?     @map("trade_code")
+  startDate    DateTime?   @map("start_date") @db.Date
+  status       BatchStatus @default(active)
+  createdAt    DateTime    @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt    DateTime    @updatedAt @map("updated_at") @db.Timestamptz
+
+  district   District?      @relation(fields: [districtCode], references: [code])
+  trade      Trade?         @relation(fields: [tradeCode], references: [code])
+  trainers   BatchTrainer[]
+  enrolments Enrolment[]
+
+  @@map("batches")
+}
+
+/// Which trainers look after which batch (FR-908 scoping).
+model BatchTrainer {
+  batchId   String @map("batch_id") @db.Uuid
+  trainerId String @map("trainer_id") @db.Uuid
+
+  batch   Batch @relation(fields: [batchId], references: [id], onDelete: Cascade)
+  trainer User  @relation(fields: [trainerId], references: [id], onDelete: Cascade)
+
+  @@id([batchId, trainerId])
+  @@map("batch_trainers")
+}
+
+enum EnrolmentSource {
+  code
+  admin
+  bulk
+}
+
+/// A learner is in at most one batch at a time (partial unique index in the migration).
+model Enrolment {
+  id         String          @id @default(uuid(7)) @db.Uuid
+  learnerId  String          @map("learner_id") @db.Uuid
+  batchId    String          @map("batch_id") @db.Uuid
+  source     EnrolmentSource
+  enrolledAt DateTime        @default(now()) @map("enrolled_at") @db.Timestamptz
+  leftAt     DateTime?       @map("left_at") @db.Timestamptz
+
+  learner User  @relation(fields: [learnerId], references: [id], onDelete: Cascade)
+  batch   Batch @relation(fields: [batchId], references: [id])
+
+  @@index([batchId])
+  @@map("enrolments")
 }

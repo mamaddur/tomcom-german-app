@@ -234,6 +234,188 @@
           "consent"
         ]
       }
+    },
+    "/v1/reference/districts": {
+      "get": {
+        "operationId": "ReferenceController_districts",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ReferenceItemDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "reference"
+        ]
+      }
+    },
+    "/v1/reference/trades": {
+      "get": {
+        "operationId": "ReferenceController_trades",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ReferenceItemDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "reference"
+        ]
+      }
+    },
+    "/v1/me": {
+      "get": {
+        "operationId": "MeController_get",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MeDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "me"
+        ]
+      }
+    },
+    "/v1/me/locale": {
+      "put": {
+        "operationId": "MeController_setLocale",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateLocaleDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MeDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "me"
+        ]
+      }
+    },
+    "/v1/me/profile": {
+      "put": {
+        "operationId": "MeController_setProfile",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateProfileDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MeDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "me"
+        ]
+      }
+    },
+    "/v1/me/batch": {
+      "post": {
+        "operationId": "MeController_joinBatch",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/JoinBatchDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MeDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "me"
+        ]
+      }
     }
   },
   "info": {
@@ -634,6 +816,218 @@
           "title",
           "text",
           "purposes"
+        ]
+      },
+      "ReferenceItemDto": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "example": "warangal"
+          },
+          "name": {
+            "type": "object",
+            "example": {
+              "te": "వరంగల్",
+              "en": "Warangal"
+            },
+            "description": "Name keyed by locale"
+          }
+        },
+        "required": [
+          "code",
+          "name"
+        ]
+      },
+      "ProfileDto": {
+        "type": "object",
+        "properties": {
+          "districtCode": {
+            "type": "string"
+          },
+          "tradeCode": {
+            "type": "string"
+          },
+          "targetJob": {
+            "type": "string",
+            "nullable": true
+          },
+          "selfDeclaredLevel": {
+            "type": "string",
+            "enum": [
+              "none",
+              "A1",
+              "A2",
+              "B1"
+            ]
+          }
+        },
+        "required": [
+          "districtCode",
+          "tradeCode",
+          "selfDeclaredLevel"
+        ]
+      },
+      "BatchSummaryDto": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "enrolledAt": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "required": [
+          "code",
+          "name",
+          "enrolledAt"
+        ]
+      },
+      "MeOnboardingDto": {
+        "type": "object",
+        "properties": {
+          "profileComplete": {
+            "type": "boolean"
+          },
+          "batchJoined": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "profileComplete",
+          "batchJoined"
+        ]
+      },
+      "MeDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string"
+          },
+          "uiLocale": {
+            "type": "string",
+            "enum": [
+              "te",
+              "en"
+            ]
+          },
+          "firstName": {
+            "type": "string",
+            "nullable": true
+          },
+          "lastName": {
+            "type": "string",
+            "nullable": true
+          },
+          "profile": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ProfileDto"
+              }
+            ]
+          },
+          "batch": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/BatchSummaryDto"
+              }
+            ]
+          },
+          "onboarding": {
+            "$ref": "#/components/schemas/MeOnboardingDto"
+          }
+        },
+        "required": [
+          "id",
+          "role",
+          "uiLocale",
+          "onboarding"
+        ]
+      },
+      "UpdateLocaleDto": {
+        "type": "object",
+        "properties": {
+          "locale": {
+            "type": "string",
+            "enum": [
+              "te",
+              "en"
+            ]
+          }
+        },
+        "required": [
+          "locale"
+        ]
+      },
+      "UpdateProfileDto": {
+        "type": "object",
+        "properties": {
+          "firstName": {
+            "type": "string",
+            "example": "Ravi",
+            "maxLength": 50
+          },
+          "lastName": {
+            "type": "string",
+            "example": "Kumar",
+            "maxLength": 50
+          },
+          "districtCode": {
+            "type": "string",
+            "example": "warangal",
+            "description": "Code from GET /reference/districts"
+          },
+          "tradeCode": {
+            "type": "string",
+            "example": "electrician",
+            "description": "Code from GET /reference/trades"
+          },
+          "targetJob": {
+            "type": "string",
+            "example": "Electrician in Munich",
+            "maxLength": 80
+          },
+          "selfDeclaredLevel": {
+            "type": "string",
+            "enum": [
+              "none",
+              "A1",
+              "A2",
+              "B1"
+            ],
+            "description": "Self-declared current German level"
+          }
+        },
+        "required": [
+          "firstName",
+          "districtCode",
+          "tradeCode",
+          "selfDeclaredLevel"
+        ]
+      },
+      "JoinBatchDto": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "example": "TST-001",
+            "maxLength": 20
+          }
+        },
+        "required": [
+          "code"
         ]
       }
     }

@@ -17,6 +17,7 @@ case "${1:-up}" in
       DATABASE_URL="postgresql://tomcom:tomcom@localhost:5432/$db" \
         pnpm --filter @tomcom/api exec prisma migrate deploy >/dev/null
     done
+    pnpm --filter @tomcom/seed -s generate --learners 0 | pnpm --filter @tomcom/api -s seed:dev
     echo "Services up: postgres :5432, redis :6379"
     ;;
   down) docker compose down ;;

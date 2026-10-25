@@ -29,7 +29,8 @@ Planning approved on 2026-10-25 with "do it on this local machine for now". Step
 
 1. **Consent notice v1 is a draft.** Its English and Telugu text is in `apps/api/prisma/migrations/20261025083000_consent_notice_v1`. **Needs:** TOMCOM legal/DPO review, Telugu reviewer, and the grievance officer's name. A corrected notice becomes version 2 in a new migration; learners who accepted v1 keep their v1 record.
 2. **OTP limits** (5 codes per number per hour, 30 per network address per hour, 30-second resend wait, 5 tries per code) are my defaults for NFR-10. They become admin-configurable with FR-1101 in step 3.
-3. **SMS gateway.** Until a DLT-registered gateway and a dev key exist, only synthetic `+9155…` numbers can sign in (OTP `123456`, no SMS sent). This also guarantees no real numbers in dev.
+3. **Telugu names of the 33 districts and 7 trades** (`apps/api/prisma/migrations/20261025100200_reference_districts_trades`) are my transliterations and need the Telugu reviewer. The trade list is a placeholder until TOMCOM confirms it (D).
+4. **SMS gateway.** Until a DLT-registered gateway and a dev key exist, only synthetic `+9155…` numbers can sign in (OTP `123456`, no SMS sent). This also guarantees no real numbers in dev.
 
 ## B. Decisions on the plan (my recommendation first)
 

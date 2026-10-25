@@ -20,3 +20,7 @@ Updated in every PR (CLAUDE.md). Only requirements with code are listed; see `bu
 | FR-107 | Done (API) | Sign-in on a new device keeps the same account; devices table | `apps/api/test/auth.int-spec.ts` |
 | NFR-10 | Partial | 15-min JWT access tokens, rotating refresh tokens with reuse detection, OTP rate limits; deny-by-default `AuthGuard`. Staff 2FA in PR 2c | `apps/api/test/auth.int-spec.ts` |
 | NFR-13 | Partial | Phone encrypted (AES-256-GCM) + HMAC lookup `src/common/pii-crypto.service.ts`; validation errors never echo values | `src/common/pii-crypto.service.spec.ts`, `test/auth.int-spec.ts` |
+| FR-102 | Done (API) | Locale chosen at `/auth/register`, changed via `PUT /v1/me/locale` (`apps/api/src/learners/`) | `apps/api/test/me.int-spec.ts` |
+| FR-103 | Done (API) | `PUT /v1/me/profile`; districts/trades reference data (te + en) `GET /v1/reference/*` | `apps/api/test/me.int-spec.ts` |
+| FR-106 | Partial (API) | Join by batch code `POST /v1/me/batch` (rate-limited, one active batch per learner). Admin assignment: step 9 | `apps/api/test/me.int-spec.ts` |
+| NFR-11 | Partial | `@Roles()` on routes, checked in `AuthGuard` | `apps/api/test/me.int-spec.ts` |
