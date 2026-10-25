@@ -10,7 +10,8 @@ describe('health (stubbed dependencies)', () => {
   const redis = { ping: vi.fn() };
 
   beforeAll(async () => {
-    app = await createTestApp({ prisma, redis });
+    // Unit test: no network at all, so storage is stubbed too.
+    app = await createTestApp({ prisma, redis, storage: {} });
   });
   afterAll(() => app.close());
 
