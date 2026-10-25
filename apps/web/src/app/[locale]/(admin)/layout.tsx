@@ -41,6 +41,7 @@ export default async function AdminLayout({
               <Link href={`/${locale}/admin/learners`}>{t('nav.learners')}</Link>
               <Link href={`/${locale}/admin/readiness`}>{t('nav.readiness')}</Link>
               <Link href={`/${locale}/admin/marking`}>{t('nav.marking')}</Link>
+              <Link href={`/${locale}/admin/certificates`}>{t('nav.certificates')}</Link>
               <Link href={`/${locale}/admin/announcements`}>{t('nav.announcements')}</Link>
             </>
           )}

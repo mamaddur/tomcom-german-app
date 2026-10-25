@@ -806,5 +806,36 @@
   "tooManyAttempts": "You have used today's attempts. Try again tomorrow.",
   "@tooManyAttempts": {
     "description": "Rate limit."
+  },
+  "myCertificates": "My certificates",
+  "@myCertificates": {
+    "description": "Profile section (FR-701)."
+  },
+  "noCertificates": "Pass every lesson and the checkpoint of a level to get its certificate.",
+  "@noCertificates": {
+    "description": "No certificates yet."
+  },
+  "certificateLine": "German {level} · {percent}% · {code}",
+  "@certificateLine": {
+    "description": "One certificate in the list.",
+    "placeholders": {
+      "level": {
+        "type": "String"
+      },
+      "percent": {
+        "type": "int"
+      },
+      "code": {
+        "type": "String"
+      }
+    }
+  },
+  "certificateWithdrawn": "Withdrawn by TOMCOM",
+  "@certificateWithdrawn": {
+    "description": "A revoked certificate."
+  },
+  "downloadPdf": "Download PDF",
+  "@downloadPdf": {
+    "description": "Download a certificate."
   }
 }

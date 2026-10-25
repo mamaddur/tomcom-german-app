@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import type { CheckpointShape } from '@tomcom/content-schema';
 import { AuditService } from '../audit/audit.service.js';
+import { CertificatesService } from '../certificates/certificates.service.js';
 import { batchScope } from '../admin/scope.js';
 import { ApiError } from '../common/api-error.js';
 import { RateLimiterService } from '../common/rate-limiter.service.js';
@@ -43,6 +44,7 @@ export class CheckpointAttemptsService {
     private readonly prisma: PrismaService,
     private readonly limiter: RateLimiterService,
     private readonly audit: AuditService,
+    private readonly certificates: CertificatesService,
   ) {}
 
   /** Per level: published?, eligible (every published lesson passed)?, and the latest attempt. */
@@ -224,6 +226,8 @@ export class CheckpointAttemptsService {
         submittedAt: new Date(),
       },
     });
+    // FR-701: the certificate is issued straight away (story 5: within a minute).
+    await this.certificates.issueFor(id);
     return this.view(id, learnerId);
   }
 
@@ -311,6 +315,7 @@ export class CheckpointAttemptsService {
       },
     });
     if (updated.count === 0) throw new ApiError(409, 'attempt_closed');
+    await this.certificates.issueFor(id);
     await this.audit.record({
       actorId: auth.userId,
       actorRole: auth.role,

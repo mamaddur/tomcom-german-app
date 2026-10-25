@@ -2981,6 +2981,160 @@
           "admin"
         ]
       }
+    },
+    "/v1/me/certificates": {
+      "get": {
+        "operationId": "MyCertificatesController_list",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CertificateDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "me"
+        ]
+      }
+    },
+    "/v1/me/certificates/{id}/pdf": {
+      "get": {
+        "operationId": "MyCertificatesController_pdf",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The certificate as PDF"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "me"
+        ]
+      }
+    },
+    "/v1/certificates/{code}": {
+      "get": {
+        "operationId": "VerifyController_verify",
+        "parameters": [
+          {
+            "name": "code",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VerifyDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "public"
+        ]
+      }
+    },
+    "/v1/admin/certificates": {
+      "get": {
+        "operationId": "AdminCertificatesController_list",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CertificateDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "admin"
+        ]
+      }
+    },
+    "/v1/admin/certificates/{id}/revoke": {
+      "post": {
+        "operationId": "AdminCertificatesController_revoke",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RevokeDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "admin"
+        ]
+      }
     }
   },
   "info": {
@@ -5658,6 +5812,124 @@
         },
         "required": [
           "marks"
+        ]
+      },
+      "CertificateDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string",
+            "example": "TC-7K2M9QX4PA"
+          },
+          "level": {
+            "type": "string",
+            "enum": [
+              "A1",
+              "A2",
+              "B1"
+            ]
+          },
+          "holderName": {
+            "type": "string",
+            "nullable": true
+          },
+          "score": {
+            "type": "number"
+          },
+          "issuedAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "valid",
+              "revoked"
+            ]
+          },
+          "revokedAt": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true
+          },
+          "verifyUrl": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "code",
+          "level",
+          "holderName",
+          "score",
+          "issuedAt",
+          "status",
+          "revokedAt",
+          "verifyUrl"
+        ]
+      },
+      "VerifyDto": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "holderName": {
+            "type": "string",
+            "nullable": true,
+            "description": "Null once the holder erased their account"
+          },
+          "level": {
+            "type": "string"
+          },
+          "issuedAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "score": {
+            "type": "number"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "valid",
+              "revoked"
+            ]
+          },
+          "revokedAt": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true
+          },
+          "statement": {
+            "type": "object",
+            "description": "FR-705: course completion, not an official exam result"
+          }
+        },
+        "required": [
+          "code",
+          "holderName",
+          "level",
+          "issuedAt",
+          "score",
+          "status",
+          "revokedAt",
+          "statement"
+        ]
+      },
+      "RevokeDto": {
+        "type": "object",
+        "properties": {
+          "reason": {
+            "type": "string",
+            "example": "Issued to the wrong learner"
+          }
+        },
+        "required": [
+          "reason"
         ]
       }
     }

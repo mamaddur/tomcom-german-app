@@ -58,6 +58,7 @@ model User {
   lessonProgress     LessonProgress[]    @relation("LessonProgress")
   dailyActivity      DailyActivity[]     @relation("DailyActivity")
   checkpointAttempts CheckpointAttempt[] @relation("CheckpointAttempts")
+  certificates       Certificate[]       @relation("Certificates")
 
   @@map("users")
 }
@@ -294,6 +295,7 @@ model Level {
   packs              PackVersion[]
   checkpoint         Checkpoint?
   checkpointAttempts CheckpointAttempt[]
+  certificates       Certificate[]
 
   @@map("levels")
 }
@@ -653,4 +655,26 @@ model CheckpointAttempt {
   @@index([learnerId, levelId])
   @@index([status])
   @@map("checkpoint_attempts")
+}
+
+/// FR-701–FR-705. A course completion certificate for one level. `code` is the public ID in
+/// the QR code. The name is copied at issue time and erased with the account (FR-804).
+model Certificate {
+  id           String    @id @default(uuid(7)) @db.Uuid
+  code         String    @unique
+  learnerId    String    @map("learner_id") @db.Uuid
+  levelId      String    @map("level_id") @db.Uuid
+  attemptId    String    @unique @map("attempt_id") @db.Uuid
+  holderName   String?   @map("holder_name")
+  score        Float
+  issuedAt     DateTime  @default(now()) @map("issued_at") @db.Timestamptz
+  revokedAt    DateTime? @map("revoked_at") @db.Timestamptz
+  revokedBy    String?   @map("revoked_by") @db.Uuid
+  revokeReason String?   @map("revoke_reason")
+
+  learner User  @relation("Certificates", fields: [learnerId], references: [id], onDelete: Cascade)
+  level   Level @relation(fields: [levelId], references: [id])
+
+  @@unique([learnerId, levelId])
+  @@map("certificates")
 }

@@ -150,5 +150,10 @@
   "sectionScore": "{section}: {percent}%",
   "writingTooShortOrLong": "మీ రాతలో {min}–{max} పదాలు ఉండాలి (ఇప్పుడు {count}).",
   "checkpointOffline": "చెక్‌పాయింట్‌కు ఇంటర్నెట్ కావాలి. కనెక్ట్ అయి మళ్ళీ ప్రయత్నించండి.",
-  "tooManyAttempts": "ఈ రోజు ప్రయత్నాలు అయిపోయాయి. రేపు మళ్ళీ ప్రయత్నించండి."
+  "tooManyAttempts": "ఈ రోజు ప్రయత్నాలు అయిపోయాయి. రేపు మళ్ళీ ప్రయత్నించండి.",
+  "myCertificates": "నా సర్టిఫికెట్లు",
+  "noCertificates": "ఒక స్థాయిలోని అన్ని పాఠాలు, చెక్‌పాయింట్ పాస్ అయితే దాని సర్టిఫికెట్ వస్తుంది.",
+  "certificateLine": "జర్మన్ {level} · {percent}% · {code}",
+  "certificateWithdrawn": "TOMCOM ఉపసంహరించింది",
+  "downloadPdf": "PDF డౌన్‌లోడ్"
 }

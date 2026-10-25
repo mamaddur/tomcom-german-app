@@ -65,6 +65,12 @@ describe('dashboard and learners (FR-902, FR-903)', () => {
       await page.waitForURL(`${WEB}/en/admin/marking`);
       expect(await page.getByRole('heading', { level: 1 }).textContent()).toBe('Mark writing');
 
+      // Issued certificates in this trainer's batches; only admins can withdraw them.
+      await page.getByRole('navigation').getByRole('link', { name: 'Certificates' }).click();
+      await page.waitForURL(`${WEB}/en/admin/certificates`);
+      expect(await page.getByRole('heading', { level: 1 }).textContent()).toBe('Certificates');
+      expect(await page.getByText('Withdraw…').count()).toBe(0);
+
       // A reversed date range is explained, not a crash.
       await page.goto(`${WEB}/en/admin?from=2026-02-01&to=2026-01-01`);
       expect(await page.getByRole('alert').first().textContent()).toContain('check the fields');
