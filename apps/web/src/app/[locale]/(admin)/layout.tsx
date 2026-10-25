@@ -36,7 +36,10 @@ export default async function AdminLayout({
           <strong>{t('portal')}</strong>
           <Link href={`/${locale}/admin`}>{t('nav.home')}</Link>
           {(BATCH_ROLES as readonly string[]).includes(me.role) && (
-            <Link href={`/${locale}/admin/batches`}>{t('nav.batches')}</Link>
+            <>
+              <Link href={`/${locale}/admin/batches`}>{t('nav.batches')}</Link>
+              <Link href={`/${locale}/admin/learners`}>{t('nav.learners')}</Link>
+            </>
           )}
           {(CONTENT_ROLES as readonly string[]).includes(me.role) && (
             <Link href={`/${locale}/studio`}>{t('nav.studio')}</Link>

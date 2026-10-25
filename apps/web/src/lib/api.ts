@@ -194,3 +194,83 @@ export interface ReferenceItem {
   code: string;
   name: L10n;
 }
+
+export interface ReportFilter {
+  batchId?: string;
+  districtCode?: string;
+  tradeCode?: string;
+  trainerId?: string;
+  from?: string;
+  to?: string;
+  level?: string;
+}
+
+export const FILTER_KEYS = [
+  'batchId',
+  'districtCode',
+  'tradeCode',
+  'trainerId',
+  'from',
+  'to',
+  'level',
+] as const;
+
+/** Query string for the shared report filters (FR-903); empty values are left out. */
+export function filterQuery(f: Record<string, string | undefined>): string {
+  const q = new URLSearchParams();
+  for (const k of FILTER_KEYS) if (f[k]) q.set(k, f[k]!);
+  return q.toString();
+}
+
+export interface Overview {
+  from: string;
+  to: string;
+  learners: number;
+  activeLearners: number;
+  minutes: number;
+  attempts: number;
+  averageScore: number | null;
+  completions: Array<{ level: string; lessons: number; completed: number }>;
+  lessons: Array<{
+    lessonId: string;
+    level: string;
+    order: number;
+    title: L10n;
+    attempted: number;
+    passed: number;
+    averageBestScore: number | null;
+    dropOff: number;
+  }>;
+}
+
+export interface LearnerRow {
+  id: string;
+  firstName: string | null;
+  lastName: string | null;
+  batchCode: string | null;
+  districtCode: string | null;
+  tradeCode: string | null;
+  lessonsPassed: number;
+  averageScore: number | null;
+  minutes: number;
+  lastSeenAt: string | null;
+}
+
+export interface LearnerDetail extends LearnerRow {
+  phone: string;
+  uiLocale: string;
+  registeredAt: string;
+  attempts: Array<{
+    lessonId: string;
+    level: string;
+    lessonOrder: number;
+    lessonTitle: L10n;
+    score: number;
+    passed: boolean;
+    durationMs: number;
+    finishedAt: string;
+  }>;
+  activity: Array<{ date: string; seconds: number }>;
+  pronunciation: unknown[];
+  tutorUsage: unknown[];
+}

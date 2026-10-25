@@ -65,7 +65,16 @@ jobs:
       - name: ffmpeg (media conversion)
         # The Ubuntu mirror sometimes hangs; fail fast so the job can be re-run.
         timeout-minutes: 10
-        run: sudo apt-get update -q && sudo apt-get install -y -q --no-install-recommends ffmpeg
+        # Retries with short timeouts instead of waiting on a slow mirror.
+        run: |
+          command -v ffmpeg && exit 0
+          for i in 1 2 3; do
+            sudo apt-get -o Acquire::Retries=3 -o Acquire::http::Timeout=20 update -q &&
+              sudo apt-get -o Acquire::Retries=3 -o Acquire::http::Timeout=20 install -y -q --no-install-recommends ffmpeg &&
+              exit 0
+            sleep 10
+          done
+          exit 1
       - run: pnpm --filter @tomcom/api prisma:deploy
       - run: pnpm --filter @tomcom/api test:int
 
@@ -105,7 +114,16 @@ jobs:
       - name: ffmpeg (media conversion)
         # The Ubuntu mirror sometimes hangs; fail fast so the job can be re-run.
         timeout-minutes: 10
-        run: sudo apt-get update -q && sudo apt-get install -y -q --no-install-recommends ffmpeg
+        # Retries with short timeouts instead of waiting on a slow mirror.
+        run: |
+          command -v ffmpeg && exit 0
+          for i in 1 2 3; do
+            sudo apt-get -o Acquire::Retries=3 -o Acquire::http::Timeout=20 update -q &&
+              sudo apt-get -o Acquire::Retries=3 -o Acquire::http::Timeout=20 install -y -q --no-install-recommends ffmpeg &&
+              exit 0
+            sleep 10
+          done
+          exit 1
       - run: pnpm --filter @tomcom/web exec playwright install --with-deps chromium
       - run: scripts/e2e-web.sh
 

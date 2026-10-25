@@ -44,7 +44,9 @@
     "nav": {
       "home": "Home",
       "studio": "Content studio",
-      "batches": "Batches"
+      "batches": "Batches",
+      "dashboard": "Dashboard",
+      "learners": "Learners"
     },
     "forbidden": "You don't have access to this page.",
     "homeIntro": "Choose what to work on.",
@@ -86,7 +88,24 @@
       "joined": "Joined",
       "lastActive": "Last active",
       "lessonsPassed": "Lessons passed",
-      "noName": "(profile not completed)"
+      "noName": "(profile not completed)",
+      "title": "Learners",
+      "count": "{count, plural, =0{No learners match} =1{1 learner} other{# learners}}",
+      "minutes60": "Minutes in the last 60 days",
+      "attempts": "Quiz attempts",
+      "noAttempts": "No quiz attempts yet.",
+      "when": "When",
+      "score": "Score",
+      "result": "Result",
+      "passed": "Passed",
+      "notPassed": "Not passed",
+      "duration": "Time taken",
+      "minutesShort": "{n} min",
+      "timeSpent": "Time spent per day (last 60 days)",
+      "noActivity": "No learning time recorded yet.",
+      "pronunciation": "Pronunciation scores",
+      "tutor": "AI tutor usage",
+      "notYetAvailable": "Available once this module is built."
     },
     "errors": {
       "error": "Something went wrong. Please try again.",
@@ -99,7 +118,38 @@
       "file_required": "Choose a file first.",
       "unsupported_file": "Please upload a .csv or .xlsx file.",
       "file_too_large": "The file is too large (1 MB at most).",
-      "too_many_rows": "The file has more than 2,000 rows. Split it into smaller files."
+      "too_many_rows": "The file has more than 2,000 rows. Split it into smaller files.",
+      "learner_not_found": "This learner does not exist or is not in one of your batches.",
+      "range_too_long": "Choose a date range of one year or less."
+    },
+    "filters": {
+      "title": "Filters",
+      "all": "All",
+      "trainer": "Trainer",
+      "level": "Level",
+      "from": "From",
+      "to": "To",
+      "apply": "Apply"
+    },
+    "dashboard": {
+      "title": "Dashboard",
+      "range": "From {from} to {to} (IST)",
+      "seeLearners": "See these learners",
+      "learners": "Learners",
+      "active": "Active learners",
+      "minutes": "Minutes learned",
+      "attempts": "Quiz attempts",
+      "averageScore": "Average quiz score",
+      "completions": "Completed levels",
+      "publishedLessons": "Published lessons",
+      "completedLearners": "Learners who passed every lesson",
+      "byLesson": "By lesson",
+      "noLessons": "No published lessons yet.",
+      "lesson": "Lesson",
+      "attempted": "Tried the quiz",
+      "passed": "Passed",
+      "averageBest": "Average best score",
+      "dropOff": "Stopped here"
     }
   },
   "studio": {

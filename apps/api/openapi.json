@@ -1936,6 +1936,228 @@
           "admin"
         ]
       }
+    },
+    "/v1/admin/reports/overview": {
+      "get": {
+        "operationId": "ReportsController_overview",
+        "parameters": [
+          {
+            "name": "batchId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "districtCode",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "tradeCode",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "trainerId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "from",
+            "required": false,
+            "in": "query",
+            "description": "IST date; default 29 days before `to`",
+            "schema": {
+              "example": "2026-10-01",
+              "type": "string"
+            }
+          },
+          {
+            "name": "to",
+            "required": false,
+            "in": "query",
+            "description": "IST date, inclusive; default today",
+            "schema": {
+              "example": "2026-10-30",
+              "type": "string"
+            }
+          },
+          {
+            "name": "level",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "A1",
+                "A2",
+                "B1"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OverviewDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "admin"
+        ]
+      }
+    },
+    "/v1/admin/learners": {
+      "get": {
+        "operationId": "ReportsController_learners",
+        "parameters": [
+          {
+            "name": "batchId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "districtCode",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "tradeCode",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "trainerId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "from",
+            "required": false,
+            "in": "query",
+            "description": "IST date; default 29 days before `to`",
+            "schema": {
+              "example": "2026-10-01",
+              "type": "string"
+            }
+          },
+          {
+            "name": "to",
+            "required": false,
+            "in": "query",
+            "description": "IST date, inclusive; default today",
+            "schema": {
+              "example": "2026-10-30",
+              "type": "string"
+            }
+          },
+          {
+            "name": "level",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "A1",
+                "A2",
+                "B1"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/LearnerRowDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "admin"
+        ]
+      }
+    },
+    "/v1/admin/learners/{id}": {
+      "get": {
+        "operationId": "ReportsController_learner",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LearnerDetailDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "admin"
+        ]
+      }
     }
   },
   "info": {
@@ -3902,6 +4124,327 @@
           "invited",
           "unchanged",
           "invalidRows"
+        ]
+      },
+      "LevelCompletionDto": {
+        "type": "object",
+        "properties": {
+          "level": {
+            "type": "string",
+            "enum": [
+              "A1",
+              "A2",
+              "B1"
+            ]
+          },
+          "lessons": {
+            "type": "number",
+            "description": "Published lessons in the level"
+          },
+          "completed": {
+            "type": "number",
+            "description": "Learners who passed every published lesson by `to`"
+          }
+        },
+        "required": [
+          "level",
+          "lessons",
+          "completed"
+        ]
+      },
+      "LessonFunnelDto": {
+        "type": "object",
+        "properties": {
+          "lessonId": {
+            "type": "string"
+          },
+          "level": {
+            "type": "string",
+            "enum": [
+              "A1",
+              "A2",
+              "B1"
+            ]
+          },
+          "order": {
+            "type": "number"
+          },
+          "title": {
+            "type": "object",
+            "example": {
+              "te": "పలకరింపులు",
+              "en": "Greetings"
+            }
+          },
+          "attempted": {
+            "type": "number",
+            "description": "Learners with at least one quiz attempt"
+          },
+          "passed": {
+            "type": "number"
+          },
+          "averageBestScore": {
+            "type": "number",
+            "nullable": true
+          },
+          "dropOff": {
+            "type": "number",
+            "description": "Passed the lesson before but not this one: where learners stop"
+          }
+        },
+        "required": [
+          "lessonId",
+          "level",
+          "order",
+          "title",
+          "attempted",
+          "passed",
+          "dropOff"
+        ]
+      },
+      "OverviewDto": {
+        "type": "object",
+        "properties": {
+          "from": {
+            "type": "string",
+            "example": "2026-10-01"
+          },
+          "to": {
+            "type": "string",
+            "example": "2026-10-30"
+          },
+          "learners": {
+            "type": "number",
+            "description": "Learners matching the filters"
+          },
+          "activeLearners": {
+            "type": "number",
+            "description": "Learners who learned on at least one day in the range"
+          },
+          "minutes": {
+            "type": "number",
+            "description": "Minutes of learning in the range"
+          },
+          "attempts": {
+            "type": "number",
+            "description": "Quiz attempts in the range"
+          },
+          "averageScore": {
+            "type": "number",
+            "nullable": true,
+            "description": "Mean attempt score, 0–1"
+          },
+          "completions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/LevelCompletionDto"
+            }
+          },
+          "lessons": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/LessonFunnelDto"
+            }
+          }
+        },
+        "required": [
+          "from",
+          "to",
+          "learners",
+          "activeLearners",
+          "minutes",
+          "attempts",
+          "completions",
+          "lessons"
+        ]
+      },
+      "LearnerRowDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "firstName": {
+            "type": "string",
+            "nullable": true
+          },
+          "lastName": {
+            "type": "string",
+            "nullable": true
+          },
+          "batchCode": {
+            "type": "string",
+            "nullable": true
+          },
+          "districtCode": {
+            "type": "string",
+            "nullable": true
+          },
+          "tradeCode": {
+            "type": "string",
+            "nullable": true
+          },
+          "lessonsPassed": {
+            "type": "number"
+          },
+          "averageScore": {
+            "type": "number",
+            "nullable": true
+          },
+          "minutes": {
+            "type": "number",
+            "description": "Minutes of learning in the range"
+          },
+          "lastSeenAt": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "id",
+          "lessonsPassed",
+          "minutes"
+        ]
+      },
+      "AttemptRowDto": {
+        "type": "object",
+        "properties": {
+          "lessonId": {
+            "type": "string"
+          },
+          "level": {
+            "type": "string",
+            "enum": [
+              "A1",
+              "A2",
+              "B1"
+            ]
+          },
+          "lessonOrder": {
+            "type": "number"
+          },
+          "lessonTitle": {
+            "type": "object"
+          },
+          "score": {
+            "type": "number"
+          },
+          "passed": {
+            "type": "boolean"
+          },
+          "durationMs": {
+            "type": "number"
+          },
+          "finishedAt": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "required": [
+          "lessonId",
+          "level",
+          "lessonOrder",
+          "lessonTitle",
+          "score",
+          "passed",
+          "durationMs",
+          "finishedAt"
+        ]
+      },
+      "LearnerDetailDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "firstName": {
+            "type": "string",
+            "nullable": true
+          },
+          "lastName": {
+            "type": "string",
+            "nullable": true
+          },
+          "batchCode": {
+            "type": "string",
+            "nullable": true
+          },
+          "districtCode": {
+            "type": "string",
+            "nullable": true
+          },
+          "tradeCode": {
+            "type": "string",
+            "nullable": true
+          },
+          "lessonsPassed": {
+            "type": "number"
+          },
+          "averageScore": {
+            "type": "number",
+            "nullable": true
+          },
+          "minutes": {
+            "type": "number",
+            "description": "Minutes of learning in the range"
+          },
+          "lastSeenAt": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true
+          },
+          "phone": {
+            "type": "string",
+            "example": "+91 •••••• 0101"
+          },
+          "uiLocale": {
+            "type": "string"
+          },
+          "registeredAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "attempts": {
+            "description": "Newest first, at most 200",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AttemptRowDto"
+            }
+          },
+          "activity": {
+            "description": "Learning seconds per IST day, last 60 days",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "pronunciation": {
+            "description": "Pronunciation scores (step 6); empty until then",
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "tutorUsage": {
+            "description": "AI tutor messages per day (step 7); empty until then",
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "lessonsPassed",
+          "minutes",
+          "phone",
+          "uiLocale",
+          "registeredAt",
+          "attempts",
+          "activity",
+          "pronunciation",
+          "tutorUsage"
         ]
       }
     }
