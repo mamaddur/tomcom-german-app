@@ -1106,6 +1106,180 @@
         ]
       }
     },
+    "/v1/studio/levels/{level}/publish": {
+      "post": {
+        "operationId": "PacksController_publish",
+        "parameters": [
+          {
+            "name": "level",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublishResultDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "packs"
+        ]
+      }
+    },
+    "/v1/studio/levels/{level}/packs": {
+      "get": {
+        "operationId": "PacksController_history",
+        "parameters": [
+          {
+            "name": "level",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PackDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "packs"
+        ]
+      }
+    },
+    "/v1/packs": {
+      "get": {
+        "operationId": "PacksController_latest",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PackDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "packs"
+        ]
+      }
+    },
+    "/v1/packs/{level}/{version}/download": {
+      "get": {
+        "operationId": "PacksController_download",
+        "parameters": [
+          {
+            "name": "level",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "version",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "packs"
+        ]
+      }
+    },
+    "/v1/packs/{level}/{version}/manifest": {
+      "get": {
+        "operationId": "PacksController_manifest",
+        "parameters": [
+          {
+            "name": "level",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "version",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "packs"
+        ]
+      }
+    },
     "/v1/studio/media": {
       "post": {
         "operationId": "MediaController_upload",
@@ -2530,6 +2704,64 @@
           "german",
           "meaning",
           "tradeTags"
+        ]
+      },
+      "PackDto": {
+        "type": "object",
+        "properties": {
+          "level": {
+            "type": "string",
+            "enum": [
+              "A1",
+              "A2",
+              "B1"
+            ]
+          },
+          "version": {
+            "type": "number"
+          },
+          "bytes": {
+            "type": "number",
+            "description": "Size of the zip download"
+          },
+          "sha256": {
+            "type": "string",
+            "description": "SHA-256 of the zip, to verify the download"
+          },
+          "lessonCount": {
+            "type": "number"
+          },
+          "publishedAt": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "required": [
+          "level",
+          "version",
+          "bytes",
+          "sha256",
+          "lessonCount",
+          "publishedAt"
+        ]
+      },
+      "PublishResultDto": {
+        "type": "object",
+        "properties": {
+          "pack": {
+            "$ref": "#/components/schemas/PackDto"
+          },
+          "skippedLessonIds": {
+            "description": "Lessons left out because they were never approved",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "pack",
+          "skippedLessonIds"
         ]
       },
       "MediaDto": {

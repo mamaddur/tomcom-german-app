@@ -56,6 +56,9 @@ A **worker** process runs from the same codebase and image and consumes BullMQ q
 4. Unlock rules (pass mark, default 80%, FR-402) ship in the pack's settings block. The app unlocks the next lesson at once, offline too (story 2), and the server confirms on sync.
 5. A new pack version only adds or changes content. Retired lessons keep their IDs and stay visible as "completed". A question is never re-used with a different meaning under the same ID.
 
+### 3.1a Publishing (FR-1004, implemented in step 3b)
+A reviewer publishes a level. Per lesson: **approved** → current content (now published); **published** → current; **edited after publishing** → the last published revision from history (work in progress never reaches learners); **never approved** → left out. The pack is validated with `@tomcom/content-schema` (te + en everywhere, audio for every German phrase, media limits) before anything is stored. It is stored as `packs/{level}/v{n}.zip` plus `manifest.json` and never changed afterwards.
+
 ### 3.2 AI tutor (FR-601–608, NFR-15, NFR-22)
 1. The app sends `POST /v1/tutor/messages`, either as text or as audio that first goes through STT on the server.
 2. The orchestrator checks the daily limit and the monthly budget in Redis. If the learner is over the limit, it returns `429` with `resumesAt` (story 4).

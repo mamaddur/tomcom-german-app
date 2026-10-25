@@ -3,7 +3,11 @@ import { randomUUID } from 'node:crypto';
 /** A complete lesson body (te + en everywhere) that passes content-schema. Synthetic content. */
 export function completeLesson(
   expectedRevision: number,
-  ids = { screen: randomUUID(), question: randomUUID(), audio: randomUUID() },
+  ids: { screen: string; question: string; audio: string } = {
+    screen: randomUUID(),
+    question: randomUUID(),
+    audio: randomUUID(),
+  },
 ) {
   return {
     expectedRevision,

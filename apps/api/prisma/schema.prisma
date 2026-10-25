@@ -284,6 +284,7 @@ model Level {
   order Int
 
   lessons Lesson[]
+  packs   PackVersion[]
 
   @@map("levels")
 }
@@ -444,4 +445,25 @@ model MediaAsset {
   createdAt  DateTime  @default(now()) @map("created_at") @db.Timestamptz
 
   @@map("media_assets")
+}
+
+// ── Lesson packs (build step 3b) ─────────────────────────────────────────
+
+/// FR-1004, FR-307, ADR-008: one immutable, versioned pack per level. Never edited after publish.
+model PackVersion {
+  id          String   @id @default(uuid(7)) @db.Uuid
+  levelId     String   @map("level_id") @db.Uuid
+  version     Int
+  zipKey      String   @map("zip_key")
+  manifestKey String   @map("manifest_key")
+  bytes       Int
+  sha256      String
+  lessonCount Int      @map("lesson_count")
+  publishedBy String   @map("published_by") @db.Uuid
+  publishedAt DateTime @default(now()) @map("published_at") @db.Timestamptz
+
+  level Level @relation(fields: [levelId], references: [id])
+
+  @@unique([levelId, version])
+  @@map("pack_versions")
 }
