@@ -1,6 +1,7 @@
+import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import type { INestApplication } from '@nestjs/common';
 import request from 'supertest';
-import { createTestApp } from './app.factory';
+import { createTestApp } from './app.factory.js';
 
 describe('health (real Postgres and Redis)', () => {
   let app: INestApplication;

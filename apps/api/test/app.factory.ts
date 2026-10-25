@@ -1,9 +1,9 @@
 import type { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
-import { AppModule } from '../src/app.module';
-import { configureApp } from '../src/bootstrap';
-import { PrismaService } from '../src/infra/prisma.service';
-import { RedisService } from '../src/infra/redis.service';
+import { AppModule } from '../src/app.module.js';
+import { configureApp } from '../src/bootstrap.js';
+import { PrismaService } from '../src/infra/prisma.service.js';
+import { RedisService } from '../src/infra/redis.service.js';
 
 export interface Overrides {
   prisma?: unknown;

@@ -4,7 +4,7 @@ Planning approved on 2026-10-25 with "do it on this local machine for now". Step
 
 ## New from step 1
 
-1. **Framework major upgrades.** Newer majors are out: NestJS 12, Next.js 16, Prisma 7 and Vitest 5 (Vitest 5 is already adopted). Step 1 stays on NestJS 11, Next.js 15 and Prisma 6. Advisories in their transitive dependencies (multer, postcss, deepmerge-ts, js-yaml) are pinned to patched versions through `pnpm.overrides` in the root `package.json`, and `pnpm audit` is clean. Recommend: one dedicated upgrade PR before step 2, so we don't build 7 months of code on superseded majors. **Approve?**
+1. ~~Framework major upgrades~~ **Done** (approved 2026-10-25): NestJS 12 (ESM), Next.js 16, Prisma 7, Vitest 5. See ADR-015. One override is left (multer), and it has a removal condition.
 2. **Placeholder app name.** The learner app shows "German for Work" / "పని కోసం జర్మన్" until TOMCOM decides branding (D). The Telugu UI strings are my drafts and need the Telugu reviewer.
 3. **This machine is a cloud container, not your computer.** Work here is lost when the session's container is reclaimed. Until a GitHub repo exists, nothing is backed up. **Please create the repo soon** (A2), or download the work.
 4. **Not checkable here, checked in CI only:** Semgrep registry rulesets (semgrep.dev blocked) and the OSV scan of Dart packages (api.osv.dev blocked). No Android SDK or Xcode here, so there are no device builds yet. Device builds need the Android SDK (step 4).

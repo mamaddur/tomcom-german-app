@@ -1,7 +1,8 @@
+import { describe, expect, it } from 'vitest';
 import pino from 'pino';
 import { Writable } from 'node:stream';
-import { redactingOptions } from './pino-options';
-import { REDACTED, redactPii, scrubText } from './redact';
+import { redactingOptions } from './pino-options.js';
+import { REDACTED, redactPii, scrubText } from './redact.js';
 
 describe('scrubText', () => {
   it.each([

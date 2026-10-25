@@ -1,5 +1,5 @@
 import type { LoggerOptions } from 'pino';
-import { redactPii, scrubText } from './redact';
+import { redactPii, scrubText } from './redact.js';
 
 /** The redaction part of the pino config, shared by the HTTP logger and any standalone logger. */
 export const redactingOptions: Pick<LoggerOptions, 'formatters' | 'hooks'> = {

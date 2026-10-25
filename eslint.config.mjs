@@ -13,6 +13,7 @@ export default tseslint.config(
       'apps/mobile/**',
       'apps/web/**',
       'packages/api-client-ts/src/schema.d.ts',
+      'apps/api/src/generated/**',
     ],
   },
   js.configs.recommended,

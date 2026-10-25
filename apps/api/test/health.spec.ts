@@ -1,11 +1,13 @@
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import type { INestApplication } from '@nestjs/common';
 import request from 'supertest';
-import { createTestApp } from './app.factory';
+import { createTestApp } from './app.factory.js';
 
 describe('health (stubbed dependencies)', () => {
   let app: INestApplication;
-  const prisma = { $queryRaw: jest.fn() };
-  const redis = { ping: jest.fn() };
+  const queryRaw = vi.fn();
+  const prisma = { db: { $queryRaw: queryRaw } };
+  const redis = { ping: vi.fn() };
 
   beforeAll(async () => {
     app = await createTestApp({ prisma, redis });
@@ -17,14 +19,14 @@ describe('health (stubbed dependencies)', () => {
   });
 
   it('GET /v1/health/ready is ok when database and redis are up', async () => {
-    prisma.$queryRaw.mockResolvedValue([{ '?column?': 1 }]);
+    queryRaw.mockResolvedValue([{ '?column?': 1 }]);
     redis.ping.mockResolvedValue(true);
     const res = await request(app.getHttpServer()).get('/v1/health/ready').expect(200);
     expect(res.body).toEqual({ status: 'ok', checks: { database: 'up', redis: 'up' } });
   });
 
   it('GET /v1/health/ready is 503 and names the failing dependency', async () => {
-    prisma.$queryRaw.mockRejectedValue(new Error('connection refused'));
+    queryRaw.mockRejectedValue(new Error('connection refused'));
     redis.ping.mockResolvedValue(true);
     const res = await request(app.getHttpServer()).get('/v1/health/ready').expect(503);
     expect(res.body).toEqual({ status: 'error', checks: { database: 'down', redis: 'up' } });

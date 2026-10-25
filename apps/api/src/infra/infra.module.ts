@@ -1,7 +1,7 @@
 import { Global, Module } from '@nestjs/common';
-import { ENV, loadEnv } from '../config/env';
-import { PrismaService } from './prisma.service';
-import { RedisService } from './redis.service';
+import { ENV, loadEnv } from '../config/env.js';
+import { PrismaService } from './prisma.service.js';
+import { RedisService } from './redis.service.js';
 
 @Global()
 @Module({
