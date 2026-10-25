@@ -25,3 +25,63 @@ nav {
 a {
   color: var(--accent);
 }
+.card {
+  max-width: 24rem;
+  margin: 4rem auto;
+  padding: 2rem;
+  background: #fff;
+  border: 1px solid #d9d4c7;
+  border-radius: 8px;
+}
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+label {
+  font-weight: 600;
+  margin-top: 0.5rem;
+}
+input {
+  font: inherit;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid var(--muted);
+  border-radius: 6px;
+}
+button {
+  font: inherit;
+  margin-top: 1rem;
+  padding: 0.7rem 1rem;
+  border: 0;
+  border-radius: 6px;
+  background: var(--accent);
+  color: #fff;
+  cursor: pointer;
+}
+button:disabled {
+  opacity: 0.6;
+}
+/* WCAG 2.1 AA: visible keyboard focus (NFR-17). */
+:focus-visible {
+  outline: 3px solid #f2a900;
+  outline-offset: 2px;
+}
+.error {
+  color: #b00020;
+  min-height: 1.5em;
+}
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.5rem 1rem;
+  background: var(--fg);
+  color: #fff;
+}
+.topbar form {
+  flex-direction: row;
+}
+.topbar button {
+  margin: 0;
+}

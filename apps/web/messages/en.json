@@ -1,8 +1,46 @@
 {
-  "app": { "title": "TOMCOM German Learning" },
-  "home": {
-    "heading": "Admin portal",
-    "status": "Build step 1: foundations. Features arrive in later steps."
+  "app": {
+    "title": "TOMCOM German Learning"
   },
-  "language": { "label": "Language", "te": "తెలుగు", "en": "English" }
+  "language": {
+    "label": "Language",
+    "te": "తెలుగు",
+    "en": "English"
+  },
+  "login": {
+    "title": "Staff sign-in",
+    "phone": "Mobile number",
+    "password": "Password",
+    "continue": "Continue",
+    "otpSent": "We sent a 6-digit code to your mobile by SMS.",
+    "code": "6-digit code",
+    "verify": "Sign in",
+    "errors": {
+      "invalid_credentials": "Wrong mobile number or password.",
+      "account_locked": "Too many wrong passwords. Try again in {seconds} seconds.",
+      "otp_invalid": "Wrong code. Please try again.",
+      "otp_attempts_exceeded": "Too many wrong codes. Sign in again to get a new code.",
+      "challenge_expired": "The code expired. Please sign in again.",
+      "rate_limited": "Too many attempts. Try again in {seconds} seconds.",
+      "otp_resend_too_soon": "Please wait {seconds} seconds before signing in again.",
+      "network_error": "The server cannot be reached. Please try again.",
+      "validation_failed": "Please check what you entered.",
+      "invalid_phone": "Enter a valid mobile number.",
+      "generic": "Something went wrong. Please try again."
+    }
+  },
+  "admin": {
+    "portal": "TOMCOM admin portal",
+    "signOut": "Sign out",
+    "welcome": "Welcome",
+    "comingSoon": "Batches, learners and reports arrive in later updates.",
+    "roles": {
+      "super_admin": "Super admin",
+      "tomcom_admin": "TOMCOM admin",
+      "trainer": "Trainer",
+      "author": "Content author",
+      "reviewer": "Content reviewer",
+      "learner": "Learner"
+    }
+  }
 }

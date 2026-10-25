@@ -81,6 +81,7 @@ Requirements: Node 22, pnpm 10, Docker, Flutter 3.47.8 (`/opt/flutter/bin` on th
 | Lint / types / unit tests / build, all JS packages | `pnpm lint` / `pnpm typecheck` / `pnpm test` / `pnpm build` |
 | Synthetic data | `pnpm --filter @tomcom/seed generate --learners 200` |
 | Stop a background dev server | `scripts/stop-port.sh 3000 3001` |
+| Browser tests of the admin portal | `scripts/e2e-web.sh` |
 
 Each app's own CLAUDE.md lists its `dev`, `test`, `lint` and `build` commands.
 

@@ -61,6 +61,38 @@ jobs:
       - run: pnpm --filter @tomcom/api prisma:deploy
       - run: pnpm --filter @tomcom/api test:int
 
+  web-e2e:
+    name: Web end-to-end (browser)
+    runs-on: ubuntu-24.04
+    services:
+      postgres:
+        image: pgvector/pgvector:0.8.0-pg16
+        env: { POSTGRES_USER: tomcom, POSTGRES_PASSWORD: tomcom, POSTGRES_DB: tomcom_dev }
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U tomcom" --health-interval 2s --health-retries 30
+      redis:
+        image: redis:7.4-alpine
+        ports: ['6379:6379']
+        options: >-
+          --health-cmd "redis-cli ping" --health-interval 2s --health-retries 30
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with: { node-version-file: .nvmrc, cache: pnpm }
+      - run: pnpm install --frozen-lockfile
+      - name: Throwaway dev keys for this run
+        run: |
+          sed -e "s|^PII_ENCRYPTION_KEY=.*|PII_ENCRYPTION_KEY=$(openssl rand -base64 32)|" \
+              -e "s|^PII_HMAC_KEY=.*|PII_HMAC_KEY=$(openssl rand -base64 32)|" \
+              -e "s|^JWT_SECRET=.*|JWT_SECRET=$(openssl rand -base64 32)|" \
+              -e "s|^DEV_STAFF_PASSWORD=.*|DEV_STAFF_PASSWORD=$(openssl rand -base64 18)|" \
+              apps/api/.env.example > apps/api/.env.local
+      - run: pnpm --filter @tomcom/api prisma:deploy
+      - run: pnpm --filter @tomcom/web exec playwright install --with-deps chromium
+      - run: scripts/e2e-web.sh
+
   mobile:
     name: Flutter analyze and test
     runs-on: ubuntu-24.04

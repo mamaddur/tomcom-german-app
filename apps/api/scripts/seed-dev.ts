@@ -73,7 +73,8 @@ async function run(): Promise<void> {
     await prisma.db.staffCredential.upsert({
       where: { userId: user.id },
       create: { userId: user.id, passwordHash },
-      update: { passwordHash },
+      // Re-seeding also clears lockouts left by earlier test runs.
+      update: { passwordHash, failedAttempts: 0, lockedUntil: null },
     });
     trainerIds.set(t.key, user.id);
   }
