@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { SmsModule } from './adapters/sms/sms.module.js';
+import { StorageModule } from './adapters/storage/storage.module.js';
 import { AuditModule } from './audit/audit.module.js';
 import { CommonModule } from './common/common.module.js';
 import { ContentModule } from './content/content.module.js';
@@ -8,6 +9,7 @@ import { IdentityModule } from './identity/identity.module.js';
 import { InfraModule } from './infra/infra.module.js';
 import { LearnersModule } from './learners/learners.module.js';
 import { createLoggerModule } from './logging/logger.module.js';
+import { MediaModule } from './media/media.module.js';
 import { ReferenceModule } from './reference/reference.module.js';
 
 @Module({
@@ -16,12 +18,14 @@ import { ReferenceModule } from './reference/reference.module.js';
     InfraModule,
     CommonModule,
     SmsModule,
+    StorageModule,
     AuditModule,
     HealthModule,
     IdentityModule,
     ReferenceModule,
     LearnersModule,
     ContentModule,
+    MediaModule,
   ],
 })
 export class AppModule {}

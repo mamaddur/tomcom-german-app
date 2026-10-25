@@ -71,7 +71,7 @@ CI green (lint, types, tests, SAST, dependency scan, secret scan), acceptance cr
 
 ## Commands
 
-Requirements: Node 22, pnpm 10, Docker, Flutter 3.47.8 (`/opt/flutter/bin` on the build machine).
+Requirements: Node 22, pnpm 10, Docker, ffmpeg (media conversion), Flutter 3.47.8 (`/opt/flutter/bin` on the build machine).
 
 | Task | Command |
 |---|---|

@@ -8,6 +8,7 @@ const valid = {
   PII_ENCRYPTION_KEY: key,
   PII_HMAC_KEY: key,
   JWT_SECRET: key,
+  S3_BUCKET: 'tomcom-test',
 };
 
 describe('loadEnv', () => {

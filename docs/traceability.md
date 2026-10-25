@@ -32,3 +32,5 @@ Updated in every PR (CLAUDE.md). Only requirements with code are listed; see `bu
 | FR-1003 | Done (API) | draft → in_review → approved, send-back with required comment, review lock, four-eyes rule, comments (`studio.service.ts`) | `apps/api/test/studio.int-spec.ts` |
 | FR-1005 | Done (API) | Snapshot per revision (`lesson_revisions`), optimistic concurrency, rollback as a new draft | `apps/api/test/studio.int-spec.ts` |
 | FR-302 / BR-02 (content) | Enforced | Submitting for review needs every text in te + en and well-formed screens/questions (`@tomcom/content-schema` `validateLesson`) | `apps/api/test/studio.int-spec.ts`, `packages/content-schema/src/index.test.ts`, `src/content/lesson-shape.spec.ts` |
+| FR-1002 | Partial (API) | Upload audio and images; converted to Opus/WebP and stored in S3-compatible storage (`apps/api/src/media/`, `src/adapters/storage/`, ADR-017). Video follows with the worker | `apps/api/test/media.int-spec.ts` |
+| NFR-04 | Partial | Audio ≤ 100 KB (24 kbps Opus, ≤ 30 s), images WebP ≤ 800 px; pack schema also enforces the audio limit | `apps/api/test/media.int-spec.ts`, `packages/content-schema/src/index.test.ts` |

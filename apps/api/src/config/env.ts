@@ -33,6 +33,13 @@ const envSchema = z
       .default('123456'),
     /** SMS gateway for real numbers. `none` rejects real numbers (dev without a key). */
     SMS_PROVIDER: z.enum(['none']).default('none'),
+    /** S3-compatible object storage (media, lesson packs). Endpoint only for non-AWS stores. */
+    S3_ENDPOINT: z.string().url().optional(),
+    S3_REGION: z.string().default('ap-south-1'),
+    S3_BUCKET: z.string().min(3),
+    /** Optional: in the cloud the workload's role supplies credentials. */
+    S3_ACCESS_KEY: z.string().optional(),
+    S3_SECRET_KEY: z.string().optional(),
   })
   .refine((e) => e.APP_ENV !== 'prod' || e.SMS_PROVIDER !== 'none', {
     message: 'production needs an SMS provider',

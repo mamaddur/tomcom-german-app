@@ -7,3 +7,7 @@ process.env.LOG_LEVEL ??= 'silent';
 process.env.PII_ENCRYPTION_KEY ??= Buffer.alloc(32, 0).toString('base64');
 process.env.PII_HMAC_KEY ??= Buffer.alloc(32, 1).toString('base64');
 process.env.JWT_SECRET ??= Buffer.alloc(32, 2).toString('base64');
+process.env.S3_ENDPOINT ??= 'http://localhost:9000';
+process.env.S3_BUCKET ??= 'tomcom-test';
+process.env.S3_ACCESS_KEY ??= 'tomcom-dev';
+process.env.S3_SECRET_KEY ??= 'tomcom-dev-secret';

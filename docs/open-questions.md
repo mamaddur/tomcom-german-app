@@ -35,7 +35,8 @@ Planning approved on 2026-10-25 with "do it on this local machine for now". Step
 ## New from step 3
 
 1. **Vocabulary edits are not reviewed one by one.** Vocabulary is shared across lessons. A change reaches learners only when a reviewer next publishes a level, and the published pack is checked as a whole at that moment (step 3b). If TOMCOM wants every vocabulary change reviewed separately, it becomes its own workflow.
-2. **AI drafting help for questions and Telugu translations (FR-1006, Could)** is deferred to step 7, when the LLM vendor and key are settled.
+2. **Video upload (FR-305, Should)** needs background transcoding (a worker process) and follows in a separate PR. Audio and images are done.
+3. **AI drafting help for questions and Telugu translations (FR-1006, Could)** is deferred to step 7, when the LLM vendor and key are settled.
 
 ## B. Decisions on the plan (my recommendation first)
 

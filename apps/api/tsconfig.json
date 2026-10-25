@@ -7,7 +7,7 @@
     "outDir": "dist",
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
-    "types": ["node"]
+    "types": ["node", "multer"]
   },
   "include": ["src", "test", "scripts", "prisma.config.ts", "vitest.config.ts"]
 }

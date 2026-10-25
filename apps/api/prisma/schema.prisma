@@ -420,3 +420,28 @@ model LessonRevision {
   @@unique([lessonId, revision])
   @@map("lesson_revisions")
 }
+
+// ── Media (build step 3c) ────────────────────────────────────────────────
+
+enum MediaType {
+  audio
+  image
+  video
+}
+
+/// FR-1002, NFR-04. Stored already compressed for mobile (Opus audio, WebP images).
+model MediaAsset {
+  id         String    @id @default(uuid(7)) @db.Uuid
+  type       MediaType
+  storageKey String    @unique @map("storage_key")
+  mime       String
+  bytes      Int
+  sha256     String
+  durationMs Int?      @map("duration_ms")
+  width      Int?
+  height     Int?
+  createdBy  String    @map("created_by") @db.Uuid
+  createdAt  DateTime  @default(now()) @map("created_at") @db.Timestamptz
+
+  @@map("media_assets")
+}
