@@ -837,5 +837,25 @@
   "downloadPdf": "Download PDF",
   "@downloadPdf": {
     "description": "Download a certificate."
+  },
+  "updateRequiredTitle": "Please update the app",
+  "@updateRequiredTitle": {
+    "description": "Blocking screen when the app is too old (FR-1102)."
+  },
+  "updateRequiredBody": "This version no longer works. Open the Play Store or App Store, update the app, then open it again. Your progress is saved.",
+  "@updateRequiredBody": {
+    "description": "Update instructions."
+  },
+  "updateAvailable2": "A new version of the app is available. Update it from the Play Store when you can.",
+  "@updateAvailable2": {
+    "description": "Optional update banner."
+  },
+  "maintenanceTitle": "Back soon",
+  "@maintenanceTitle": {
+    "description": "Maintenance screen title (FR-1102)."
+  },
+  "tryAgain": "Try again",
+  "@tryAgain": {
+    "description": "Retry button."
   }
 }

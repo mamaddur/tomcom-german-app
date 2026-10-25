@@ -379,3 +379,17 @@ export interface AdminCertificate {
   batchCode: string | null;
   revokeReason: string | null;
 }
+
+export interface Setting {
+  key: string;
+  value: unknown;
+  default: unknown;
+  description: string;
+}
+
+export interface FeatureFlag {
+  key: string;
+  enabled: boolean;
+  default: boolean;
+  description: string;
+}

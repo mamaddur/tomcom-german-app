@@ -209,7 +209,29 @@
     "/v1/app/config": {
       "get": {
         "operationId": "SettingsController_appConfig",
-        "parameters": [],
+        "parameters": [
+          {
+            "name": "platform",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "android",
+                "ios"
+              ]
+            }
+          },
+          {
+            "name": "version",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": "0.1.0",
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "",
@@ -3294,6 +3316,25 @@
           "dailyGoalMinutes"
         ]
       },
+      "MaintenanceDto": {
+        "type": "object",
+        "properties": {
+          "active": {
+            "type": "boolean"
+          },
+          "message": {
+            "type": "object",
+            "example": {
+              "te": "...",
+              "en": "Back at 6 pm"
+            }
+          }
+        },
+        "required": [
+          "active",
+          "message"
+        ]
+      },
       "AppConfigDto": {
         "type": "object",
         "properties": {
@@ -3312,12 +3353,26 @@
           },
           "learning": {
             "$ref": "#/components/schemas/LearningRulesDto"
+          },
+          "update": {
+            "type": "string",
+            "enum": [
+              "none",
+              "optional",
+              "required"
+            ],
+            "description": "FR-1102, for the `version` sent; `none` when no version is sent"
+          },
+          "maintenance": {
+            "$ref": "#/components/schemas/MaintenanceDto"
           }
         },
         "required": [
           "features",
           "limits",
-          "learning"
+          "learning",
+          "update",
+          "maintenance"
         ]
       },
       "HealthDto": {

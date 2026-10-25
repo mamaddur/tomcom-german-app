@@ -41,6 +41,13 @@ class FakeApi {
   final serverLessons = <String, ({double best, bool passed})>{};
   final serverActivity = <String, int>{};
 
+  /// FR-1102: `none`, `optional` or `required`, and an optional maintenance message.
+  String update = 'none';
+  Map<String, dynamic> maintenance = {
+    'active': false,
+    'message': {'te': '', 'en': ''},
+  };
+
   /// Announcements served to the learner (FR-205).
   List<Map<String, dynamic>> announcements = [];
 
@@ -176,6 +183,8 @@ class FakeApi {
           'features': <String, bool>{},
           'limits': <String, int>{},
           'learning': learning,
+          'update': update,
+          'maintenance': maintenance,
         });
       case 'POST /v1/sync':
         // Like the real API (forbidNonWhitelisted): unknown fields are a 400.

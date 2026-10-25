@@ -51,7 +51,8 @@
       "audit": "Audit log",
       "marking": "Mark writing",
       "readiness": "Exam readiness",
-      "certificates": "Certificates"
+      "certificates": "Certificates",
+      "settings": "Settings"
     },
     "forbidden": "You don't have access to this page.",
     "homeIntro": "Choose what to work on.",
@@ -131,7 +132,9 @@
       "attempt_not_found": "This attempt is not waiting for your marks (already marked, or not in your batches).",
       "attempt_closed": "This attempt was already marked.",
       "already_revoked": "This certificate was already withdrawn.",
-      "certificate_not_found": "Certificate not found."
+      "certificate_not_found": "Certificate not found.",
+      "setting_not_found": "Unknown setting.",
+      "setting_value_invalid": "That value is outside the allowed range."
     },
     "filters": {
       "title": "Filters",
@@ -239,6 +242,24 @@
       "confirmRevoke": "Withdraw certificate",
       "revokedDone": "Certificate withdrawn. The check page now says so.",
       "nameWithheld": "(name erased)"
+    },
+    "settings": {
+      "title": "Settings",
+      "intro": "Changes apply within a few seconds and are recorded in the audit log. Each value must stay within its allowed range.",
+      "readOnly": "You can read these settings; a super admin changes them.",
+      "saved": "Saved {key}.",
+      "modules": "Modules",
+      "values": "Values",
+      "on": "On",
+      "off": "Off",
+      "turnOn": "Turn on",
+      "turnOff": "Turn off",
+      "value": "Value",
+      "default": "default",
+      "save": "Save",
+      "maintenanceOn": "Show the maintenance message in the app (lessons are hidden while it shows)",
+      "messageTe": "Message (Telugu)",
+      "messageEn": "Message (English)"
     }
   },
   "studio": {

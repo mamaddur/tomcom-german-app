@@ -3,7 +3,7 @@ import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { getTranslations } from 'next-intl/server';
 import type { ReactNode } from 'react';
-import { api, ApiProblem, BATCH_ROLES, type Me } from '@/lib/api';
+import { ADMIN_ROLES, api, ApiProblem, BATCH_ROLES, type Me } from '@/lib/api';
 import { CONTENT_ROLES } from '@/lib/auth';
 import { ACCESS_COOKIE } from '@/lib/session';
 import { signOut } from '../login/actions';
@@ -44,6 +44,9 @@ export default async function AdminLayout({
               <Link href={`/${locale}/admin/certificates`}>{t('nav.certificates')}</Link>
               <Link href={`/${locale}/admin/announcements`}>{t('nav.announcements')}</Link>
             </>
+          )}
+          {(ADMIN_ROLES as readonly string[]).includes(me.role) && (
+            <Link href={`/${locale}/admin/settings`}>{t('nav.settings')}</Link>
           )}
           {me.role === 'super_admin' && (
             <Link href={`/${locale}/admin/audit`}>{t('nav.audit')}</Link>

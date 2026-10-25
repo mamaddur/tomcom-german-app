@@ -253,4 +253,49 @@ void main() {
     expect(progress.pendingAttempts, isEmpty);
     expect(fake.syncedAttempts.single['id'], 'a1');
   });
+
+  group('app versions and maintenance (FR-1102)', () {
+    testWidgets('an app that is too old must update first', (tester) async {
+      fake.update = 'required';
+      await pumpApp(tester);
+      expect(find.text('దయచేసి యాప్‌ను అప్‌డేట్ చేయండి'), findsOneWidget);
+      expect(find.byKey(const Key('my-profile')), findsNothing);
+      expect(
+        fake.requests.any(
+          (r) =>
+              r.url.path == '/v1/app/config' &&
+              r.url.queryParameters['version'] == '0.1.0',
+        ),
+        isTrue,
+      );
+    });
+
+    testWidgets(
+      'maintenance shows the message, and the app returns after it ends',
+      (tester) async {
+        fake.maintenance = {
+          'active': true,
+          'message': {'te': 'సాయంత్రం 6కి తిరిగి వస్తాం', 'en': 'Back at 6 pm'},
+        };
+        await pumpApp(tester);
+        expect(find.text('సాయంత్రం 6కి తిరిగి వస్తాం'), findsOneWidget);
+        fake.maintenance = {
+          'active': false,
+          'message': {'te': '', 'en': ''},
+        };
+        await tester.tap(find.text('మళ్ళీ ప్రయత్నించండి'));
+        await tester.pumpAndSettle();
+        expect(find.text('సాయంత్రం 6కి తిరిగి వస్తాం'), findsNothing);
+        expect(find.byKey(const Key('my-profile')), findsOneWidget);
+      },
+    );
+
+    testWidgets('a newer optional version shows a gentle banner', (
+      tester,
+    ) async {
+      fake.update = 'optional';
+      await pumpApp(tester);
+      expect(find.byKey(const Key('update-available')), findsOneWidget);
+    });
+  });
 }

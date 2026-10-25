@@ -5,7 +5,35 @@ import { z } from 'zod';
  * Security limits (OTP, login lockout) are deliberately NOT here: they are guardrails, not
  * product settings, and change only through code review (CLAUDE.md rule 8).
  */
+const SEMVER = /^\d+\.\d+\.\d+$/;
+
 export const SETTINGS = {
+  'app.minVersion': {
+    schema: z.string().regex(SEMVER),
+    default: '0.1.0',
+    description: 'Learner apps older than this version must update before use (FR-1102).',
+  },
+  'app.latestVersion': {
+    schema: z.string().regex(SEMVER),
+    default: '0.1.0',
+    description: 'Learner apps older than this version are invited to update (FR-1102).',
+  },
+  'app.maintenance': {
+    schema: z
+      .object({
+        active: z.boolean(),
+        message: z.object({ te: z.string().max(300), en: z.string().max(300) }),
+      })
+      .refine((m) => !m.active || (m.message.te.trim() !== '' && m.message.en.trim() !== ''), {
+        message: 'a maintenance message needs Telugu and English text',
+      }),
+    default: { active: false, message: { te: '', en: '' } } as {
+      active: boolean;
+      message: { te: string; en: string };
+    },
+    description:
+      'Maintenance message shown in the learner app instead of the lessons while active (FR-1102).',
+  },
   'quiz.passMark': {
     schema: z.number().min(0.5).max(1),
     default: 0.8,

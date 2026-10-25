@@ -119,4 +119,39 @@ describe('platform settings and feature flags (FR-1101, FR-1103)', () => {
     expect(closed.status).toBe(403);
     expect(closed.body).toMatchObject({ code: 'feature_disabled', feature: 'module.tutor' });
   });
+
+  it('tells old apps to update, and shows a maintenance message (FR-1102)', async () => {
+    const put = (key: string, value: unknown) =>
+      http().put(`/v1/admin/settings/${key}`).set(as(superAdmin)).send({ value });
+    const config = async (version?: string) =>
+      (
+        await http()
+          .get('/v1/app/config')
+          .query(version ? { platform: 'android', version } : {})
+          .expect(200)
+      ).body;
+
+    expect(await config('0.1.0')).toMatchObject({ update: 'none', maintenance: { active: false } });
+    await put('app.minVersion', '0.2.0').expect(200);
+    await put('app.latestVersion', '0.10.0').expect(200);
+    expect((await config('0.1.9')).update).toBe('required');
+    // Versions compare by number, not as text: 0.9.0 is older than 0.10.0.
+    expect((await config('0.9.0')).update).toBe('optional');
+    expect((await config('0.10.0')).update).toBe('none');
+    expect((await config()).update).toBe('none');
+    await http().get('/v1/app/config').query({ version: '1.0' }).expect(400);
+
+    await put('app.maintenance', { active: true, message: { te: '', en: 'Back soon' } }).expect(
+      400,
+    );
+    await put('app.maintenance', {
+      active: true,
+      message: { te: 'త్వరలో వస్తాం', en: 'Back soon' },
+    }).expect(200);
+    expect((await config('0.10.0')).maintenance).toEqual({
+      active: true,
+      message: { te: 'త్వరలో వస్తాం', en: 'Back soon' },
+    });
+    await put('app.minVersion', 'latest').expect(400);
+  });
 });

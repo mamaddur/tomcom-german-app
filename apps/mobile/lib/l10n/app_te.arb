@@ -155,5 +155,10 @@
   "noCertificates": "ఒక స్థాయిలోని అన్ని పాఠాలు, చెక్‌పాయింట్ పాస్ అయితే దాని సర్టిఫికెట్ వస్తుంది.",
   "certificateLine": "జర్మన్ {level} · {percent}% · {code}",
   "certificateWithdrawn": "TOMCOM ఉపసంహరించింది",
-  "downloadPdf": "PDF డౌన్‌లోడ్"
+  "downloadPdf": "PDF డౌన్‌లోడ్",
+  "updateRequiredTitle": "దయచేసి యాప్‌ను అప్‌డేట్ చేయండి",
+  "updateRequiredBody": "ఈ వెర్షన్ ఇక పని చేయదు. Play Store లేదా App Store తెరిచి, యాప్‌ను అప్‌డేట్ చేసి, మళ్ళీ తెరవండి. మీ పురోగతి సేవ్ అయి ఉంది.",
+  "updateAvailable2": "యాప్ కొత్త వెర్షన్ అందుబాటులో ఉంది. వీలైనప్పుడు Play Store నుండి అప్‌డేట్ చేయండి.",
+  "maintenanceTitle": "త్వరలో తిరిగి వస్తాం",
+  "tryAgain": "మళ్ళీ ప్రయత్నించండి"
 }

@@ -64,6 +64,21 @@ describe('admin portal staff sign-in (NFR-10)', () => {
     expect(texts.some((r) => r.includes('staff_login') && r.includes('success'))).toBe(true);
   });
 
+  it('a super admin changes a setting within its range (FR-1101)', async () => {
+    await page.goto(`${WEB}/te/admin/settings`);
+    const goal = page.locator('section#goal\\.dailyMinutes');
+    await goal.getByRole('textbox').or(goal.getByRole('spinbutton')).fill('999');
+    await goal.getByRole('button').click();
+    await page.locator('p.error').waitFor();
+    expect(await page.locator('p.error').textContent()).toContain('అనుమతించిన పరిధికి బయట');
+
+    const again = page.locator('section#goal\\.dailyMinutes');
+    await again.getByRole('spinbutton').fill('10');
+    await again.getByRole('button').click();
+    await page.locator('p.ok').waitFor();
+    expect(await page.locator('p.ok').textContent()).toContain('goal.dailyMinutes');
+  });
+
   it('keeps tokens out of reach of page scripts', async () => {
     const cookies = await page.context().cookies();
     const session = cookies.filter((c) => c.name === 'tomcom_at' || c.name === 'tomcom_rt');

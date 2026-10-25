@@ -1,6 +1,12 @@
-import { Body, Controller, Get, Ip, Param, Put } from '@nestjs/common';
-import { ApiBearerAuth, ApiOkResponse, ApiProperty, ApiTags } from '@nestjs/swagger';
-import { IsBoolean, IsDefined } from 'class-validator';
+import { Body, Controller, Get, Ip, Param, Put, Query } from '@nestjs/common';
+import {
+  ApiBearerAuth,
+  ApiOkResponse,
+  ApiProperty,
+  ApiPropertyOptional,
+  ApiTags,
+} from '@nestjs/swagger';
+import { IsBoolean, IsDefined, IsIn, IsOptional, Matches } from 'class-validator';
 import { Auth, Public, Roles } from '../identity/auth.guard.js';
 import type { AccessClaims } from '../identity/token.service.js';
 import { SettingsService } from './settings.service.js';
@@ -36,6 +42,30 @@ export class LearningRulesDto {
   @ApiProperty({ example: 10 }) dailyGoalMinutes!: number;
 }
 
+export class MaintenanceDto {
+  @ApiProperty() active!: boolean;
+  @ApiProperty({ example: { te: '...', en: 'Back at 6 pm' } }) message!: Record<string, string>;
+}
+
+export class AppConfigQueryDto {
+  @ApiPropertyOptional({ enum: ['android', 'ios'] })
+  @IsOptional()
+  @IsIn(['android', 'ios'])
+  platform?: string;
+  @ApiPropertyOptional({ example: '0.1.0' })
+  @IsOptional()
+  @Matches(/^\d+\.\d+\.\d+$/)
+  version?: string;
+}
+
+/** Compares dotted versions numerically: 0.10.0 is newer than 0.9.9. */
+export const older = (a: string, b: string) => {
+  const pa = a.split('.').map(Number);
+  const pb = b.split('.').map(Number);
+  for (let i = 0; i < 3; i++) if (pa[i] !== pb[i]) return pa[i]! < pb[i]!;
+  return false;
+};
+
 export class AppConfigDto {
   @ApiProperty({
     example: { 'module.tutor': true },
@@ -46,6 +76,12 @@ export class AppConfigDto {
   limits!: Record<string, number>;
   @ApiProperty({ type: LearningRulesDto })
   learning!: LearningRulesDto;
+  @ApiProperty({
+    enum: ['none', 'optional', 'required'],
+    description: 'FR-1102, for the `version` sent; `none` when no version is sent',
+  })
+  update!: 'none' | 'optional' | 'required';
+  @ApiProperty({ type: MaintenanceDto }) maintenance!: MaintenanceDto;
 }
 
 /** FR-1101, FR-1103. Super admins change settings and flags; TOMCOM admins can read them. */
@@ -97,8 +133,13 @@ export class SettingsController {
   @Public()
   @Get('app/config')
   @ApiOkResponse({ type: AppConfigDto })
-  async appConfig(): Promise<AppConfigDto> {
+  async appConfig(@Query() q: AppConfigQueryDto): Promise<AppConfigDto> {
     const flags = await this.settings.listFlags();
+    const [min, latest, maintenance] = await Promise.all([
+      this.settings.get('app.minVersion'),
+      this.settings.get('app.latestVersion'),
+      this.settings.get('app.maintenance'),
+    ]);
     return {
       features: Object.fromEntries(flags.map((f) => [f.key, f.enabled])),
       limits: {
@@ -112,6 +153,14 @@ export class SettingsController {
         sequentialUnlock: await this.settings.get('unlock.sequential'),
         dailyGoalMinutes: await this.settings.get('goal.dailyMinutes'),
       },
+      update: !q.version
+        ? 'none'
+        : older(q.version, min)
+          ? 'required'
+          : older(q.version, latest)
+            ? 'optional'
+            : 'none',
+      maintenance: { active: maintenance.active, message: maintenance.message },
     };
   }
 }
