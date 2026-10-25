@@ -2235,6 +2235,101 @@
         ]
       }
     },
+    "/v1/admin/readiness": {
+      "get": {
+        "operationId": "ReportsController_readiness",
+        "parameters": [
+          {
+            "name": "batchId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "districtCode",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "tradeCode",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "trainerId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "from",
+            "required": false,
+            "in": "query",
+            "description": "IST date; default 29 days before `to`",
+            "schema": {
+              "example": "2026-10-01",
+              "type": "string"
+            }
+          },
+          {
+            "name": "to",
+            "required": false,
+            "in": "query",
+            "description": "IST date, inclusive; default today",
+            "schema": {
+              "example": "2026-10-30",
+              "type": "string"
+            }
+          },
+          {
+            "name": "level",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "A1",
+                "A2",
+                "B1"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ReadinessRowDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "admin"
+        ]
+      }
+    },
     "/v1/admin/learners": {
       "get": {
         "operationId": "ReportsController_learners",
@@ -2463,6 +2558,104 @@
         ]
       }
     },
+    "/v1/admin/reports/readiness.xlsx": {
+      "get": {
+        "operationId": "ExportsController_readiness",
+        "parameters": [
+          {
+            "name": "batchId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "districtCode",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "tradeCode",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "trainerId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "from",
+            "required": false,
+            "in": "query",
+            "description": "IST date; default 29 days before `to`",
+            "schema": {
+              "example": "2026-10-01",
+              "type": "string"
+            }
+          },
+          {
+            "name": "to",
+            "required": false,
+            "in": "query",
+            "description": "IST date, inclusive; default today",
+            "schema": {
+              "example": "2026-10-30",
+              "type": "string"
+            }
+          },
+          {
+            "name": "level",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "A1",
+                "A2",
+                "B1"
+              ]
+            }
+          },
+          {
+            "name": "locale",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "default": "en",
+              "type": "string",
+              "enum": [
+                "en",
+                "te"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Readiness list (FR-907) as Excel"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "admin"
+        ]
+      }
+    },
     "/v1/admin/reports/export.pdf": {
       "get": {
         "operationId": "ExportsController_pdf",
@@ -2549,6 +2742,234 @@
         "responses": {
           "200": {
             "description": "PDF report: summary, by lesson, learners"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "admin"
+        ]
+      }
+    },
+    "/v1/checkpoints": {
+      "get": {
+        "operationId": "LearnerCheckpointsController_overview",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CheckpointStatusDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "me"
+        ]
+      }
+    },
+    "/v1/checkpoints/{level}/attempts": {
+      "post": {
+        "operationId": "LearnerCheckpointsController_start",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CheckpointAttemptDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "me"
+        ]
+      }
+    },
+    "/v1/checkpoints/attempts/{id}": {
+      "get": {
+        "operationId": "LearnerCheckpointsController_get",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CheckpointAttemptDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "me"
+        ]
+      }
+    },
+    "/v1/checkpoints/attempts/{id}/submit": {
+      "post": {
+        "operationId": "LearnerCheckpointsController_submit",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SubmitAttemptDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CheckpointAttemptDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "me"
+        ]
+      }
+    },
+    "/v1/checkpoints/attempts/{id}/media/{mediaId}": {
+      "get": {
+        "operationId": "LearnerCheckpointsController_mediaFile",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "mediaId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "me"
+        ]
+      }
+    },
+    "/v1/admin/marking": {
+      "get": {
+        "operationId": "MarkingController_queue",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Attempts waiting for writing marks, oldest first"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "admin"
+        ]
+      }
+    },
+    "/v1/admin/marking/{id}": {
+      "post": {
+        "operationId": "MarkingController_mark",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MarkAttemptDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The final result"
           }
         },
         "security": [
@@ -4804,6 +5225,61 @@
           "lessons"
         ]
       },
+      "ReadinessRowDto": {
+        "type": "object",
+        "properties": {
+          "learnerId": {
+            "type": "string"
+          },
+          "firstName": {
+            "type": "string",
+            "nullable": true
+          },
+          "lastName": {
+            "type": "string",
+            "nullable": true
+          },
+          "batchCode": {
+            "type": "string",
+            "nullable": true
+          },
+          "districtCode": {
+            "type": "string",
+            "nullable": true
+          },
+          "tradeCode": {
+            "type": "string",
+            "nullable": true
+          },
+          "level": {
+            "type": "string",
+            "enum": [
+              "A1",
+              "A2",
+              "B1"
+            ]
+          },
+          "score": {
+            "type": "number",
+            "description": "Best passing checkpoint score, 0–1"
+          },
+          "sectionScores": {
+            "type": "object"
+          },
+          "passedAt": {
+            "format": "date-time",
+            "type": "string",
+            "description": "When that checkpoint was submitted"
+          }
+        },
+        "required": [
+          "learnerId",
+          "level",
+          "score",
+          "sectionScores",
+          "passedAt"
+        ]
+      },
       "LearnerRowDto": {
         "type": "object",
         "properties": {
@@ -4991,6 +5467,197 @@
           "activity",
           "pronunciation",
           "tutorUsage"
+        ]
+      },
+      "CheckpointAttemptSummaryDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "in_progress",
+              "awaiting_marking",
+              "passed",
+              "failed",
+              "expired"
+            ]
+          },
+          "total": {
+            "type": "number",
+            "nullable": true
+          },
+          "sectionScores": {
+            "type": "object",
+            "nullable": true
+          },
+          "passMark": {
+            "type": "number"
+          },
+          "startedAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "submittedAt": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "id",
+          "status",
+          "total",
+          "sectionScores",
+          "passMark",
+          "startedAt",
+          "submittedAt"
+        ]
+      },
+      "CheckpointStatusDto": {
+        "type": "object",
+        "properties": {
+          "level": {
+            "type": "string",
+            "enum": [
+              "A1",
+              "A2",
+              "B1"
+            ]
+          },
+          "available": {
+            "type": "boolean",
+            "description": "A published checkpoint exists"
+          },
+          "lessons": {
+            "type": "number"
+          },
+          "lessonsPassed": {
+            "type": "number"
+          },
+          "eligible": {
+            "type": "boolean",
+            "description": "Every published lesson of the level is passed"
+          },
+          "passed": {
+            "type": "boolean"
+          },
+          "latest": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/CheckpointAttemptSummaryDto"
+              }
+            ]
+          }
+        },
+        "required": [
+          "level",
+          "available",
+          "lessons",
+          "lessonsPassed",
+          "eligible",
+          "passed",
+          "latest"
+        ]
+      },
+      "CheckpointAttemptDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "in_progress",
+              "awaiting_marking",
+              "passed",
+              "failed",
+              "expired"
+            ]
+          },
+          "total": {
+            "type": "number",
+            "nullable": true
+          },
+          "sectionScores": {
+            "type": "object",
+            "nullable": true
+          },
+          "passMark": {
+            "type": "number"
+          },
+          "startedAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "submittedAt": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true
+          },
+          "level": {
+            "type": "string",
+            "enum": [
+              "A1",
+              "A2",
+              "B1"
+            ]
+          },
+          "expiresAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "sections": {
+            "type": "object",
+            "nullable": true,
+            "description": "Questions without answers while the attempt is open; null afterwards"
+          }
+        },
+        "required": [
+          "id",
+          "status",
+          "total",
+          "sectionScores",
+          "passMark",
+          "startedAt",
+          "submittedAt",
+          "level",
+          "expiresAt",
+          "sections"
+        ]
+      },
+      "SubmitAttemptDto": {
+        "type": "object",
+        "properties": {
+          "answers": {
+            "type": "object",
+            "description": "{ questionId: response } for reading and listening"
+          },
+          "writing": {
+            "type": "object",
+            "description": "{ taskId: text } for writing"
+          }
+        },
+        "required": [
+          "answers",
+          "writing"
+        ]
+      },
+      "MarkAttemptDto": {
+        "type": "object",
+        "properties": {
+          "marks": {
+            "type": "object",
+            "description": "{ taskId: { score: 0–1, comment? } }"
+          }
+        },
+        "required": [
+          "marks"
         ]
       }
     }

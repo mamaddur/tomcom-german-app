@@ -48,7 +48,9 @@
       "dashboard": "Dashboard",
       "learners": "Learners",
       "announcements": "Announcements",
-      "audit": "Audit log"
+      "audit": "Audit log",
+      "marking": "Mark writing",
+      "readiness": "Exam readiness"
     },
     "forbidden": "You don't have access to this page.",
     "homeIntro": "Choose what to work on.",
@@ -124,7 +126,9 @@
       "learner_not_found": "This learner does not exist or is not in one of your batches.",
       "range_too_long": "Choose a date range of one year or less.",
       "batch_not_allowed": "You can only send announcements to your own batches.",
-      "announcement_not_found": "This announcement does not exist or is not yours."
+      "announcement_not_found": "This announcement does not exist or is not yours.",
+      "attempt_not_found": "This attempt is not waiting for your marks (already marked, or not in your batches).",
+      "attempt_closed": "This attempt was already marked."
     },
     "filters": {
       "title": "Filters",
@@ -192,6 +196,32 @@
       "older": "Older entries",
       "filteredBy": "Showing actions by {id}",
       "clear": "Show all"
+    },
+    "marking": {
+      "title": "Mark writing",
+      "intro": "Checkpoint writing from your learners, oldest first. Reading and listening are already scored by the server; your mark completes the result.",
+      "empty": "Nothing to mark right now.",
+      "submitted": "Submitted {when}",
+      "scoresSoFar": "Reading {reading}, listening {listening}; pass mark {pass}%",
+      "task": "Writing task {n}",
+      "guide": "Marking guide",
+      "score": "Score (0–100)",
+      "comment": "Comment for the learner (optional)",
+      "save": "Save marks",
+      "saved": "Marked: {result} with {total}%.",
+      "passed": "passed",
+      "failed": "not passed"
+    },
+    "readiness": {
+      "title": "Ready for the exam",
+      "intro": "Learners who passed a level checkpoint, for exam nomination. The date range applies to when they passed.",
+      "count": "{count, plural, =0{Nobody yet} =1{1 learner} other{# learners}}",
+      "score": "Checkpoint score",
+      "sections": "Sections",
+      "passedOn": "Passed on",
+      "reading": "Reading",
+      "listening": "Listening",
+      "writing": "Writing"
     }
   },
   "studio": {

@@ -37,6 +37,18 @@ export class ExportsController {
     send(res, file, XLSX, 'xlsx');
   }
 
+  @Get('readiness.xlsx')
+  @ApiOkResponse({ description: 'Readiness list (FR-907) as Excel' })
+  async readiness(
+    @Auth() auth: AccessClaims,
+    @Query() q: ExportQueryDto,
+    @Ip() ip: string,
+    @Res() res: Response,
+  ): Promise<void> {
+    const { locale, ...f } = q;
+    send(res, await this.exports.readinessXlsx(auth, f, locale ?? 'en', ip), XLSX, 'xlsx');
+  }
+
   @Get('export.pdf')
   @ApiOkResponse({ description: 'PDF report: summary, by lesson, learners' })
   async pdf(

@@ -51,6 +51,7 @@ Planning approved on 2026-10-25 with "do it on this local machine for now". Step
 1. **Checkpoint sections today: reading, listening and writing.** FR-404 also asks for speaking, which needs the speech vendor (C2). It joins when pronunciation scoring (step 6) is connected. Until then, a level can be passed without a speaking section. **Is that acceptable for the pilot, or should certificates wait for speaking?**
 2. **Writing is marked by a trainer** against the author's marking guide. AI marking (FR-407) assists later, and the trainer can override it.
 3. **Pass rule, my assumption:** the overall score across sections must reach the checkpoint's pass mark (default 60%, like Goethe A1). Tell me if each section needs its own minimum.
+5. **Taking a checkpoint, my assumptions:** it opens once every published lesson of the level is passed. An attempt lasts at most 90 minutes, and a learner can start 3 a day. Reopening the app resumes the open attempt. Tell me if TOMCOM wants a waiting period after a fail.
 4. **Checkpoint review is lighter than lessons:** an author saves drafts, and any reviewer who did not make the last edit publishes (four eyes). There is no separate "in review" state. Say if checkpoints need the full lesson workflow.
 
 ## New from step 9

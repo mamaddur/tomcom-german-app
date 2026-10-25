@@ -48,6 +48,23 @@ describe('dashboard and learners (FR-902, FR-903)', () => {
       expect(await page.getByRole('heading', { level: 1 }).textContent()).toBe('Learners');
       expect(await page.getByLabel('Level').inputValue()).toBe('A1');
 
+      // FR-907 readiness list with the same filters, and its Excel download.
+      await page.getByRole('navigation').getByRole('link', { name: 'Exam readiness' }).click();
+      await page.waitForURL(`${WEB}/en/admin/readiness`);
+      await page.getByLabel('Level').selectOption('A1');
+      await page.getByRole('button', { name: 'Apply' }).click();
+      await page.waitForURL(/readiness\?.*level=A1/);
+      const [sheet] = await Promise.all([
+        page.waitForEvent('download'),
+        page.getByRole('link', { name: 'Download Excel' }).click(),
+      ]);
+      expect(sheet.suggestedFilename()).toMatch(/^tomcom-report-.*\.xlsx$/);
+
+      // Writing to mark (nothing waiting for this synthetic trainer).
+      await page.getByRole('navigation').getByRole('link', { name: 'Mark writing' }).click();
+      await page.waitForURL(`${WEB}/en/admin/marking`);
+      expect(await page.getByRole('heading', { level: 1 }).textContent()).toBe('Mark writing');
+
       // A reversed date range is explained, not a crash.
       await page.goto(`${WEB}/en/admin?from=2026-02-01&to=2026-01-01`);
       expect(await page.getByRole('alert').first().textContent()).toContain('check the fields');

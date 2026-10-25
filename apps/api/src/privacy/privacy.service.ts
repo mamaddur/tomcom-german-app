@@ -34,6 +34,10 @@ export class PrivacyService {
         lessonProgress: true,
         quizAttempts: { orderBy: { finishedAt: 'asc' } },
         dailyActivity: { orderBy: { date: 'asc' } },
+        checkpointAttempts: {
+          orderBy: { startedAt: 'asc' },
+          include: { level: { select: { code: true } } },
+        },
       },
     });
     await this.audit.record({
@@ -93,6 +97,15 @@ export class PrivacyService {
         durationMs: a.durationMs,
         answers: a.answers,
         finishedAt: a.finishedAt,
+      })),
+      checkpoints: user.checkpointAttempts.map((a) => ({
+        level: a.level.code,
+        status: a.status,
+        total: a.total,
+        sectionScores: a.sectionScores,
+        writing: (a.responses as { writing?: unknown } | null)?.writing ?? null,
+        startedAt: a.startedAt,
+        submittedAt: a.submittedAt,
       })),
       learningTime: user.dailyActivity.map((d) => ({
         date: d.date.toISOString().slice(0, 10),

@@ -36,6 +36,12 @@ const EN = {
   trade: 'Trade',
   lessonsPassed: 'Lessons passed',
   lastActive: 'Last active',
+  readiness: 'Ready for the exam',
+  score: 'Checkpoint score',
+  reading: 'Reading',
+  listening: 'Listening',
+  writing: 'Writing',
+  passedOn: 'Passed on',
 };
 type Labels = Record<keyof typeof EN, string>;
 const LABELS: Record<'en' | 'te', Labels> = {
@@ -68,6 +74,12 @@ const LABELS: Record<'en' | 'te', Labels> = {
     trade: 'వృత్తి',
     lessonsPassed: 'పాస్ అయిన పాఠాలు',
     lastActive: 'చివరిసారి క్రియాశీలం',
+    readiness: 'పరీక్షకు సిద్ధంగా ఉన్నవారు',
+    score: 'చెక్‌పాయింట్ స్కోరు',
+    reading: 'చదవడం',
+    listening: 'వినడం',
+    writing: 'రాయడం',
+    passedOn: 'పాస్ అయిన తేదీ',
   },
 };
 
@@ -227,6 +239,65 @@ export class ExportsService {
       sheet.getRow(1).font = { bold: true };
       sheet.views = [{ state: 'frozen', ySplit: 1 }];
     }
+    return Buffer.from(await book.xlsx.writeBuffer());
+  }
+
+  /** FR-907 story 6: the readiness list as Excel, for the same filters as on screen. */
+  async readinessXlsx(
+    auth: AccessClaims,
+    f: ReportFilterDto,
+    locale: 'en' | 'te',
+    ip?: string,
+  ): Promise<Buffer> {
+    const [rows, districts, trades] = await Promise.all([
+      this.reports.readiness(auth, f),
+      this.prisma.db.district.findMany(),
+      this.prisma.db.trade.findMany(),
+    ]);
+    const l = LABELS[locale];
+    const name = (n: unknown) =>
+      (n as Record<string, string>)[locale] ?? (n as Record<string, string>).en ?? '';
+    const d = new Map(districts.map((x) => [x.code, name(x.name)]));
+    const t = new Map(trades.map((x) => [x.code, name(x.name)]));
+    await this.audit.record({
+      actorId: auth.userId,
+      actorRole: auth.role,
+      action: 'report_export',
+      outcome: 'success',
+      details: { format: 'readiness_xlsx', filters: { ...f }, learners: rows.length },
+      ip,
+    });
+    const book = new ExcelJS.Workbook();
+    book.creator = 'TOMCOM';
+    const sheet = book.addWorksheet(l.readiness);
+    sheet.columns = [
+      { header: l.name, width: 28 },
+      { header: l.batch, width: 14 },
+      { header: l.district, width: 18 },
+      { header: l.trade, width: 16 },
+      { header: l.level, width: 8 },
+      { header: l.score, width: 16, style: { numFmt: '0%' } },
+      { header: l.reading, width: 12, style: { numFmt: '0%' } },
+      { header: l.listening, width: 12, style: { numFmt: '0%' } },
+      { header: l.writing, width: 12, style: { numFmt: '0%' } },
+      { header: l.passedOn, width: 18 },
+    ];
+    for (const r of rows) {
+      sheet.addRow([
+        [r.firstName, r.lastName].filter(Boolean).join(' '),
+        r.batchCode ?? '',
+        d.get(r.districtCode ?? '') ?? '',
+        t.get(r.tradeCode ?? '') ?? '',
+        r.level,
+        r.score,
+        r.sectionScores.reading ?? '',
+        r.sectionScores.listening ?? '',
+        r.sectionScores.writing ?? '',
+        istDateTime(r.passedAt),
+      ]);
+    }
+    sheet.getRow(1).font = { bold: true };
+    sheet.views = [{ state: 'frozen', ySplit: 1 }];
     return Buffer.from(await book.xlsx.writeBuffer());
   }
 
