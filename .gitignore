@@ -19,3 +19,5 @@ tools/bin/
 .DS_Store
 /tmp/
 .pgdata/
+packages/api-client-ts/src/schema.d.ts
+tools/.venv/

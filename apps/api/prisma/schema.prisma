@@ -1,0 +1,13 @@
+// Database schema. Change only through `prisma migrate dev`; never edit an applied migration.
+// Tables arrive with the step that needs them (see docs/build-plan.md).
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
+}
+
+datasource db {
+  provider   = "postgresql"
+  url        = env("DATABASE_URL")
+  extensions = [pgcrypto]
+}

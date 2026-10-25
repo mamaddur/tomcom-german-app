@@ -1,0 +1,13 @@
+{
+  "@@locale": "en",
+  "appTitle": "German for Work",
+  "@appTitle": { "description": "App name on the home screen. Final name is a TOMCOM decision." },
+  "homeStatus": "Build step 1: foundations. Lessons arrive in later steps.",
+  "@homeStatus": { "description": "Placeholder text on the home screen during the build." },
+  "languageLabel": "Language",
+  "@languageLabel": { "description": "Label for the language switcher." },
+  "languageTelugu": "తెలుగు",
+  "@languageTelugu": { "description": "Name of Telugu, always shown in Telugu script." },
+  "languageEnglish": "English",
+  "@languageEnglish": { "description": "Name of English, always shown in English." }
+}

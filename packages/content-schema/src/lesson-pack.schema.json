@@ -1,0 +1,384 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://tomcom.example/schemas/lesson-pack.json",
+  "title": "Lesson pack manifest",
+  "description": "One immutable, versioned pack per level, downloaded for offline use (FR-307, ADR-008). Contains lesson quizzes only; checkpoint tests are online and never shipped (ADR-009).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "level",
+    "version",
+    "publishedAt",
+    "settings",
+    "lessons",
+    "vocab",
+    "media"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": 1
+    },
+    "level": {
+      "enum": ["A1", "A2", "B1"]
+    },
+    "version": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "publishedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "minAppVersion": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
+    "settings": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["passMark", "questionsPerQuiz"],
+      "properties": {
+        "passMark": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "FR-402, default 0.8"
+        },
+        "questionsPerQuiz": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 30
+        }
+      }
+    },
+    "lessons": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/lesson"
+      }
+    },
+    "vocab": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/vocabItem"
+      }
+    },
+    "media": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/mediaRef"
+      }
+    }
+  },
+  "$defs": {
+    "id": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+    },
+    "l10n": {
+      "description": "Text keyed by locale. Telugu and English are required at launch (BR-02, ADR-007).",
+      "type": "object",
+      "required": ["te", "en"],
+      "propertyNames": {
+        "pattern": "^[a-z]{2}$"
+      },
+      "additionalProperties": {
+        "type": "string",
+        "minLength": 1
+      },
+      "properties": {
+        "te": {
+          "type": "string",
+          "minLength": 1
+        },
+        "en": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "german": {
+      "description": "German text with mandatory audio (FR-302).",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["text", "audio"],
+      "properties": {
+        "text": {
+          "type": "string",
+          "minLength": 1
+        },
+        "audio": {
+          "$ref": "#/$defs/id"
+        }
+      }
+    },
+    "lesson": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "order", "title", "description", "estMinutes", "screens", "questions"],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "order": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "title": {
+          "$ref": "#/$defs/l10n"
+        },
+        "description": {
+          "$ref": "#/$defs/l10n"
+        },
+        "estMinutes": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 120
+        },
+        "tradeTags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "video": {
+          "$ref": "#/$defs/id"
+        },
+        "screens": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/screen"
+          }
+        },
+        "questions": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/question"
+          }
+        }
+      }
+    },
+    "screen": {
+      "type": "object",
+      "required": ["id", "order", "type"],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "order": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "type": {
+          "enum": ["explain", "vocab", "dialogue", "practice"]
+        }
+      },
+      "oneOf": [
+        {
+          "properties": {
+            "type": {
+              "const": "explain"
+            },
+            "body": {
+              "$ref": "#/$defs/l10n"
+            },
+            "examples": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/german"
+              }
+            }
+          },
+          "required": ["body"]
+        },
+        {
+          "properties": {
+            "type": {
+              "const": "vocab"
+            },
+            "vocabIds": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "$ref": "#/$defs/id"
+              }
+            }
+          },
+          "required": ["vocabIds"]
+        },
+        {
+          "properties": {
+            "type": {
+              "const": "dialogue"
+            },
+            "lines": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["speaker", "german", "meaning"],
+                "properties": {
+                  "speaker": {
+                    "type": "string"
+                  },
+                  "german": {
+                    "$ref": "#/$defs/german"
+                  },
+                  "meaning": {
+                    "$ref": "#/$defs/l10n"
+                  }
+                }
+              }
+            }
+          },
+          "required": ["lines"]
+        },
+        {
+          "properties": {
+            "type": {
+              "const": "practice"
+            },
+            "prompt": {
+              "$ref": "#/$defs/l10n"
+            },
+            "target": {
+              "$ref": "#/$defs/german"
+            }
+          },
+          "required": ["prompt", "target"]
+        }
+      ]
+    },
+    "vocabItem": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "german", "meaning"],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "german": {
+          "$ref": "#/$defs/german"
+        },
+        "article": {
+          "enum": ["der", "die", "das", null]
+        },
+        "plural": {
+          "type": "string"
+        },
+        "meaning": {
+          "$ref": "#/$defs/l10n"
+        },
+        "image": {
+          "$ref": "#/$defs/id"
+        },
+        "tradeTags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "question": {
+      "description": "Lesson-quiz types only (FR-401). Writing and speaking belong to online checkpoints.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "type", "prompt", "payload", "answer", "explanation", "difficulty"],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "type": {
+          "enum": ["mcq", "listen_choose", "match_pairs", "fill_gap", "word_order"]
+        },
+        "prompt": {
+          "$ref": "#/$defs/l10n"
+        },
+        "payload": {
+          "type": "object"
+        },
+        "answer": {},
+        "explanation": {
+          "$ref": "#/$defs/l10n"
+        },
+        "difficulty": {
+          "enum": [1, 2, 3]
+        }
+      }
+    },
+    "mediaRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "type", "path", "bytes", "sha256"],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "type": {
+          "enum": ["audio", "image", "video"]
+        },
+        "path": {
+          "type": "string",
+          "pattern": "^(audio|images|video)/[\\w.-]+$"
+        },
+        "bytes": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "durationMs": {
+          "type": "integer",
+          "minimum": 1
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "audio"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "bytes": {
+                "maximum": 102400,
+                "description": "NFR-04: audio under 100 KB",
+                "type": "integer"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "video"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "durationMs": {
+                "maximum": 120000,
+                "description": "FR-305: under 2 minutes",
+                "type": "integer"
+              }
+            },
+            "required": ["durationMs"]
+          }
+        }
+      ]
+    }
+  }
+}

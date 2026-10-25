@@ -1,0 +1,22 @@
+include: package:flutter_lints/flutter.yaml
+
+analyzer:
+  language:
+    strict-casts: true
+    strict-inference: true
+    strict-raw-types: true
+  errors:
+    missing_required_param: error
+    missing_return: error
+  exclude:
+    - build/**
+    - android/**
+    - ios/**
+
+linter:
+  rules:
+    - avoid_print # use the app logger; never log PII (NFR-09)
+    - prefer_const_constructors
+    - prefer_final_locals
+    - always_declare_return_types
+    - unawaited_futures

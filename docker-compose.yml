@@ -1,0 +1,27 @@
+# Local dev services only. S3-compatible storage is added in build step 3 (media).
+# Synthetic data only — never load real learner data here.
+name: tomcom-dev
+services:
+  postgres:
+    image: pgvector/pgvector:0.8.0-pg16
+    environment:
+      POSTGRES_USER: tomcom
+      POSTGRES_PASSWORD: tomcom
+      POSTGRES_DB: tomcom_dev
+    ports: ['5432:5432']
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./scripts/db-init.sql:/docker-entrypoint-initdb.d/00-init.sql:ro
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U tomcom -d tomcom_dev']
+      interval: 2s
+      retries: 30
+  redis:
+    image: redis:7.4-alpine
+    ports: ['6379:6379']
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 2s
+      retries: 30
+volumes:
+  pgdata:

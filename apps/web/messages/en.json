@@ -1,0 +1,8 @@
+{
+  "app": { "title": "TOMCOM German Learning" },
+  "home": {
+    "heading": "Admin portal",
+    "status": "Build step 1: foundations. Features arrive in later steps."
+  },
+  "language": { "label": "Language", "te": "తెలుగు", "en": "English" }
+}

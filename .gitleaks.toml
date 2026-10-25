@@ -1,0 +1,8 @@
+title = "TOMCOM gitleaks config"
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Local-only dev credentials for docker-compose services"
+paths = ['''docker-compose\.yml''', '''\.env\.example$''', '''apps/api/test/setup-env\.ts''']
