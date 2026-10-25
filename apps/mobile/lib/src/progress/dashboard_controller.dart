@@ -28,6 +28,27 @@ class DashboardController extends ChangeNotifier {
       // Offline or server trouble: keep what we have.
     }
     notifyListeners();
+    await syncProgress();
+  }
+
+  bool _syncing = false;
+
+  /// Sends the outbox and merges server results. Offline, everything stays queued (NFR-05).
+  Future<void> syncProgress() async {
+    if (_syncing) return;
+    _syncing = true;
+    try {
+      // At most 100 attempts per request (API limit); the rest go on the next sync.
+      final result = await api.sync(
+        attempts: progress.pendingAttempts.take(100).toList(),
+        activity: progress.activityForSync(),
+      );
+      progress.applySync(result);
+    } on ApiException {
+      // Try again on the next refresh.
+    } finally {
+      _syncing = false;
+    }
   }
 
   void dismiss(String id) {

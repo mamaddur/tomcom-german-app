@@ -25,7 +25,7 @@ All writes from the mobile app accept `Idempotency-Key` or carry a `clientId`.
 | GET | `/announcements` → current announcements for everyone or the learner's batch (continue card, goal and streak are computed in the app from local progress) | FR-205 |
 | GET | `/packs/{level}/latest` → `{version, manifestUrl, zipUrl, bytes, checksum}` (signed CDN URLs) | FR-307, NFR-02 |
 | GET | `/lessons/{id}` (online fallback when the pack is not downloaded) | FR-301 |
-| POST | `/sync` `{events:[progress, quizAttempt, bookmark, activity]}` → server state | FR-307, FR-405, NFR-05 |
+| POST | `/sync` `{attempts, activity}` → `{stored, lessons, activity}` (bookmarks join in step 4d) | FR-307, FR-405, NFR-05 |
 | GET | `/placement-test` · POST `/placement-test/submit` | FR-105 |
 | GET/POST/DELETE | `/bookmarks` · GET `/bookmarks/due` | FR-308 |
 

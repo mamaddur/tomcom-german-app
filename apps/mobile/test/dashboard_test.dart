@@ -5,6 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:tomcom_german/src/api/api_client.dart';
 import 'package:tomcom_german/src/app.dart';
 import 'package:tomcom_german/src/content/content_controller.dart';
+import 'package:tomcom_german/src/content/levels_screen.dart';
 import 'package:tomcom_german/src/content/pack_store.dart';
 import 'package:tomcom_german/src/onboarding/onboarding_controller.dart';
 import 'package:tomcom_german/src/progress/progress_controller.dart';
@@ -190,5 +191,66 @@ void main() {
     await tester.pumpAndSettle();
     expect(progress.statusOf(pack, pack.lessons[0]), LessonStatus.passed);
     expect(progress.statusOf(pack, pack.lessons[1]), LessonStatus.available);
+  });
+
+  testWidgets(
+    'after a quiz, the attempt is sent to the server and leaves the outbox (FR-405)',
+    (tester) async {
+      final pack = quizPack(
+        questions: [allQuestionTypes().first],
+        questionsPerQuiz: 1,
+      );
+      content.installed['A1'] = pack;
+      progress
+        ..open('u1')
+        ..recordScreen(pack, pack.lessons.first, 1); // only the quiz is left
+      await pumpApp(tester);
+      await tester.tap(find.byKey(const Key('continue')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Hallo'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('quiz-action')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('quiz-action')));
+      await tester.pumpAndSettle();
+      expect(progress.pendingAttempts, hasLength(1));
+
+      await tester.tap(find.text('పాఠాలకు తిరిగి వెళ్ళండి'));
+      await tester.pumpAndSettle();
+      expect(fake.syncedAttempts.single['score'], 1.0);
+      expect(progress.pendingAttempts, isEmpty);
+    },
+  );
+
+  testWidgets('a new phone gets progress from the server (multi-device)', (
+    tester,
+  ) async {
+    final pack = memoryPack();
+    content.installed['A1'] = pack;
+    fake.serverLessons[pack.lessons.first.id] = (best: 0.95, passed: true);
+    await pumpApp(tester);
+    expect(progress.statusOf(pack, pack.lessons.first), LessonStatus.passed);
+    expect(find.text('A1 · పాఠం 2'), findsOneWidget);
+  });
+
+  testWidgets('offline: attempts stay queued until the next sync (NFR-05)', (
+    tester,
+  ) async {
+    fake.failRoutes.add('POST /v1/sync');
+    final pack = memoryPack();
+    progress
+      ..open('u1')
+      ..recordQuiz(pack, pack.lessons.first, 1, passMark: 0.8, attemptId: 'a1');
+    content.installed['A1'] = pack;
+    await pumpApp(tester);
+    expect(progress.pendingAttempts, hasLength(1));
+    fake.failRoutes.clear();
+    // Back from the Levels screen, the dashboard syncs again.
+    await tester.tap(find.byKey(const Key('level-A1')));
+    await tester.pumpAndSettle();
+    Navigator.of(tester.element(find.byType(LevelsScreen))).pop();
+    await tester.pumpAndSettle();
+    expect(progress.pendingAttempts, isEmpty);
+    expect(fake.syncedAttempts.single['id'], 'a1');
   });
 }

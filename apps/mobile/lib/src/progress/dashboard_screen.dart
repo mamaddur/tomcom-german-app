@@ -48,12 +48,15 @@ class _HomeScreenState extends State<HomeScreen> {
     super.dispose();
   }
 
-  void _openLevels() => Navigator.of(context).push(
-    MaterialPageRoute<void>(
-      builder: (_) =>
-          LevelsScreen(content: widget.content, progress: widget.progress),
-    ),
-  );
+  // Back on the dashboard after learning: send new attempts and time.
+  void _openLevels() => Navigator.of(context)
+      .push(
+        MaterialPageRoute<void>(
+          builder: (_) =>
+              LevelsScreen(content: widget.content, progress: widget.progress),
+        ),
+      )
+      .then((_) => dashboard.syncProgress());
 
   @override
   Widget build(BuildContext context) {
@@ -102,6 +105,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 content: widget.content,
                 progress: widget.progress,
                 onOpenLevels: _openLevels,
+                onReturn: dashboard.syncProgress,
               ),
               const SizedBox(height: 12),
               _GoalCard(progress: widget.progress),
@@ -181,10 +185,12 @@ class _ContinueCard extends StatelessWidget {
     required this.content,
     required this.progress,
     required this.onOpenLevels,
+    required this.onReturn,
   });
   final ContentController content;
   final ProgressController progress;
   final VoidCallback onOpenLevels;
+  final Future<void> Function() onReturn;
 
   @override
   Widget build(BuildContext context) {
@@ -218,22 +224,23 @@ class _ContinueCard extends StatelessWidget {
                 icon: const Icon(Icons.play_arrow),
                 label: Text(t.continueButton),
                 onPressed: () =>
-                    target.quiz && target.lesson.questions.isNotEmpty
-                    ? openQuiz(
-                        context,
-                        content: content,
-                        progress: progress,
-                        pack: target.pack,
-                        lesson: target.lesson,
-                      )
-                    : openLesson(
-                        context,
-                        content: content,
-                        progress: progress,
-                        pack: target.pack,
-                        lesson: target.lesson,
-                        screen: target.screen,
-                      ),
+                    (target.quiz && target.lesson.questions.isNotEmpty
+                            ? openQuiz(
+                                context,
+                                content: content,
+                                progress: progress,
+                                pack: target.pack,
+                                lesson: target.lesson,
+                              )
+                            : openLesson(
+                                context,
+                                content: content,
+                                progress: progress,
+                                pack: target.pack,
+                                lesson: target.lesson,
+                                screen: target.screen,
+                              ))
+                        .then((_) => onReturn()),
               ),
             ] else if (packs.isEmpty) ...[
               Text(t.startFirstLesson),

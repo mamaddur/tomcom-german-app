@@ -46,14 +46,17 @@ model User {
   createdAt  DateTime   @default(now()) @map("created_at") @db.Timestamptz
   updatedAt  DateTime   @updatedAt @map("updated_at") @db.Timestamptz
 
-  consents      Consent[]
-  devices       Device[]
-  refreshTokens RefreshToken[]
-  profile       LearnerProfile?
-  enrolments    Enrolment[]
-  trainerOf     BatchTrainer[]
-  credential    StaffCredential?
-  announcements Announcement[]   @relation("AnnouncementCreator")
+  consents       Consent[]
+  devices        Device[]
+  refreshTokens  RefreshToken[]
+  profile        LearnerProfile?
+  enrolments     Enrolment[]
+  trainerOf      BatchTrainer[]
+  credential     StaffCredential?
+  announcements  Announcement[]   @relation("AnnouncementCreator")
+  quizAttempts   QuizAttempt[]    @relation("QuizAttempts")
+  lessonProgress LessonProgress[] @relation("LessonProgress")
+  dailyActivity  DailyActivity[]  @relation("DailyActivity")
 
   @@map("users")
 }
@@ -337,6 +340,8 @@ model Lesson {
   questions Question[]
   comments  ReviewComment[]
   revisions LessonRevision[]
+  attempts  QuizAttempt[]
+  progress  LessonProgress[]
 
   @@index([levelId, order])
   @@map("lessons")
@@ -511,4 +516,58 @@ model Announcement {
 
   @@index([startsAt])
   @@map("announcements")
+}
+
+/// FR-405. Every lesson-quiz attempt, scored on the phone from the pack (ADR-009) and sent
+/// by the app's outbox. `clientId` makes a resend harmless.
+model QuizAttempt {
+  id          String   @id @default(uuid(7)) @db.Uuid
+  clientId    String   @unique @map("client_id") @db.Uuid
+  learnerId   String   @map("learner_id") @db.Uuid
+  lessonId    String   @map("lesson_id") @db.Uuid
+  packVersion Int      @map("pack_version")
+  score       Float
+  passed      Boolean
+  durationMs  Int      @map("duration_ms")
+  /// [{ questionId, response, correct }]
+  answers     Json
+  finishedAt  DateTime @map("finished_at") @db.Timestamptz
+  receivedAt  DateTime @default(now()) @map("received_at") @db.Timestamptz
+
+  learner User   @relation("QuizAttempts", fields: [learnerId], references: [id], onDelete: Cascade)
+  lesson  Lesson @relation(fields: [lessonId], references: [id])
+
+  @@index([learnerId, lessonId])
+  @@index([lessonId])
+  @@map("quiz_attempts")
+}
+
+/// FR-203. Best result per learner and lesson; recomputable from quiz_attempts.
+model LessonProgress {
+  learnerId String    @map("learner_id") @db.Uuid
+  lessonId  String    @map("lesson_id") @db.Uuid
+  bestScore Float     @map("best_score")
+  passed    Boolean
+  passedAt  DateTime? @map("passed_at") @db.Timestamptz
+  updatedAt DateTime  @updatedAt @map("updated_at") @db.Timestamptz
+
+  learner User   @relation("LessonProgress", fields: [learnerId], references: [id], onDelete: Cascade)
+  lesson  Lesson @relation(fields: [lessonId], references: [id])
+
+  @@id([learnerId, lessonId])
+  @@index([lessonId])
+  @@map("lesson_progress")
+}
+
+/// FR-204. Learning time per learner and IST day, for streaks and reports.
+model DailyActivity {
+  learnerId String   @map("learner_id") @db.Uuid
+  date      DateTime @db.Date
+  seconds   Int
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  learner User @relation("DailyActivity", fields: [learnerId], references: [id], onDelete: Cascade)
+
+  @@id([learnerId, date])
+  @@map("daily_activity")
 }

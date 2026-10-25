@@ -46,13 +46,13 @@ Draft content is edited in place. **Publishing creates an immutable `pack_versio
 
 | Table | Key columns | Notes |
 |---|---|---|
-| `lesson_progress` | learner_id, lesson_id (PK pair), state (`locked`/`available`/`in_progress`/`passed`), best_score, last_screen, completed_at, updated_from_client_at | FR-203. Derived and recomputable from attempts. |
-| `quiz_attempts` | id, client_id (unique), learner_id, lesson_id, pack_version, question_ids[], answers jsonb, score, passed, started_at_device, duration_ms, received_at | FR-405. Every attempt is kept. |
+| `lesson_progress` | learner_id, lesson_id (PK pair), best_score, passed, passed_at, updated_at | FR-203. Recomputable from attempts. Locked/available/in progress are worked out in the app. |
+| `quiz_attempts` | id, client_id (unique), learner_id, lesson_id, pack_version, answers jsonb (`questionId`, `response`, `correct`), score, passed, duration_ms, finished_at, received_at | FR-405. Every attempt is kept. |
 | `checkpoint_attempts` | id, learner_id, checkpoint_id, section_scores jsonb, total, passed, started_at, submitted_at | FR-404. Online only. |
 | `writing_submissions` | id, attempt_ref, text, ai_score, ai_feedback L10n, rubric jsonb, trainer_score nullable, trainer_id, overridden_at | FR-407 |
 | `pronunciation_attempts` | id, learner_id, ref_type (`vocab`/`sentence`/`checkpoint`), ref_id, overall_score, word_scores jsonb, vendor, latency_ms, created_at | FR-501, FR-502. No audio is stored (audio deleted after scoring [A]). |
 | `bookmarks` | learner_id, vocab_id, ease, interval_days, due_at, reps | FR-308 (SM-2 spaced repetition). |
-| `daily_activity` | learner_id, date (IST), minutes, lessons_done, goal_met | FR-204 streaks. Also used for reporting. |
+| `daily_activity` | learner_id, date (IST), seconds | FR-204 streaks. Also used for reporting; goal met = seconds ≥ goal at read time. |
 
 ## Tutor [tutor], usage [usage]
 

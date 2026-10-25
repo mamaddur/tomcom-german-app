@@ -228,11 +228,39 @@ class ProgressController extends ChangeNotifier {
   /// Attempts waiting to be sent to the server.
   List<Map<String, dynamic>> get pendingAttempts => List.unmodifiable(_outbox);
 
-  /// Removes attempts the server has stored.
-  void markSent(Iterable<String> attemptIds) {
-    final ids = attemptIds.toSet();
-    _outbox.removeWhere((a) => ids.contains(a['id']));
+  /// Learning time of the last 60 days, for the server (FR-204 reports and other devices).
+  List<Map<String, dynamic>> activityForSync() {
+    final cutoff = _istDay(_clock().subtract(const Duration(days: 59)));
+    return [
+      for (final e in _seconds.entries)
+        if (e.key.compareTo(cutoff) >= 0) {'date': e.key, 'seconds': e.value},
+    ];
+  }
+
+  /// Applies a sync answer: removes stored attempts from the outbox and merges the server's
+  /// results (best score wins, a pass stays, the larger daily time wins). This is how
+  /// progress reaches a second phone.
+  void applySync(Map<String, dynamic> result) {
+    final stored = {for (final id in result['stored'] as List? ?? const []) id};
+    _outbox.removeWhere((a) => stored.contains(a['id']));
+    for (final l in result['lessons'] as List? ?? const []) {
+      final j = l as Map<String, dynamic>;
+      final r = _lessons.putIfAbsent(
+        j['lessonId'] as String,
+        () => LessonRecord(level: '', finished: true, updatedAt: _clock()),
+      );
+      final best = (j['bestScore'] as num).toDouble();
+      if (r.bestScore == null || best > r.bestScore!) r.bestScore = best;
+      r.passed = r.passed || j['passed'] == true;
+    }
+    for (final d in result['activity'] as List? ?? const []) {
+      final j = d as Map<String, dynamic>;
+      final day = j['date'] as String;
+      final seconds = j['seconds'] as int;
+      if (seconds > (_seconds[day] ?? 0)) _seconds[day] = seconds;
+    }
     _save();
+    notifyListeners();
   }
 
   /// Quiz result (FR-402, FR-405). Best score wins (ADR-008); passing is final.
@@ -260,7 +288,6 @@ class ProgressController extends ChangeNotifier {
       _outbox.add({
         'id': attemptId,
         'lessonId': lesson.id,
-        'level': pack.level,
         'packVersion': pack.version,
         'score': score,
         'passed': score >= passMark,
