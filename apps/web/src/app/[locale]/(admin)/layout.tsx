@@ -3,7 +3,7 @@ import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { getTranslations } from 'next-intl/server';
 import type { ReactNode } from 'react';
-import { api, ApiProblem, type Me } from '@/lib/api';
+import { api, ApiProblem, BATCH_ROLES, type Me } from '@/lib/api';
 import { CONTENT_ROLES } from '@/lib/auth';
 import { ACCESS_COOKIE } from '@/lib/session';
 import { signOut } from '../login/actions';
@@ -35,6 +35,9 @@ export default async function AdminLayout({
         <nav aria-label={t('portal')} className="topnav">
           <strong>{t('portal')}</strong>
           <Link href={`/${locale}/admin`}>{t('nav.home')}</Link>
+          {(BATCH_ROLES as readonly string[]).includes(me.role) && (
+            <Link href={`/${locale}/admin/batches`}>{t('nav.batches')}</Link>
+          )}
           {(CONTENT_ROLES as readonly string[]).includes(me.role) && (
             <Link href={`/${locale}/studio`}>{t('nav.studio')}</Link>
           )}

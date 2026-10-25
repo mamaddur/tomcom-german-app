@@ -17,6 +17,7 @@ Step 1 started on NestJS 11, Next.js 15 and Prisma 6 while NestJS 12, Next.js 16
 | Override | Reason | Remove when |
 |---|---|---|
 | `multer@<2.5.0 → ^2.5.0` | `@nestjs/platform-express` 12.2.0 pins multer 2.4.0 (GHSA-q7qp-rjg7-q26m, high) | NestJS ships multer ≥ 2.5 |
+| `exceljs>uuid → ^11.1.1` | exceljs 4.4 depends on uuid 8 (GHSA-w5hq-g745-h8pq, moderate; exceljs only calls `v4()`, which uuid 11 still exports for CommonJS) | exceljs depends on uuid ≥ 11.1.1 |
 
 ## Consequences
 `pnpm audit` is clean. Contributors must keep `.js` suffixes on relative imports in the API. Any future major upgrade is its own PR.

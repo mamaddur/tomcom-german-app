@@ -146,3 +146,51 @@ export interface Vocab {
   audioId?: string;
   tradeTags: string[];
 }
+
+// ── Admin portal (FR-901–FR-909) ──
+
+export const ADMIN_ROLES = ['tomcom_admin', 'super_admin'] as const;
+export const BATCH_ROLES = ['trainer', 'tomcom_admin', 'super_admin'] as const;
+
+export interface Trainer {
+  id: string;
+  name: string;
+}
+
+export interface Batch {
+  id: string;
+  code: string;
+  name: string;
+  districtCode: string | null;
+  tradeCode: string | null;
+  startDate: string | null;
+  status: 'active' | 'closed';
+  learnerCount: number;
+  pendingInvites: number;
+  trainers: Trainer[];
+}
+
+export interface BatchLearner {
+  id: string;
+  firstName: string | null;
+  lastName: string | null;
+  phone: string;
+  districtCode: string | null;
+  tradeCode: string | null;
+  source: 'code' | 'admin' | 'bulk';
+  joinedAt: string;
+  lastSeenAt: string | null;
+  lessonsPassed: number;
+}
+
+export interface ImportResult {
+  enrolled: number;
+  invited: number;
+  unchanged: number;
+  invalidRows: number[];
+}
+
+export interface ReferenceItem {
+  code: string;
+  name: L10n;
+}
