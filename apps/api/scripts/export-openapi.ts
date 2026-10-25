@@ -11,10 +11,10 @@ process.env.LOG_LEVEL = 'silent';
 
 async function run(): Promise<void> {
   const { Test } = await import('@nestjs/testing');
-  const { AppModule } = await import('../src/app.module');
-  const { buildOpenApi, configureApp } = await import('../src/bootstrap');
-  const { PrismaService } = await import('../src/infra/prisma.service');
-  const { RedisService } = await import('../src/infra/redis.service');
+  const { AppModule } = await import('../src/app.module.js');
+  const { buildOpenApi, configureApp } = await import('../src/bootstrap.js');
+  const { PrismaService } = await import('../src/infra/prisma.service.js');
+  const { RedisService } = await import('../src/infra/redis.service.js');
 
   const moduleRef = await Test.createTestingModule({ imports: [AppModule] })
     .overrideProvider(PrismaService)
@@ -25,7 +25,7 @@ async function run(): Promise<void> {
   const app = moduleRef.createNestApplication({ logger: false });
   configureApp(app);
   await app.init();
-  const out = resolve(__dirname, '../openapi.json');
+  const out = resolve(import.meta.dirname, '../openapi.json');
   writeFileSync(out, JSON.stringify(buildOpenApi(app), null, 2) + '\n');
   await app.close();
   console.log(`OpenAPI written to ${out}`);

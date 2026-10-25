@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { hasLocale, NextIntlClientProvider } from 'next-intl';
-import { getTranslations } from 'next-intl/server';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
 import type { ReactNode } from 'react';
 import { routing } from '@/i18n/routing';
 import '../globals.css';
@@ -29,6 +29,8 @@ export default async function LocaleLayout({
 }) {
   const { locale } = await params;
   if (!hasLocale(routing.locales, locale)) notFound();
+  // Lets pages under this layout render statically per locale.
+  setRequestLocale(locale);
   return (
     <html lang={locale}>
       <body>

@@ -1,8 +1,8 @@
 import { Controller, Get, HttpCode, ServiceUnavailableException } from '@nestjs/common';
 import { ApiOkResponse, ApiServiceUnavailableResponse, ApiTags } from '@nestjs/swagger';
-import { PrismaService } from '../infra/prisma.service';
-import { RedisService } from '../infra/redis.service';
-import { HealthDto, ReadinessDto } from './health.dto';
+import { PrismaService } from '../infra/prisma.service.js';
+import { RedisService } from '../infra/redis.service.js';
+import { HealthDto, ReadinessDto } from './health.dto.js';
 
 type CheckState = 'up' | 'down';
 
@@ -26,7 +26,7 @@ export class HealthController {
   @ApiServiceUnavailableResponse({ type: ReadinessDto })
   async ready(): Promise<ReadinessDto> {
     const [database, redis] = await Promise.all([
-      this.check(() => this.prisma.$queryRaw`SELECT 1`.then(() => true)),
+      this.check(() => this.prisma.db.$queryRaw`SELECT 1`.then(() => true)),
       this.check(() => this.redis.ping()),
     ]);
     const body: ReadinessDto = {

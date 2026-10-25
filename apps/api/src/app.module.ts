@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
-import { HealthModule } from './health/health.module';
-import { InfraModule } from './infra/infra.module';
-import { createLoggerModule } from './logging/logger.module';
+import { HealthModule } from './health/health.module.js';
+import { InfraModule } from './infra/infra.module.js';
+import { createLoggerModule } from './logging/logger.module.js';
 
 @Module({
   imports: [createLoggerModule(), InfraModule, HealthModule],

@@ -10,12 +10,12 @@ Four front ends, one API:
 
 | Front end | Users | Tech |
 |---|---|---|
-| Learner app (Android 8+/2 GB RAM, iOS 15+) | Learners | Flutter |
-| Admin portal | TOMCOM admins, trainers, super admin | Next.js |
+| Learner app (Android 8+/2 GB RAM, iOS 15+) | Learners | Flutter 3.47 |
+| Admin portal | TOMCOM admins, trainers, super admin | Next.js 16 |
 | Content studio | Content authors, reviewers | Next.js (same app as admin, separate route group and roles) |
 | Verify page | Public (QR scan) | Next.js, server-rendered, no login |
 
-Backend: NestJS modular monolith (TypeScript), PostgreSQL, Redis/BullMQ, S3-compatible storage + CDN, hosted in an Indian region.
+Backend: NestJS 12 modular monolith (TypeScript, ES modules), Prisma 7 + PostgreSQL 16, Redis/BullMQ, S3-compatible storage + CDN, hosted in an Indian region.
 See `docs/architecture.md` for the full picture and ADRs.
 
 ## Repository layout (ADR-002)
@@ -62,6 +62,7 @@ tools/seed/        synthetic data generator — the ONLY data source for dev/sta
 - Content and translations are keyed by locale (`{ "te": ..., "en": ... }`), not `_te`/`_en` columns, so adding a language needs no code change (ADR-007).
 - API: REST under `/v1`, OpenAPI generated from NestJS decorators; breaking changes need a new version.
 - DB changes only through migrations (Prisma Migrate). Never edit an applied migration.
+- Stay on current major versions of frameworks. A major upgrade is its own PR (ADR-015). `pnpm.overrides` is only for patched transitive dependencies, each with a reason in ADR-015.
 - Idempotency: every offline-queued write carries a client-generated UUID.
 - Time: store UTC, display IST. Money: none (app is free).
 
@@ -80,6 +81,7 @@ Requirements: Node 22, pnpm 10, Docker, Flutter 3.47.8 (`/opt/flutter/bin` on th
 | Everything CI checks, locally | `scripts/verify.sh` (`--fast` skips integration, Flutter, Semgrep) |
 | Lint / types / unit tests / build, all JS packages | `pnpm lint` / `pnpm typecheck` / `pnpm test` / `pnpm build` |
 | Synthetic data | `pnpm --filter @tomcom/seed generate --learners 200` |
+| Stop a background dev server | `scripts/stop-port.sh 3000 3001` |
 
 Each app's own CLAUDE.md lists its `dev`, `test`, `lint` and `build` commands.
 

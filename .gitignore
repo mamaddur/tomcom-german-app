@@ -21,3 +21,4 @@ tools/bin/
 .pgdata/
 packages/api-client-ts/src/schema.d.ts
 tools/.venv/
+apps/api/src/generated/

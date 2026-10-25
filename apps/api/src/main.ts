@@ -2,9 +2,9 @@ import 'reflect-metadata';
 import { NestFactory } from '@nestjs/core';
 import { SwaggerModule } from '@nestjs/swagger';
 import { Logger } from 'nestjs-pino';
-import { AppModule } from './app.module';
-import { API_PREFIX, buildOpenApi, configureApp } from './bootstrap';
-import { loadEnv } from './config/env';
+import { AppModule } from './app.module.js';
+import { API_PREFIX, buildOpenApi, configureApp } from './bootstrap.js';
+import { loadEnv } from './config/env.js';
 
 async function main(): Promise<void> {
   const env = loadEnv();

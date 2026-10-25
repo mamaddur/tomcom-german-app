@@ -7,7 +7,7 @@
 Need typed queries and reviewable schema changes.
 
 ## Decision
-Prisma Client and Prisma Migrate. Raw SQL only via tagged templates (enforced by Semgrep).
+Prisma 7: the `prisma-client` generator (ESM, output in `apps/api/src/generated/prisma`), the `@prisma/adapter-pg` driver adapter at runtime, and `prisma.config.ts` for Migrate. Raw SQL only via tagged templates (enforced by Semgrep).
 
 ## Consequences
 Typed access; migrations reviewed in PRs.

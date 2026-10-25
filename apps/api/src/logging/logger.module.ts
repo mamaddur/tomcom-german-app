@@ -1,9 +1,9 @@
 import { randomUUID } from 'node:crypto';
 import { LoggerModule as PinoLoggerModule } from 'nestjs-pino';
 import type { IncomingMessage, ServerResponse } from 'node:http';
-import { loadEnv } from '../config/env';
-import { redactPii, scrubText } from './redact';
-import { redactingOptions } from './pino-options';
+import { loadEnv } from '../config/env.js';
+import { redactPii, scrubText } from './redact.js';
+import { redactingOptions } from './pino-options.js';
 
 /**
  * Structured JSON logs with PII stripped before serialisation.
