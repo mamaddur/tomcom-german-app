@@ -179,7 +179,7 @@ jobs:
         run: |
           for f in build/app/outputs/flutter-apk/app-*-release.apk; do
             size=$(stat -c%s "$f")
-            echo "$(basename "$f"): $((size / 1024 / 1024)) MB"
+            echo "::notice::$(basename "$f"): $((size / 1024 / 1024)) MB (limit 40 MB)"
             if [ "$size" -ge 41943040 ]; then echo "::error::$f is over 40 MB (NFR-02)"; exit 1; fi
           done
 
