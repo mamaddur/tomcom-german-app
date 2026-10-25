@@ -1561,6 +1561,35 @@
           "studio"
         ]
       }
+    },
+    "/v1/announcements": {
+      "get": {
+        "operationId": "AnnouncementsController_list",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AnnouncementDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "me"
+        ]
+      }
     }
   },
   "info": {
@@ -1698,6 +1727,28 @@
           "enabled"
         ]
       },
+      "LearningRulesDto": {
+        "type": "object",
+        "properties": {
+          "passMark": {
+            "type": "number",
+            "example": 0.8
+          },
+          "sequentialUnlock": {
+            "type": "boolean",
+            "example": true
+          },
+          "dailyGoalMinutes": {
+            "type": "number",
+            "example": 10
+          }
+        },
+        "required": [
+          "passMark",
+          "sequentialUnlock",
+          "dailyGoalMinutes"
+        ]
+      },
       "AppConfigDto": {
         "type": "object",
         "properties": {
@@ -1713,11 +1764,15 @@
             "example": {
               "tutor.dailyMessageLimit": 30
             }
+          },
+          "learning": {
+            "$ref": "#/components/schemas/LearningRulesDto"
           }
         },
         "required": [
           "features",
-          "limits"
+          "limits",
+          "learning"
         ]
       },
       "HealthDto": {
@@ -3082,6 +3137,44 @@
           "bytes",
           "sha256",
           "createdAt"
+        ]
+      },
+      "AnnouncementDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "title": {
+            "type": "object",
+            "example": {
+              "te": "రేపు తరగతి లేదు",
+              "en": "No class tomorrow"
+            }
+          },
+          "body": {
+            "type": "object",
+            "example": {
+              "te": "...",
+              "en": "..."
+            }
+          },
+          "startsAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "endsAt": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "body",
+          "startsAt",
+          "endsAt"
         ]
       }
     }

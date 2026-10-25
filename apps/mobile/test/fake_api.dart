@@ -17,12 +17,28 @@ class FakeApi {
       <String, ({int version, List<int> zip, String sha256, int lessons})>{};
   bool expireAccessTokenOnce = false;
 
+  /// Learning rules served in `GET /v1/app/config` (FR-204, FR-402).
+  Map<String, dynamic> learning = {
+    'passMark': 0.8,
+    'sequentialUnlock': true,
+    'dailyGoalMinutes': 10,
+  };
+
+  /// Routes (e.g. `GET /v1/announcements`) that fail as if the network were down.
+  final failRoutes = <String>{};
+
+  /// Announcements served to the learner (FR-205).
+  List<Map<String, dynamic>> announcements = [];
+
   late final client = MockClient((req) async {
     requests.add(req);
     final body = req.body.isEmpty
         ? <String, dynamic>{}
         : jsonDecode(req.body) as Map<String, dynamic>;
     final route = '${req.method} ${req.url.path}';
+    if (failRoutes.contains(route)) {
+      throw http.ClientException('offline (test)', req.url);
+    }
 
     if (req.headers["Authorization"] != null && expireAccessTokenOnce) {
       expireAccessTokenOnce = false;
@@ -117,6 +133,14 @@ class FakeApi {
         if (body['code'] != 'TST-001') return _problem(404, 'batch_not_found');
         batch = 'Synthetic batch 1';
         return _json(200, _me());
+      case 'GET /v1/app/config':
+        return _json(200, {
+          'features': <String, bool>{},
+          'limits': <String, int>{},
+          'learning': learning,
+        });
+      case 'GET /v1/announcements':
+        return _json(200, announcements);
       case 'GET /v1/reference/districts':
         return _json(200, [
           {

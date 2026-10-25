@@ -8,10 +8,12 @@ import 'src/content/content_controller.dart';
 import 'src/content/pack_store.dart';
 import 'src/onboarding/onboarding_controller.dart';
 import 'src/player/audio_service.dart';
+import 'src/progress/progress_controller.dart';
 import 'src/session/session_store.dart';
 
-void main() {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  final support = await getApplicationSupportDirectory();
   final store = SecureSessionStore();
   final api = ApiClient(baseUrl: apiBaseUrl, store: store);
   // Packs live in app support storage (not backed up, not visible to other apps).
@@ -25,6 +27,7 @@ void main() {
     TomcomApp(
       controller: OnboardingController(api: api, store: store),
       content: content,
+      progress: ProgressController(dir: support),
     ),
   );
 }

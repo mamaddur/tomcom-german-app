@@ -55,7 +55,7 @@
   },
   "continueButton": "Continue",
   "@continueButton": {
-    "description": "Generic continue button."
+    "description": "Button on the continue card."
   },
   "resendIn": "Resend possible in {seconds} s",
   "@resendIn": {
@@ -394,5 +394,88 @@
   "backToLessons": "Back to lessons",
   "@backToLessons": {
     "description": "Close the lesson."
+  },
+  "continueTitle": "Continue where you left off",
+  "@continueTitle": {
+    "description": "Dashboard card that opens the next unfinished lesson (FR-202)."
+  },
+  "startFirstLesson": "Download a level to start your first lesson.",
+  "@startFirstLesson": {
+    "description": "Shown when no lesson is installed yet."
+  },
+  "allLessonsPassed": "All downloaded lessons are passed. Well done!",
+  "@allLessonsPassed": {
+    "description": "Shown when nothing is left to continue."
+  },
+  "dailyGoal": "Today: {minutes} of {goal} minutes",
+  "@dailyGoal": {
+    "description": "Daily goal progress (FR-204).",
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      },
+      "goal": {
+        "type": "int"
+      }
+    }
+  },
+  "goalMet": "Daily goal reached!",
+  "@goalMet": {
+    "description": "Daily goal met."
+  },
+  "streakDays": "{count, plural, =0{No streak yet} =1{1-day streak} other{{count}-day streak}}",
+  "@streakDays": {
+    "description": "Days in a row with the daily goal met (FR-204).",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "levelProgress": "{percent}% passed",
+  "@levelProgress": {
+    "description": "Share of a level's lessons passed (FR-201).",
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "statusLocked": "Locked",
+  "@statusLocked": {
+    "description": "Lesson state (FR-203)."
+  },
+  "statusAvailable": "Ready to start",
+  "@statusAvailable": {
+    "description": "Lesson state (FR-203)."
+  },
+  "statusInProgress": "In progress",
+  "@statusInProgress": {
+    "description": "Lesson state (FR-203)."
+  },
+  "statusPassed": "Passed · best {score}%",
+  "@statusPassed": {
+    "description": "Lesson state with best score (FR-203).",
+    "placeholders": {
+      "score": {
+        "type": "int"
+      }
+    }
+  },
+  "lessonLockedHint": "Pass the previous lesson's quiz to open this lesson.",
+  "@lessonLockedHint": {
+    "description": "Shown when a locked lesson is tapped."
+  },
+  "announcementClose": "Close",
+  "@announcementClose": {
+    "description": "Hide an announcement banner."
+  },
+  "yourLevels": "Your levels",
+  "@yourLevels": {
+    "description": "Dashboard heading for level progress."
+  },
+  "notDownloadedShort": "Not downloaded",
+  "@notDownloadedShort": {
+    "description": "Level card on the dashboard when its pack is not installed."
   }
 }

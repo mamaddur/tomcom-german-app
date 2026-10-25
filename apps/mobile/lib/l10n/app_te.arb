@@ -80,5 +80,20 @@
   "audioMissing": "ఈ రికార్డింగ్ అందుబాటులో లేదు.",
   "lessonFinished": "పాఠం పూర్తయింది. చాలా బాగుంది!",
   "quizNext": "ఈ పాఠం క్విజ్ తదుపరి పాఠాన్ని తెరుస్తుంది. క్విజ్‌లు తదుపరి అప్‌డేట్‌లో వస్తాయి.",
-  "backToLessons": "పాఠాలకు తిరిగి వెళ్ళండి"
+  "backToLessons": "పాఠాలకు తిరిగి వెళ్ళండి",
+  "continueTitle": "మీరు ఆపిన చోట నుండి కొనసాగించండి",
+  "startFirstLesson": "మొదటి పాఠం ప్రారంభించడానికి ఒక స్థాయిని డౌన్‌లోడ్ చేయండి.",
+  "allLessonsPassed": "డౌన్‌లోడ్ చేసిన అన్ని పాఠాలు పాసయ్యారు. చాలా బాగుంది!",
+  "dailyGoal": "ఈ రోజు: {goal} నిమిషాల్లో {minutes}",
+  "goalMet": "ఈ రోజు లక్ష్యం పూర్తయింది!",
+  "streakDays": "{count, plural, =0{ఇంకా వరుస రోజులు లేవు} =1{1 రోజు వరుసగా} other{{count} రోజులు వరుసగా}}",
+  "levelProgress": "{percent}% పాస్",
+  "statusLocked": "లాక్ చేయబడింది",
+  "statusAvailable": "ప్రారంభించవచ్చు",
+  "statusInProgress": "కొనసాగుతోంది",
+  "statusPassed": "పాస్ · ఉత్తమ స్కోరు {score}%",
+  "lessonLockedHint": "ఈ పాఠం తెరవడానికి ముందు పాఠం క్విజ్ పాస్ అవ్వండి.",
+  "announcementClose": "మూసివేయండి",
+  "yourLevels": "మీ స్థాయిలు",
+  "notDownloadedShort": "డౌన్‌లోడ్ చేయలేదు"
 }

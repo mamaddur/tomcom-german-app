@@ -16,13 +16,13 @@ All writes from the mobile app accept `Idempotency-Key` or carry a `clientId`.
 | GET/PUT | `/me` · `/me/profile` | learner | FR-102, FR-103, FR-802 |
 | POST | `/me/enrolments` `{batchCode}` | learner | FR-106 |
 | GET | `/reference/districts` · `/reference/trades` | public | FR-103 |
-| GET | `/app/config?platform=&version=` → force update, maintenance, flags, announcements | public | FR-1102, FR-1103, FR-205 |
+| GET | `/app/config?platform=&version=` → force update, maintenance, flags, learning rules (pass mark, unlocking, daily goal) | public | FR-1102, FR-1103, FR-204 |
 
 ## Learning (learner)
 | Method | Path | Req |
 |---|---|---|
 | GET | `/levels` → levels with progress % | FR-201 |
-| GET | `/dashboard` → continue card, streak, goal, announcements | FR-202, FR-204, FR-205 |
+| GET | `/announcements` → current announcements for everyone or the learner's batch (continue card, goal and streak are computed in the app from local progress) | FR-205 |
 | GET | `/packs/{level}/latest` → `{version, manifestUrl, zipUrl, bytes, checksum}` (signed CDN URLs) | FR-307, NFR-02 |
 | GET | `/lessons/{id}` (online fallback when the pack is not downloaded) | FR-301 |
 | POST | `/sync` `{events:[progress, quizAttempt, bookmark, activity]}` → server state | FR-307, FR-405, NFR-05 |

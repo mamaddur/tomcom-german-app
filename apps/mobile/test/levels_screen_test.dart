@@ -8,6 +8,7 @@ import 'package:tomcom_german/src/api/api_client.dart';
 import 'package:tomcom_german/src/content/content_controller.dart';
 import 'package:tomcom_german/src/content/levels_screen.dart';
 import 'package:tomcom_german/src/content/pack_store.dart';
+import 'package:tomcom_german/src/progress/progress_controller.dart';
 import 'package:tomcom_german/src/session/session_store.dart';
 
 import 'fake_api.dart';
@@ -18,6 +19,7 @@ void main() {
   late Directory root;
   late FakeApi fake;
   late ContentController content;
+  late ProgressController progress;
 
   setUp(() async {
     // Sync file calls: async ones never complete inside a widget test's fake clock.
@@ -40,6 +42,7 @@ void main() {
       tempDir: () async => root,
       audio: FakeAudio(),
     );
+    progress = ProgressController(dir: root)..open('u1');
   });
   tearDown(() => root.deleteSync(recursive: true));
 
@@ -54,7 +57,7 @@ void main() {
           GlobalWidgetsLocalizations.delegate,
           GlobalCupertinoLocalizations.delegate,
         ],
-        home: LevelsScreen(content: content),
+        home: LevelsScreen(content: content, progress: progress),
       ),
     );
     // Real file and network work runs outside the fake clock.
@@ -140,4 +143,30 @@ void main() {
       findsOneWidget,
     );
   });
+
+  testWidgets(
+    'lessons show locked, ready and passed with best score; a locked lesson explains why (FR-203)',
+    (tester) async {
+      final pack = memoryPack();
+      content.installed['A1'] = pack;
+      progress.recordQuiz(pack, pack.lessons.first, 0.9, passMark: 0.8);
+      await pump(tester);
+
+      Finder inTile(int n, String text) => find.descendant(
+        of: find.byKey(Key('lesson-A1-lesson-$n')),
+        matching: find.textContaining(text),
+      );
+      expect(inTile(1, 'పాస్ · ఉత్తమ స్కోరు 90%'), findsOneWidget);
+      expect(inTile(2, 'ప్రారంభించవచ్చు'), findsOneWidget);
+      expect(inTile(3, 'లాక్ చేయబడింది'), findsOneWidget);
+      expect(find.text('33% పాస్'), findsOneWidget);
+
+      await tester.tap(find.byKey(const Key('lesson-A1-lesson-3')));
+      await tester.pump();
+      expect(
+        find.text('ఈ పాఠం తెరవడానికి ముందు పాఠం క్విజ్ పాస్ అవ్వండి.'),
+        findsOneWidget,
+      );
+    },
+  );
 }

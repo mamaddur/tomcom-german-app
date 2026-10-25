@@ -81,6 +81,7 @@ class ReferenceItem {
 
 class Me {
   Me({
+    required this.id,
     required this.uiLocale,
     required this.firstName,
     required this.batchName,
@@ -91,6 +92,7 @@ class Me {
     final onboarding = j['onboarding'] as Map<String, dynamic>;
     final batch = j['batch'] as Map<String, dynamic>?;
     return Me(
+      id: j['id'] as String,
       uiLocale: j['uiLocale'] as String,
       firstName: j['firstName'] as String?,
       batchName: batch?['name'] as String?,
@@ -98,6 +100,7 @@ class Me {
       batchJoined: onboarding['batchJoined'] as bool,
     );
   }
+  final String id;
   final String uiLocale;
   final String? firstName;
   final String? batchName;
@@ -129,4 +132,20 @@ class ProfileInput {
     if (targetJob != null && targetJob!.isNotEmpty) 'targetJob': targetJob,
     'selfDeclaredLevel': selfDeclaredLevel,
   };
+}
+
+/// A TOMCOM message shown as a banner (FR-205). Text is keyed by locale.
+class Announcement {
+  Announcement({required this.id, required this.title, required this.body});
+  factory Announcement.fromJson(Map<String, dynamic> j) => Announcement(
+    id: j['id'] as String,
+    title: Map<String, String>.from(j['title'] as Map),
+    body: Map<String, String>.from(j['body'] as Map),
+  );
+  final String id;
+  final Map<String, String> title;
+  final Map<String, String> body;
+
+  String titleIn(String locale) => title[locale] ?? title['en'] ?? '';
+  String bodyIn(String locale) => body[locale] ?? body['en'] ?? '';
 }

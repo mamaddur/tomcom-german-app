@@ -28,6 +28,8 @@ void main() {
     '/v1/reference/districts': 'get',
     '/v1/reference/trades': 'get',
     '/v1/packs': 'get',
+    '/v1/app/config': 'get',
+    '/v1/announcements': 'get',
     '/v1/packs/{level}/{version}/download': 'get',
   };
 
@@ -38,7 +40,10 @@ void main() {
     'ConsentNoticeDto': ['version', 'title', 'text', 'purposes'],
     'ConsentPurposeDto': ['id', 'required', 'label'],
     'ReferenceItemDto': ['code', 'name'],
-    'MeDto': ['uiLocale', 'firstName', 'batch', 'onboarding'],
+    'MeDto': ['id', 'uiLocale', 'firstName', 'batch', 'onboarding'],
+    'AppConfigDto': ['learning'],
+    'LearningRulesDto': ['sequentialUnlock', 'dailyGoalMinutes'],
+    'AnnouncementDto': ['id', 'title', 'body'],
     'MeOnboardingDto': ['profileComplete', 'batchJoined'],
     'BatchSummaryDto': ['name'],
     'UpdateProfileDto': [

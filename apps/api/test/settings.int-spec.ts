@@ -109,6 +109,11 @@ describe('platform settings and feature flags (FR-1101, FR-1103)', () => {
     const config = (await http().get('/v1/app/config').expect(200)).body;
     expect(config.features['module.tutor']).toBe(false);
     expect(config.limits['tutor.dailyMessageLimit']).toBe(30);
+    expect(config.learning).toEqual({
+      passMark: 0.8,
+      sequentialUnlock: true,
+      dailyGoalMinutes: 10,
+    });
 
     const closed = await http().get('/v1/test-tutor').set(as(superAdmin));
     expect(closed.status).toBe(403);

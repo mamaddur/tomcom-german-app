@@ -38,6 +38,12 @@ Planning approved on 2026-10-25 with "do it on this local machine for now". Step
 2. **Video upload (FR-305, Should)** needs background transcoding (a worker process) and follows in a separate PR. Audio and images are done.
 3. **AI drafting help for questions and Telugu translations (FR-1006, Could)** is deferred to step 7, when the LLM vendor and key are settled.
 
+## New from step 4
+
+1. **Daily goal (FR-204) is minutes, not lessons.** The pack doesn't define it. I count minutes in lessons per day (IST), default 10, which admins can change (`goal.dailyMinutes`, 5–60). The streak is the number of days in a row with the goal met. One sitting counts at most an hour. Tell me if TOMCOM wants "one lesson a day" instead.
+2. **Progress is kept on the phone until step 5.** Lesson states, minutes and streak are stored per learner on the device. They reach the server (and other devices) with quiz attempts and offline sync in step 5.
+3. **Lessons pass only by their quiz (FR-402).** Until quizzes arrive (step 5), only the first lesson of a level is open, unless an admin turns off `unlock.sequential`.
+
 ## B. Decisions on the plan (my recommendation first)
 
 1. ADR-007: **locale-keyed content (`jsonb`) instead of `_te/_en` columns.** This departs from pack §2.4 so the system can meet NFR-16. Recommend: yes.

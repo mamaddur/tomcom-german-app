@@ -23,6 +23,12 @@ export const SETTINGS = {
     description:
       'Lessons unlock one after another; if off, all lessons of an unlocked level are open.',
   },
+  'goal.dailyMinutes': {
+    schema: z.number().int().min(5).max(60),
+    default: 10,
+    description:
+      'Minutes of learning a day that meet the daily goal and keep the streak going (FR-204).',
+  },
   'tutor.dailyMessageLimit': {
     schema: z.number().int().min(0).max(500),
     default: 30,
