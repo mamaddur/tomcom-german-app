@@ -90,10 +90,11 @@ jobs:
       - name: Secret scan (full history)
         run: tools/bin/gitleaks git --redact --no-banner -c .gitleaks.toml .
       - name: Semgrep (registry + project rules)
-        run: >-
-          tools/.venv/bin/semgrep scan --metrics=off --error
-          --config p/typescript --config p/secrets --config .semgrep/project.yml
-          apps packages tools/seed
+        run: |
+          tools/.venv/bin/semgrep scan --metrics=off --json --output semgrep.json \
+            --config p/typescript --config p/secrets --config .semgrep/project.yml \
+            apps packages tools/seed || true
+          python3 scripts/semgrep-annotate.py semgrep.json
       - name: Dependency scan (npm + Dart)
         run: |
           pnpm audit --audit-level low
