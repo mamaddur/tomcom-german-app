@@ -8,10 +8,11 @@ All writes from the mobile app accept `Idempotency-Key` or carry a `clientId`.
 | Method | Path | Role | Req |
 |---|---|---|---|
 | POST | `/auth/otp/request` `{phone, locale}` | public | FR-101, NFR-10 (rate-limited) |
-| POST | `/auth/otp/verify` `{phone, code, deviceId}` → tokens, `isNew` | public | FR-101, FR-107 |
+| POST | `/auth/otp/verify` `{phone, code, device}` → session, or `registration_required` + registration token for new numbers | public | FR-101, FR-107 |
+| POST | `/auth/register` `{registrationToken, locale, consent, device}` → session. Creates user + consent + device in one transaction | public | FR-102, FR-104 |
 | POST | `/auth/refresh` · `/auth/logout` | any | NFR-10 |
 | POST | `/admin-auth/login` `{phone/email, password}` → OTP step → `/admin-auth/verify` | staff | NFR-10 |
-| GET | `/consent/notice?locale=` · POST `/consent` | learner | FR-104, NFR-13 |
+| GET | `/consent/notice?locale=` (public; consent itself is given in `/auth/register`) | public | FR-104, NFR-13 |
 | GET/PUT | `/me` · `/me/profile` | learner | FR-102, FR-103, FR-802 |
 | POST | `/me/enrolments` `{batchCode}` | learner | FR-106 |
 | GET | `/reference/districts` · `/reference/trades` | public | FR-103 |

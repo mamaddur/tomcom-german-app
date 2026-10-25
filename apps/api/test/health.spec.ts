@@ -29,7 +29,12 @@ describe('health (stubbed dependencies)', () => {
     queryRaw.mockRejectedValue(new Error('connection refused'));
     redis.ping.mockResolvedValue(true);
     const res = await request(app.getHttpServer()).get('/v1/health/ready').expect(503);
-    expect(res.body).toEqual({ status: 'error', checks: { database: 'down', redis: 'up' } });
+    expect(res.body).toEqual({
+      code: 'unavailable',
+      status: 'error',
+      checks: { database: 'down', redis: 'up' },
+    });
+    expect(res.headers['content-type']).toMatch(/application\/problem\+json/);
   });
 
   it('sets security headers (NFR-09)', async () => {

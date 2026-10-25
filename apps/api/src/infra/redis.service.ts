@@ -10,9 +10,14 @@ export class RedisService implements OnModuleDestroy {
     this.client = new Redis(env.REDIS_URL, { lazyConnect: true, maxRetriesPerRequest: 1 });
   }
 
-  async ping(): Promise<boolean> {
+  /** The client, connecting on first use. */
+  async connected(): Promise<Redis> {
     if (this.client.status === 'wait') await this.client.connect();
-    return (await this.client.ping()) === 'PONG';
+    return this.client;
+  }
+
+  async ping(): Promise<boolean> {
+    return (await (await this.connected()).ping()) === 'PONG';
   }
 
   async onModuleDestroy(): Promise<void> {

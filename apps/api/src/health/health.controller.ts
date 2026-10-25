@@ -1,5 +1,6 @@
 import { Controller, Get, HttpCode, ServiceUnavailableException } from '@nestjs/common';
 import { ApiOkResponse, ApiServiceUnavailableResponse, ApiTags } from '@nestjs/swagger';
+import { Public } from '../identity/auth.guard.js';
 import { PrismaService } from '../infra/prisma.service.js';
 import { RedisService } from '../infra/redis.service.js';
 import { HealthDto, ReadinessDto } from './health.dto.js';
@@ -7,6 +8,7 @@ import { HealthDto, ReadinessDto } from './health.dto.js';
 type CheckState = 'up' | 'down';
 
 @ApiTags('health')
+@Public()
 @Controller('health')
 export class HealthController {
   constructor(
