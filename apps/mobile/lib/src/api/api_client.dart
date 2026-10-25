@@ -98,6 +98,19 @@ class ApiClient {
     }
   }
 
+  // ── Data rights (FR-804, DPDP Act 2023) ──
+
+  /// Everything the server holds about the learner, as pretty-printed JSON.
+  Future<String> exportMyData() async =>
+      const JsonEncoder.withIndent('  ')
+          .convert(await _authed('GET', '/v1/me/export'));
+
+  /// Erases the account on the server, then forgets the session on this phone.
+  Future<void> eraseAccount() async {
+    await _authed('POST', '/v1/me/erase', body: {'confirm': true});
+    await store.clearSession();
+  }
+
   // ── Profile and batch (FR-102, FR-103, FR-106) ──
 
   Future<Me> me() async =>

@@ -137,6 +137,16 @@ class ProgressController extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Removes this learner's progress from the phone (account erased, FR-804).
+  void forget() {
+    if (_userId != null && _file.existsSync()) _file.deleteSync();
+    _userId = null;
+    _lessons.clear();
+    _seconds.clear();
+    _outbox.clear();
+    notifyListeners();
+  }
+
   void _save() {
     if (_userId == null) return;
     dir.createSync(recursive: true);

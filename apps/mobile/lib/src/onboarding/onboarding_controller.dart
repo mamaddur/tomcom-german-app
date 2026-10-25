@@ -134,6 +134,21 @@ class OnboardingController extends ChangeNotifier {
     _go(OnboardingStep.home);
   }
 
+  /// FR-804: erase the account. Returns whether it worked.
+  Future<bool> eraseAccount() async {
+    var ok = false;
+    await _run(() async {
+      await api.eraseAccount();
+      ok = true;
+    });
+    if (ok) {
+      me = null;
+      phone = '';
+      _go(OnboardingStep.welcome);
+    }
+    return ok;
+  }
+
   Future<void> signOut() async {
     await api.signOut();
     me = null;

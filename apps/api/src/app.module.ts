@@ -12,6 +12,7 @@ import { LearningModule } from './learning/learning.module.js';
 import { createLoggerModule } from './logging/logger.module.js';
 import { MediaModule } from './media/media.module.js';
 import { NotificationsModule } from './notifications/notifications.module.js';
+import { PrivacyModule } from './privacy/privacy.module.js';
 import { ReferenceModule } from './reference/reference.module.js';
 import { SettingsModule } from './settings/settings.module.js';
 
@@ -32,6 +33,7 @@ import { SettingsModule } from './settings/settings.module.js';
     ContentModule,
     MediaModule,
     NotificationsModule,
+    PrivacyModule,
   ],
 })
 export class AppModule {}

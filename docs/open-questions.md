@@ -46,6 +46,11 @@ Planning approved on 2026-10-25 with "do it on this local machine for now". Step
 4. **Quiz answers are taps, never typing** (NFR-18). "Fill the gap" offers choices, and "word order" uses word tiles. If TOMCOM wants typed answers for B1, they would be a new question type.
 5. **Multiple-choice options keep the author's order**, so options like "all of the above" stay last. Pairs and word tiles are shuffled.
 
+## New from step 8
+
+1. **Erasure is immediate (FR-804)**, with a confirmation on the phone and no waiting period. The API erases the name, phone number, profile, devices and sessions. Consent records stay, marked withdrawn, as evidence. Quiz attempts, lesson results and learning time stay under the now anonymous id, for statistics. This is the `[A]` assumption in `data-model.md` and **needs TOMCOM's DPO**. If the DPO wants those deleted too, it's a one-line change. The access token of the erased session stays valid for up to 15 minutes, but the account behind it no longer holds personal data.
+2. **The data export is JSON**, opened in the phone's share sheet so the learner can save it or send it. If TOMCOM wants a PDF instead, tell me.
+
 ## B. Decisions on the plan (my recommendation first)
 
 1. ADR-007: **locale-keyed content (`jsonb`) instead of `_te/_en` columns.** This departs from pack §2.4 so the system can meet NFR-16. Recommend: yes.

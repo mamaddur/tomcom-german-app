@@ -7,6 +7,7 @@ import 'package:tomcom_german/src/app.dart';
 import 'package:tomcom_german/src/content/content_controller.dart';
 import 'package:tomcom_german/src/content/pack_store.dart';
 import 'package:tomcom_german/src/onboarding/onboarding_controller.dart';
+import 'package:tomcom_german/src/profile/share_file.dart';
 import 'package:tomcom_german/src/progress/progress_controller.dart';
 import 'package:tomcom_german/src/session/session_store.dart';
 
@@ -131,5 +132,68 @@ void main() {
     });
     expect(find.text('ప్రొఫైల్ సేవ్ అయింది.'), findsOneWidget);
     expect(find.text('రాము కుమార్'), findsOneWidget);
+  });
+
+  group('data rights (FR-804)', () {
+    late List<String> shared;
+    late ShareFile original;
+    setUp(() {
+      shared = [];
+      original = shareFile;
+      shareFile = (file) async => shared.add(file.readAsStringSync());
+    });
+    tearDown(() => shareFile = original);
+
+    testWidgets('downloads the data as a JSON file and opens the share sheet', (
+      tester,
+    ) async {
+      tester.view
+        ..physicalSize = const Size(1080, 2400)
+        ..devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      await openProfile(tester);
+      // Writing the file is real I/O: run it outside the fake clock.
+      await tester.runAsync(() async {
+        await tester.tap(find.byKey(const Key('download-data')));
+        for (var i = 0; i < 50 && shared.isEmpty; i++) {
+          await Future<void>.delayed(const Duration(milliseconds: 20));
+        }
+      });
+      await tester.pumpAndSettle();
+      expect(shared.single, contains('"phone": "+915500000101"'));
+    });
+
+    testWidgets(
+      'deleting asks first, then erases, forgets local progress and returns to the start',
+      (tester) async {
+        tester.view
+          ..physicalSize = const Size(1080, 2400)
+          ..devicePixelRatio = 1;
+        addTearDown(tester.view.reset);
+        final pack = memoryPack();
+        progress
+          ..open('u1')
+          ..recordQuiz(pack, pack.lessons.first, 1, passMark: 0.8);
+        await openProfile(tester);
+
+        // Cancel does nothing.
+        await tester.tap(find.byKey(const Key('delete-account')));
+        await tester.pumpAndSettle();
+        expect(find.text('మీ ఖాతాను తొలగించాలా?'), findsOneWidget);
+        await tester.tap(find.text('రద్దు చేయండి'));
+        await tester.pumpAndSettle();
+        expect(fake.routes, isNot(contains('POST /v1/me/erase')));
+
+        await tester.tap(find.byKey(const Key('delete-account')));
+        await tester.pumpAndSettle();
+        await tester.tap(find.byKey(const Key('confirm-delete')));
+        await tester.pumpAndSettle();
+
+        expect(fake.bodyOf('POST /v1/me/erase'), {'confirm': true});
+        expect(store.values[SessionStore.refreshTokenKey], isNull);
+        expect(File('${root.path}/progress-u1.json').existsSync(), isFalse);
+        expect(find.text('పని కోసం జర్మన్ నేర్చుకోండి'), findsOneWidget);
+      },
+    );
   });
 }

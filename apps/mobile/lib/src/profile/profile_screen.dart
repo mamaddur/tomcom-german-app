@@ -1,12 +1,16 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 
 import '../../l10n/app_localizations.dart';
+import '../api/api_client.dart';
 import '../api/models.dart';
 import '../content/content_controller.dart';
 import '../onboarding/onboarding_controller.dart';
 import '../onboarding/screens.dart';
 import '../progress/progress_controller.dart';
 import '../ui/widgets.dart';
+import 'share_file.dart';
 
 /// FR-801: the learner's details and learning statistics. FR-802: edit them.
 class MyProfileScreen extends StatelessWidget {
@@ -126,6 +130,8 @@ class MyProfileScreen extends StatelessWidget {
                 },
               ),
               const SizedBox(height: 24),
+              _DataRights(c: c, content: content, progress: progress),
+              const SizedBox(height: 24),
               Text(
                 t.languageLabel,
                 style: Theme.of(context).textTheme.titleMedium,
@@ -221,6 +227,106 @@ class EditProfileScreen extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+/// FR-804 (DPDP Act 2023): download everything held about the learner, or erase the account.
+class _DataRights extends StatefulWidget {
+  const _DataRights({
+    required this.c,
+    required this.content,
+    required this.progress,
+  });
+  final OnboardingController c;
+  final ContentController content;
+  final ProgressController progress;
+
+  @override
+  State<_DataRights> createState() => _DataRightsState();
+}
+
+class _DataRightsState extends State<_DataRights> {
+  bool _busy = false;
+
+  Future<void> _download(AppLocalizations t) async {
+    final messenger = ScaffoldMessenger.of(context);
+    setState(() => _busy = true);
+    try {
+      final json = await widget.c.api.exportMyData();
+      final dir = await widget.content.tempDir();
+      final file = File('${dir.path}/my-data.json');
+      await file.writeAsString(json, flush: true);
+      await shareFile(file);
+    } on ApiException {
+      messenger.showSnackBar(SnackBar(content: Text(t.dataExportFailed)));
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  Future<void> _delete(AppLocalizations t) async {
+    final navigator = Navigator.of(context);
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialog) => AlertDialog(
+        title: Text(t.deleteAccountTitle),
+        content: Text(t.deleteAccountBody),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialog, false),
+            child: Text(t.cancel),
+          ),
+          FilledButton(
+            key: const Key('confirm-delete'),
+            style: FilledButton.styleFrom(
+              backgroundColor: Theme.of(dialog).colorScheme.error,
+            ),
+            onPressed: () => Navigator.pop(dialog, true),
+            child: Text(t.deleteAccountConfirm),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true) return;
+    if (await widget.c.eraseAccount()) {
+      widget.progress.forget();
+      navigator.popUntil((r) => r.isFirst);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text(t.myData, style: Theme.of(context).textTheme.titleMedium),
+        const SizedBox(height: 4),
+        Text(t.downloadMyDataHint),
+        const SizedBox(height: 8),
+        OutlinedButton.icon(
+          key: const Key('download-data'),
+          icon: _busy
+              ? const SizedBox.square(
+                  dimension: 18,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                )
+              : const Icon(Icons.download),
+          label: Text(t.downloadMyData),
+          onPressed: _busy ? null : () => _download(t),
+        ),
+        const SizedBox(height: 8),
+        TextButton.icon(
+          key: const Key('delete-account'),
+          style: TextButton.styleFrom(
+            foregroundColor: Theme.of(context).colorScheme.error,
+          ),
+          icon: const Icon(Icons.delete_forever),
+          label: Text(t.deleteAccount),
+          onPressed: () => _delete(t),
+        ),
+      ],
     );
   }
 }
