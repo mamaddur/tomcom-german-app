@@ -17,9 +17,11 @@ for _ in $(seq 1 60); do
   curl -sf localhost:3000/v1/health/ready >/dev/null && curl -sf -o /dev/null localhost:3001/te/login && break
   sleep 1
 done
-# Clear OTP cooldowns from earlier local runs (dev Redis only; CI starts empty).
+# Clear OTP cooldowns and rate-limit counters from earlier local runs (dev Redis only; CI starts empty).
 if docker compose ps -q redis >/dev/null 2>&1; then
-  docker compose exec -T redis redis-cli -n 0 --scan --pattern 'otp-cooldown:*' |
-    xargs -r docker compose exec -T redis redis-cli -n 0 del >/dev/null || true
+  for pattern in 'otp-cooldown:*' 'rl:*'; do
+    docker compose exec -T redis redis-cli -n 0 --scan --pattern "$pattern" |
+      xargs -r docker compose exec -T redis redis-cli -n 0 del >/dev/null || true
+  done
 fi
 pnpm -s --filter @tomcom/web test:e2e

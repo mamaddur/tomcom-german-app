@@ -54,6 +54,20 @@ async function run(): Promise<void> {
       lastName: 'Admin',
       role: 'tomcom_admin' as const,
     },
+    {
+      key: 'author',
+      phone: '+915599990003',
+      firstName: 'Test-Author',
+      lastName: 'Content',
+      role: 'author' as const,
+    },
+    {
+      key: 'reviewer',
+      phone: '+915599990004',
+      firstName: 'Test-Reviewer',
+      lastName: 'Content',
+      role: 'reviewer' as const,
+    },
   ];
   for (const t of staff) {
     if (!t.phone.startsWith('+9155')) throw new Error('seed data must use synthetic +9155 numbers');
@@ -95,7 +109,8 @@ async function run(): Promise<void> {
   }
   await prisma.onModuleDestroy();
   console.log(
-    `Seeded ${data.trainers.length} trainers, 2 admins (super +915599990001, TOMCOM +915599990002) and ` +
+    `Seeded ${data.trainers.length} trainers, admins (super +915599990001, TOMCOM +915599990002), ` +
+      `author +915599990003, reviewer +915599990004 and ` +
       `${data.batches.length} batches. Staff password: DEV_STAFF_PASSWORD in apps/api/.env.local; OTP ${env.DEV_OTP}`,
   );
 }
