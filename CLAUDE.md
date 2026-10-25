@@ -27,7 +27,6 @@ apps/
   api/             NestJS modular monolith        (has its own CLAUDE.md)
 packages/
   api-client-ts/   generated from OpenAPI (web)
-  api-client-dart/ generated from OpenAPI (mobile)
   content-schema/  JSON Schema for lesson packs (shared by api, studio, mobile)
 infra/             Terraform — added once hosting is decided (ADR-011, ADR-014)
 scripts/           dev-services.sh, verify.sh, install-tools.sh

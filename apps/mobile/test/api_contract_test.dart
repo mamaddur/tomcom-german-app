@@ -1,0 +1,71 @@
+import 'dart:convert';
+import 'dart:io';
+
+import 'package:flutter_test/flutter_test.dart';
+
+/// The hand-written client must match the API's OpenAPI spec. This fails when an endpoint or a
+/// response field the app relies on is renamed or removed in apps/api/openapi.json.
+void main() {
+  final spec = jsonDecode(
+    File('../api/openapi.json').readAsStringSync(),
+  ) as Map<String, dynamic>;
+  final paths = spec['paths'] as Map<String, dynamic>;
+  final schemas =
+      (spec['components'] as Map<String, dynamic>)['schemas']
+          as Map<String, dynamic>;
+
+  const usedEndpoints = {
+    '/v1/auth/otp/request': 'post',
+    '/v1/auth/otp/verify': 'post',
+    '/v1/auth/register': 'post',
+    '/v1/auth/refresh': 'post',
+    '/v1/auth/logout': 'post',
+    '/v1/consent/notice': 'get',
+    '/v1/me': 'get',
+    '/v1/me/locale': 'put',
+    '/v1/me/profile': 'put',
+    '/v1/me/batch': 'post',
+    '/v1/reference/districts': 'get',
+    '/v1/reference/trades': 'get',
+  };
+
+  const usedFields = {
+    'OtpVerifyResultDto': ['status', 'tokens', 'registrationToken'],
+    'TokensDto': ['accessToken', 'refreshToken'],
+    'SessionDto': ['tokens'],
+    'ConsentNoticeDto': ['version', 'title', 'text', 'purposes'],
+    'ConsentPurposeDto': ['id', 'required', 'label'],
+    'ReferenceItemDto': ['code', 'name'],
+    'MeDto': ['uiLocale', 'firstName', 'batch', 'onboarding'],
+    'MeOnboardingDto': ['profileComplete', 'batchJoined'],
+    'BatchSummaryDto': ['name'],
+    'UpdateProfileDto': [
+      'firstName',
+      'lastName',
+      'districtCode',
+      'tradeCode',
+      'targetJob',
+      'selfDeclaredLevel',
+    ],
+    'DeviceDto': ['clientId', 'platform', 'appVersion'],
+  };
+
+  usedEndpoints.forEach((path, method) {
+    test('$method $path exists', () {
+      expect(
+        (paths[path] as Map<String, dynamic>?)?.containsKey(method),
+        isTrue,
+      );
+    });
+  });
+
+  usedFields.forEach((schema, fields) {
+    test('$schema has $fields', () {
+      final props =
+          ((schemas[schema] as Map<String, dynamic>?)?['properties']
+              as Map<String, dynamic>?) ??
+          {};
+      expect(props.keys, containsAll(fields));
+    });
+  });
+}

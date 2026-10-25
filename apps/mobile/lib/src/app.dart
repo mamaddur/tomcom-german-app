@@ -2,38 +2,59 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
 import '../l10n/app_localizations.dart';
-import 'home_screen.dart';
+import 'onboarding/onboarding_controller.dart';
+import 'onboarding/screens.dart';
 
-/// Root widget. Telugu is the default UI language (BR-02); the learner can switch.
+/// Root widget. The UI language follows the learner's choice; Telugu by default (BR-02).
 class TomcomApp extends StatefulWidget {
-  const TomcomApp({super.key, this.initialLocale = const Locale('te')});
+  const TomcomApp({super.key, required this.controller});
 
-  final Locale initialLocale;
+  final OnboardingController controller;
 
   @override
   State<TomcomApp> createState() => _TomcomAppState();
 }
 
 class _TomcomAppState extends State<TomcomApp> {
-  late Locale _locale = widget.initialLocale;
+  @override
+  void initState() {
+    super.initState();
+    widget.controller.start();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      onGenerateTitle: (context) => AppLocalizations.of(context).appTitle,
-      locale: _locale,
-      supportedLocales: AppLocalizations.supportedLocales,
-      localizationsDelegates: const [
-        AppLocalizations.delegate,
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-      ],
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF1F5FBF)),
-        useMaterial3: true,
+    final c = widget.controller;
+    return ListenableBuilder(
+      listenable: c,
+      builder: (context, _) => MaterialApp(
+        onGenerateTitle: (context) => AppLocalizations.of(context).appTitle,
+        locale: c.locale,
+        supportedLocales: AppLocalizations.supportedLocales,
+        localizationsDelegates: const [
+          AppLocalizations.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        theme: ThemeData(
+          colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF1F5FBF)),
+          useMaterial3: true,
+        ),
+        home: switch (c.step) {
+          OnboardingStep.loading => const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          ),
+          OnboardingStep.welcome => WelcomeScreen(c: c),
+          OnboardingStep.phone => PhoneScreen(c: c),
+          OnboardingStep.otp => OtpScreen(c: c),
+          OnboardingStep.language => LanguageScreen(c: c),
+          OnboardingStep.consent => ConsentScreen(c: c),
+          OnboardingStep.profile => ProfileScreen(c: c),
+          OnboardingStep.batch => BatchScreen(c: c),
+          OnboardingStep.home => HomeScreen(c: c),
+        },
       ),
-      home: HomeScreen(onLocaleChanged: (l) => setState(() => _locale = l)),
     );
   }
 }

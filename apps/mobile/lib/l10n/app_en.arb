@@ -1,13 +1,239 @@
 {
   "@@locale": "en",
   "appTitle": "German for Work",
-  "@appTitle": { "description": "App name on the home screen. Final name is a TOMCOM decision." },
-  "homeStatus": "Build step 1: foundations. Lessons arrive in later steps.",
-  "@homeStatus": { "description": "Placeholder text on the home screen during the build." },
+  "@appTitle": {
+    "description": "App name. Final name is a TOMCOM decision."
+  },
   "languageLabel": "Language",
-  "@languageLabel": { "description": "Label for the language switcher." },
+  "@languageLabel": {
+    "description": "Label for the language switcher."
+  },
   "languageTelugu": "తెలుగు",
-  "@languageTelugu": { "description": "Name of Telugu, always shown in Telugu script." },
+  "@languageTelugu": {
+    "description": "Name of Telugu, always in Telugu script."
+  },
   "languageEnglish": "English",
-  "@languageEnglish": { "description": "Name of English, always shown in English." }
+  "@languageEnglish": {
+    "description": "Name of English, always in English."
+  },
+  "welcomeTitle": "Learn German for work",
+  "@welcomeTitle": {
+    "description": "Welcome screen headline."
+  },
+  "welcomeSubtitle": "Free TOMCOM course, A1 to B1",
+  "@welcomeSubtitle": {
+    "description": "Welcome screen sub-heading."
+  },
+  "start": "Start",
+  "@start": {
+    "description": "Button on the welcome screen."
+  },
+  "phoneTitle": "Your mobile number",
+  "@phoneTitle": {
+    "description": "Phone screen title."
+  },
+  "phoneHint": "10-digit number",
+  "@phoneHint": {
+    "description": "Hint inside the phone field."
+  },
+  "sendCode": "Send code",
+  "@sendCode": {
+    "description": "Button that sends the SMS code."
+  },
+  "otpTitle": "Enter the 6-digit code",
+  "@otpTitle": {
+    "description": "OTP screen title."
+  },
+  "otpSentTo": "Sent by SMS to {phone}",
+  "@otpSentTo": {
+    "description": "Under the OTP title.",
+    "placeholders": {
+      "phone": {
+        "type": "String"
+      }
+    }
+  },
+  "continueButton": "Continue",
+  "@continueButton": {
+    "description": "Generic continue button."
+  },
+  "resendIn": "Resend possible in {seconds} s",
+  "@resendIn": {
+    "description": "Countdown before a new code can be requested.",
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "resendCode": "Resend code",
+  "@resendCode": {
+    "description": "Button to request a new code."
+  },
+  "changeNumber": "Change number",
+  "@changeNumber": {
+    "description": "Go back to the phone screen."
+  },
+  "languageTitle": "Choose your language",
+  "@languageTitle": {
+    "description": "Language selection screen title (FR-102)."
+  },
+  "consentAgree": "I agree",
+  "@consentAgree": {
+    "description": "Button that records consent (FR-104)."
+  },
+  "consentHint": "Tick the required items to continue",
+  "@consentHint": {
+    "description": "Shown while required consent items are unticked."
+  },
+  "required": "Required",
+  "@required": {
+    "description": "Marks a required consent item."
+  },
+  "optional": "Optional",
+  "@optional": {
+    "description": "Marks an optional consent item."
+  },
+  "profileTitle": "About you",
+  "@profileTitle": {
+    "description": "Profile screen title (FR-103)."
+  },
+  "firstName": "First name",
+  "@firstName": {
+    "description": "Profile field."
+  },
+  "lastName": "Surname (optional)",
+  "@lastName": {
+    "description": "Profile field."
+  },
+  "district": "District",
+  "@district": {
+    "description": "Profile field."
+  },
+  "trade": "Trade",
+  "@trade": {
+    "description": "Profile field."
+  },
+  "targetJob": "Job you want in Germany (optional)",
+  "@targetJob": {
+    "description": "Profile field."
+  },
+  "level": "Your German now",
+  "@level": {
+    "description": "Profile field: self-declared level."
+  },
+  "levelNone": "No German yet",
+  "@levelNone": {
+    "description": "Level option."
+  },
+  "levelA1": "A1 – beginner",
+  "@levelA1": {
+    "description": "Level option."
+  },
+  "levelA2": "A2 – elementary",
+  "@levelA2": {
+    "description": "Level option."
+  },
+  "levelB1": "B1 – intermediate",
+  "@levelB1": {
+    "description": "Level option."
+  },
+  "save": "Save",
+  "@save": {
+    "description": "Save button."
+  },
+  "fieldRequired": "Please fill this in",
+  "@fieldRequired": {
+    "description": "Validation message for an empty required field."
+  },
+  "batchTitle": "Batch code",
+  "@batchTitle": {
+    "description": "Batch code screen title (FR-106)."
+  },
+  "batchHelp": "Your TOMCOM trainer gives you this code",
+  "@batchHelp": {
+    "description": "Explains where the batch code comes from."
+  },
+  "join": "Join",
+  "@join": {
+    "description": "Join batch button."
+  },
+  "later": "Later",
+  "@later": {
+    "description": "Skip joining a batch for now."
+  },
+  "homeWelcome": "Welcome, {name}!",
+  "@homeWelcome": {
+    "description": "Home screen greeting.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "homeBatch": "Batch: {batch}",
+  "@homeBatch": {
+    "description": "Shows the learner's batch.",
+    "placeholders": {
+      "batch": {
+        "type": "String"
+      }
+    }
+  },
+  "homeComingSoon": "Lessons arrive in the next update.",
+  "@homeComingSoon": {
+    "description": "Placeholder until lessons exist (step 4)."
+  },
+  "signOut": "Sign out",
+  "@signOut": {
+    "description": "Sign out button."
+  },
+  "errorInvalidPhone": "Enter a valid 10-digit mobile number",
+  "@errorInvalidPhone": {
+    "description": "Error: invalid_phone."
+  },
+  "errorOtpInvalid": "Wrong code. Please try again.",
+  "@errorOtpInvalid": {
+    "description": "Error: otp_invalid."
+  },
+  "errorOtpLocked": "Too many wrong codes. Ask for a new code.",
+  "@errorOtpLocked": {
+    "description": "Error: otp_attempts_exceeded."
+  },
+  "errorTooSoon": "Please wait a moment and try again.",
+  "@errorTooSoon": {
+    "description": "Error: rate limits."
+  },
+  "errorSmsUnavailable": "SMS is not available right now. Please try later.",
+  "@errorSmsUnavailable": {
+    "description": "Error: sms_unavailable."
+  },
+  "errorBatchNotFound": "No batch has this code. Check with your trainer.",
+  "@errorBatchNotFound": {
+    "description": "Error: batch_not_found."
+  },
+  "errorBatchClosed": "This batch is closed.",
+  "@errorBatchClosed": {
+    "description": "Error: batch_closed."
+  },
+  "errorNetwork": "No internet connection. Check it and try again.",
+  "@errorNetwork": {
+    "description": "Error: no connection."
+  },
+  "errorSessionExpired": "Please sign in again.",
+  "@errorSessionExpired": {
+    "description": "Error: session expired."
+  },
+  "errorRegistrationExpired": "This took too long. Please enter your number again.",
+  "@errorRegistrationExpired": {
+    "description": "Error: registration_expired."
+  },
+  "errorStaffAccount": "This number belongs to a staff account. Use the admin portal.",
+  "@errorStaffAccount": {
+    "description": "Error: use_staff_login."
+  },
+  "errorGeneric": "Something went wrong. Please try again.",
+  "@errorGeneric": {
+    "description": "Any other error."
+  }
 }

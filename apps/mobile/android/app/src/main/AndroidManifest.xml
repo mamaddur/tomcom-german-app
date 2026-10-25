@@ -1,5 +1,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- The app talks to the TOMCOM API. -->
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <!-- HTTPS only in release (NFR-09); Android 8.x would otherwise allow plain HTTP. -->
     <application
+        android:usesCleartextTraffic="false"
         android:label="tomcom_german"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
