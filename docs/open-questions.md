@@ -1,0 +1,41 @@
+# Open questions — planning stop
+
+Planning (Step 0) is complete. **I'm waiting for your approval before writing any code.**
+
+## A. Needed from you before Step 1
+
+1. **Missing inputs.** These two files didn't reach this session:
+   - the kickoff prompt text (the 10-step plan in `build-plan.md` is my reconstruction; send the prompt and I'll reconcile it)
+   - `sprachbruecke.html`, the prototype and design reference. Screens, colours, layout and the 48-lesson outline will follow it once I have it.
+2. **GitHub repo.** Name/URL and confirmation of the monorepo layout (ADR-002), or one repo per front end as in pack 4A.2.
+3. **Dev-only API keys**, stored as session environment secrets and never pasted into chat:
+   - LLM: which vendor? (see C2)
+   - Speech: German pronunciation assessment, STT and TTS (e.g. Azure AI Speech, Central India)
+   - SMS: a DLT-registered gateway in sandbox/test mode
+   - Also, later: a Firebase project for FCM (dev), and an Apple developer team for APNs/TestFlight (can wait until step 8).
+4. **Branch protection** on `main`, set by a repo admin: required checks plus one human approval. I can't merge my own PRs.
+
+## B. Decisions on the plan (my recommendation first)
+
+1. ADR-007: **locale-keyed content (`jsonb`) instead of `_te/_en` columns.** This departs from pack §2.4 so the system can meet NFR-16. Recommend: yes.
+2. ADR-009: **checkpoint tests online-only, scored on the server.** Lesson quizzes stay offline. Recommend: yes. Without this, certificates could be forged from the answer keys in the pack.
+3. ADR-004: **one Next.js app** for admin portal + content studio + verify page. Recommend: yes.
+4. ADR-002: **monorepo**. Recommend: yes, splittable at handover.
+
+## C. For the architect (pack 4.7), with my recommendation
+
+1. Flutter or React Native → **Flutter**.
+2. LLM and speech vendors with India-region processing (NFR-14). The LLM must be confirmed against the DPDP review. Options to evaluate: a hosted LLM through a cloud provider's India region (e.g. AWS Bedrock or Azure in Mumbai/Central India), checking which models are actually served in-region, and Telugu quality against the 3 s first-token target. If no model runs in-region, the fallback is NFR-14's "receives no personal data", which the PII guard already enforces. **This needs your DPO's view.**
+3. Monolith or services → **modular monolith + worker**.
+4. Hosting → **AWS Mumbai/Hyderabad** unless TOMCOM requires the State Data Centre.
+5. Pack versioning → ADR-008 (immutable packs, stable IDs, best score wins).
+6. Load test → k6 against staging: 500 concurrent VUs, a 2,000-DAU daily mix, p95 under 500 ms.
+7. Passing VAPT first time → ASVS L2 checklist in CI from step 1, MASVS for the apps, an internal pre-VAPT scan in step 10.
+
+## D. TOMCOM `[A]` assumptions still to confirm
+Learner numbers, trades and districts · target exam (Goethe / telc / ÖSD) for mock exams · hosting · content ownership · store accounts under TOMCOM · branding and app name · whether pronunciation audio is deleted after scoring · learner import format · whether attempt data is kept pseudonymised after an erasure request · grievance officer name.
+
+## E. Content (from the handwritten A1 sheet, see `content/a1-syllabus-notes.md`)
+1. The referenced videos appear to be third-party. **Do you have a licence to use them in the app?** If not, I'll treat them as a teaching reference only.
+2. Their length (4–13 min) is over FR-305's "under 2 minutes". Short in-house clips, or none?
+3. Confirm the proposed A1 order: 17 lessons + checkpoint, with "introducing someone" added as its own lesson.
