@@ -21,6 +21,12 @@ describe('PiiCryptoService', () => {
     expect(() => crypto.decrypt(blob)).toThrow();
   });
 
+  it('rejects truncated ciphertext', () => {
+    expect(() => crypto.decrypt(crypto.encrypt('+919876543210').subarray(0, 20))).toThrow(
+      /too short/,
+    );
+  });
+
   it('gives a stable HMAC for lookups', () => {
     expect(crypto.hmac('+919876543210')).toBe(crypto.hmac('+919876543210'));
     expect(crypto.hmac('+919876543210')).not.toBe(crypto.hmac('+919876543211'));

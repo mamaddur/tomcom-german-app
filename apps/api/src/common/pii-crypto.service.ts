@@ -3,6 +3,9 @@ import { Inject, Injectable } from '@nestjs/common';
 import { ENV, type Env } from '../config/env.js';
 
 const VERSION = 1;
+const IV_BYTES = 12;
+/** Pinned so a truncated tag is rejected instead of weakening the integrity check. */
+const TAG_BYTES = 16;
 
 /**
  * Application-level encryption for PII columns (NFR-09, NFR-13).
@@ -20,8 +23,8 @@ export class PiiCryptoService {
   }
 
   encrypt(plaintext: string): Buffer {
-    const iv = randomBytes(12);
-    const cipher = createCipheriv('aes-256-gcm', this.key, iv);
+    const iv = randomBytes(IV_BYTES);
+    const cipher = createCipheriv('aes-256-gcm', this.key, iv, { authTagLength: TAG_BYTES });
     const data = Buffer.concat([cipher.update(plaintext, 'utf8'), cipher.final()]);
     return Buffer.concat([Buffer.from([VERSION]), iv, cipher.getAuthTag(), data]);
   }
@@ -29,9 +32,16 @@ export class PiiCryptoService {
   decrypt(blob: Uint8Array): string {
     const buf = Buffer.from(blob);
     if (buf[0] !== VERSION) throw new Error('Unknown PII ciphertext version');
-    const decipher = createDecipheriv('aes-256-gcm', this.key, buf.subarray(1, 13));
-    decipher.setAuthTag(buf.subarray(13, 29));
-    return Buffer.concat([decipher.update(buf.subarray(29)), decipher.final()]).toString('utf8');
+    const tagStart = 1 + IV_BYTES;
+    const dataStart = tagStart + TAG_BYTES;
+    if (buf.length < dataStart) throw new Error('PII ciphertext too short');
+    const decipher = createDecipheriv('aes-256-gcm', this.key, buf.subarray(1, tagStart), {
+      authTagLength: TAG_BYTES,
+    });
+    decipher.setAuthTag(buf.subarray(tagStart, dataStart));
+    return Buffer.concat([decipher.update(buf.subarray(dataStart)), decipher.final()]).toString(
+      'utf8',
+    );
   }
 
   /** Deterministic keyed hash for equality lookups (e.g. find user by phone). */
