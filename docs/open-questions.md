@@ -98,3 +98,8 @@ Learner numbers, trades and districts · target exam (Goethe / telc / ÖSD) for 
 1. The referenced videos appear to be third-party. **Do you have a licence to use them in the app?** If not, I'll treat them as a teaching reference only.
 2. Their length (4–13 min) is over FR-305's "under 2 minutes". Short in-house clips, or none?
 3. Confirm the proposed A1 order: 17 lessons + checkpoint, with "introducing someone" added as its own lesson.
+
+## Android build (PR 10b)
+
+- **Store ID.** The Android `applicationId` is `in.gov.telangana.tomcom.tomcom_german` (iOS: `in.gov.telangana.tomcom.tomcomGerman`), a placeholder chosen at scaffold time. It cannot change after the first Play Store / App Store upload. Who owns the store accounts (TOMCOM or a Telangana government account), and which ID should they use?
+- **Release signing.** Release APKs are signed with the debug key so CI can build them. The upload key must be created by the store-account owner and kept in the vault; Claude Code must not create or hold it.

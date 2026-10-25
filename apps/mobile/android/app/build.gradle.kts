@@ -5,7 +5,8 @@ plugins {
 }
 
 android {
-    namespace = "`in`.gov.telangana.tomcom.tomcom_german"
+    // `in` is a Java keyword, so the code namespace cannot start with it; the store ID (applicationId) can.
+    namespace = "gov.telangana.tomcom.german"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -15,8 +16,8 @@ android {
     }
 
     defaultConfig {
-        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId = "`in`.gov.telangana.tomcom.tomcom_german"
+        // Store ID: permanent once published. Confirm before the first Play upload (docs/open-questions.md).
+        applicationId = "in.gov.telangana.tomcom.tomcom_german"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = 26 // Android 8.0 (NFR-01)
