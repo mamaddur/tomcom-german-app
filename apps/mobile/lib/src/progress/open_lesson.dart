@@ -31,6 +31,7 @@ Future<void> openLesson(
         }
       },
       onTime: progress.addLearningTime,
+      words: progress.feature('module.bookmarks') ? progress : null,
       onStartQuiz: lesson.questions.isEmpty
           ? null
           : () => Navigator.of(context).pushReplacement(

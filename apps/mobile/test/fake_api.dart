@@ -40,6 +40,7 @@ class FakeApi {
   final syncedAttempts = <Map<String, dynamic>>[];
   final serverLessons = <String, ({double best, bool passed})>{};
   final serverActivity = <String, int>{};
+  final serverWords = <String, Map<String, dynamic>>{};
 
   /// FR-1102: `none`, `optional` or `required`, and an optional maintenance message.
   String update = 'none';
@@ -225,7 +226,18 @@ class FakeApi {
             serverActivity[day] = seconds;
           }
         }
+        for (final w
+            in ((body['words'] as List?) ?? const [])
+                .cast<Map<String, dynamic>>()) {
+          final old = serverWords[w['vocabId']];
+          if (old == null ||
+              DateTime.parse(w['updatedAt'] as String)
+                  .isAfter(DateTime.parse(old['updatedAt'] as String))) {
+            serverWords[w['vocabId'] as String] = w;
+          }
+        }
         return _json(200, {
+          'words': serverWords.values.toList(),
           'stored': [for (final a in body['attempts'] as List) a['id']],
           'lessons': [
             for (final e in serverLessons.entries)

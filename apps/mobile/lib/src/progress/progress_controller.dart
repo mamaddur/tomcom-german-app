@@ -100,6 +100,12 @@ class ProgressController extends ChangeNotifier {
   /// is harmless (CLAUDE.md idempotency rule).
   final List<Map<String, dynamic>> _outbox = [];
 
+  /// FR-308 word list: vocab id → Leitner box, next review day (IST), removed, last change.
+  final Map<String, WordEntry> _words = {};
+
+  /// Optional modules the server has switched on or off (FR-1103), kept for offline use.
+  final Map<String, bool> _features = {};
+
   /// Learning seconds per IST day (`yyyy-mm-dd`).
   final Map<String, int> _seconds = {};
   LearningRules rules = const LearningRules();
@@ -113,6 +119,8 @@ class ProgressController extends ChangeNotifier {
     _lessons.clear();
     _seconds.clear();
     _outbox.clear();
+    _words.clear();
+    _features.clear();
     rules = const LearningRules();
     if (_file.existsSync()) {
       try {
@@ -123,6 +131,12 @@ class ProgressController extends ChangeNotifier {
         );
         (j['seconds'] as Map<String, dynamic>? ?? {}).forEach(
           (day, v) => _seconds[day] = v as int,
+        );
+        (j['words'] as Map<String, dynamic>? ?? {}).forEach(
+          (id, v) => _words[id] = WordEntry.fromJson(v as Map<String, dynamic>),
+        );
+        (j['features'] as Map<String, dynamic>? ?? {}).forEach(
+          (k, v) => _features[k] = v as bool,
         );
         for (final a in j['outbox'] as List? ?? const []) {
           _outbox.add(Map<String, dynamic>.from(a as Map));
@@ -144,6 +158,7 @@ class ProgressController extends ChangeNotifier {
     _lessons.clear();
     _seconds.clear();
     _outbox.clear();
+    _words.clear();
     notifyListeners();
   }
 
@@ -156,12 +171,80 @@ class ProgressController extends ChangeNotifier {
           'lessons': {for (final e in _lessons.entries) e.key: e.value},
           'seconds': _seconds,
           'outbox': _outbox,
+          'words': {for (final e in _words.entries) e.key: e.value},
+          'features': _features,
           'rules': rules,
         }),
         flush: true,
       );
     tmp.renameSync(_file.path);
   }
+
+  /// FR-1103: whether an optional module is on (true until the server says otherwise).
+  bool feature(String key) => _features[key] ?? true;
+
+  void setFeatures(Map<String, bool> value) {
+    _features
+      ..clear()
+      ..addAll(value);
+    _save();
+    notifyListeners();
+  }
+
+  // ── Word list with spaced repetition (FR-308) ──
+
+  /// Days until the next review for each Leitner box.
+  static const reviewDays = [1, 2, 4, 7, 15, 30];
+
+  String _addDays(String day, int n) {
+    final d = DateTime.parse('${day}T00:00:00Z').add(Duration(days: n));
+    return _istDay(d.subtract(const Duration(hours: 5, minutes: 30)));
+  }
+
+  bool isSaved(String vocabId) => !(_words[vocabId]?.removed ?? true);
+
+  List<String> get savedWords => [
+    for (final e in _words.entries)
+      if (!e.value.removed) e.key,
+  ];
+
+  /// Words due for review today or earlier.
+  List<String> get dueWords {
+    final today = _istDay(_clock());
+    return [
+      for (final e in _words.entries)
+        if (!e.value.removed && e.value.due.compareTo(today) <= 0) e.key,
+    ];
+  }
+
+  void toggleWord(String vocabId) {
+    final now = _clock();
+    final today = _istDay(now);
+    _words[vocabId] = isSaved(vocabId)
+        ? _words[vocabId]!.copyWith(removed: true, updatedAt: now)
+        : WordEntry(box: 0, due: today, removed: false, updatedAt: now);
+    _save();
+    notifyListeners();
+  }
+
+  /// Knew it: the word moves up a box and comes back later. Not yet: back to box 0, tomorrow.
+  void reviewWord(String vocabId, {required bool knew}) {
+    final w = _words[vocabId];
+    if (w == null || w.removed) return;
+    final now = _clock();
+    final box = knew ? (w.box + 1).clamp(0, reviewDays.length - 1) : 0;
+    _words[vocabId] = w.copyWith(
+      box: box,
+      due: _addDays(_istDay(now), knew ? reviewDays[box] : 1),
+      updatedAt: now,
+    );
+    _save();
+    notifyListeners();
+  }
+
+  List<Map<String, dynamic>> wordsForSync() => [
+    for (final e in _words.entries) {'vocabId': e.key, ...e.value.toJson()},
+  ];
 
   void setRules(LearningRules value) {
     rules = value;
@@ -262,6 +345,15 @@ class ProgressController extends ChangeNotifier {
       final best = (j['bestScore'] as num).toDouble();
       if (r.bestScore == null || best > r.bestScore!) r.bestScore = best;
       r.passed = r.passed || j['passed'] == true;
+    }
+    for (final w in result['words'] as List? ?? const []) {
+      final j = w as Map<String, dynamic>;
+      final incoming = WordEntry.fromJson(j);
+      final mine = _words[j['vocabId'] as String];
+      // The newest change wins, on the server and on every phone.
+      if (mine == null || incoming.updatedAt.isAfter(mine.updatedAt)) {
+        _words[j['vocabId'] as String] = incoming;
+      }
     }
     for (final d in result['activity'] as List? ?? const []) {
       final j = d as Map<String, dynamic>;
@@ -367,4 +459,45 @@ class ProgressController extends ChangeNotifier {
     }
     return n;
   }
+}
+
+/// One word in the learner's list (FR-308).
+class WordEntry {
+  const WordEntry({
+    required this.box,
+    required this.due,
+    required this.removed,
+    required this.updatedAt,
+  });
+  factory WordEntry.fromJson(Map<String, dynamic> j) => WordEntry(
+    box: j['box'] as int,
+    due: j['due'] as String,
+    removed: j['removed'] as bool? ?? false,
+    updatedAt: DateTime.parse(j['updatedAt'] as String),
+  );
+  final int box;
+
+  /// IST day `yyyy-mm-dd`.
+  final String due;
+  final bool removed;
+  final DateTime updatedAt;
+
+  WordEntry copyWith({
+    int? box,
+    String? due,
+    bool? removed,
+    DateTime? updatedAt,
+  }) => WordEntry(
+    box: box ?? this.box,
+    due: due ?? this.due,
+    removed: removed ?? this.removed,
+    updatedAt: updatedAt ?? this.updatedAt,
+  );
+
+  Map<String, dynamic> toJson() => {
+    'box': box,
+    'due': due,
+    'removed': removed,
+    'updatedAt': updatedAt.toUtc().toIso8601String(),
+  };
 }

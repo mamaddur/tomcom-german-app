@@ -246,9 +246,21 @@ describe('content studio (FR-1001, FR-1003, FR-1005)', () => {
         article: 'der',
         plural: 'Hämmer',
         meaning: { te: 'సుత్తి', en: 'hammer' },
-        tradeTags: ['construction'],
+        tradeTags: ['electrician', 'welder', 'welder'],
       })
       .expect(201);
+    // FR-306: tags are trade codes (deduplicated), so the app can match the learner's trade.
+    expect(created.body.tradeTags).toEqual(['electrician', 'welder']);
+    const unknownTrade = await http()
+      .post('/v1/studio/vocab')
+      .set(as(author))
+      .send({
+        german: 'Kelle',
+        meaning: { te: 'కర్ణి', en: 'trowel' },
+        tradeTags: ['construction'],
+      })
+      .expect(400);
+    expect(unknownTrade.body.code).toBe('unknown_trade');
     const found = (await http().get('/v1/studio/vocab?q=hamm').set(as(reviewer)).expect(200)).body;
     expect(found).toEqual([
       expect.objectContaining({ id: created.body.id, german: 'Hammer', article: 'der' }),

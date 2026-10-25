@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 
 import '../../l10n/app_localizations.dart';
 import '../content/pack_models.dart';
+import '../progress/progress_controller.dart';
 import 'audio_service.dart';
 
 /// FR-304: normal and slow (0.75×) playback for every German recording.
@@ -24,6 +25,7 @@ class LessonPlayerScreen extends StatefulWidget {
     this.onFinished,
     this.onStartQuiz,
     this.passMark = 0.8,
+    this.words,
   });
 
   final LessonPack pack;
@@ -48,6 +50,9 @@ class LessonPlayerScreen extends StatefulWidget {
 
   /// Shown on the last page: the score that opens the next lesson (FR-402).
   final double passMark;
+
+  /// FR-308: the learner's word list, for the star on vocabulary cards; null hides it.
+  final ProgressController? words;
 
   @override
   State<LessonPlayerScreen> createState() => _LessonPlayerScreenState();
@@ -195,6 +200,7 @@ class _LessonPlayerScreenState extends State<LessonPlayerScreen>
                     other: _showOther ? other : null,
                     play: _play,
                     mediaFile: widget.mediaFile,
+                    words: widget.words,
                   ),
                 _FinishedView(
                   passMark: widget.passMark,
@@ -283,9 +289,11 @@ class _ScreenView extends StatelessWidget {
     required this.other,
     required this.play,
     required this.mediaFile,
+    this.words,
   });
 
   final LessonScreen screen;
+  final ProgressController? words;
   final LessonPack pack;
   final String locale;
   final String? other;
@@ -332,6 +340,7 @@ class _ScreenView extends StatelessWidget {
                 entry: v,
                 play: play,
                 mediaFile: mediaFile,
+                words: words,
                 text: (l) => _text(context, l),
               ),
         ],
@@ -378,8 +387,10 @@ class _VocabCard extends StatelessWidget {
     required this.play,
     required this.mediaFile,
     required this.text,
+    this.words,
   });
   final VocabEntry entry;
+  final ProgressController? words;
   final Future<void> Function(German) play;
   final Future<File?> Function(String mediaId) mediaFile;
   final Widget Function(L10n) text;
@@ -412,9 +423,32 @@ class _VocabCard extends StatelessWidget {
                         ),
                       ),
               ),
-            GermanLine(
-              german: German(text: word, audioId: entry.german.audioId),
-              onPlay: play,
+            Row(
+              children: [
+                Expanded(
+                  child: GermanLine(
+                    german: German(text: word, audioId: entry.german.audioId),
+                    onPlay: play,
+                  ),
+                ),
+                if (words case final w?)
+                  ListenableBuilder(
+                    listenable: w,
+                    builder: (context, _) {
+                      final t = AppLocalizations.of(context);
+                      final saved = w.isSaved(entry.id);
+                      return IconButton(
+                        key: Key('star-${entry.id}'),
+                        tooltip: saved ? t.removeWord : t.saveWord,
+                        icon: Icon(
+                          saved ? Icons.star : Icons.star_border,
+                          color: saved ? Colors.amber.shade700 : null,
+                        ),
+                        onPressed: () => w.toggleWord(entry.id),
+                      );
+                    },
+                  ),
+              ],
             ),
             if (entry.plural != null)
               Text('Pl. ${entry.plural}', locale: const Locale('de')),

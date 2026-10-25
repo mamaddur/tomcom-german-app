@@ -51,6 +51,16 @@ export class SyncService {
     // Attempts for lessons that no longer exist are dropped but reported as stored, so they
     // leave the phone's outbox instead of being resent forever.
     const attempts = dto.attempts.filter((a) => known.has(a.lessonId));
+    const latestWord = now.getTime() + DAY_MS;
+    const words = dto.words ?? [];
+    const knownVocab = new Set(
+      (
+        await this.prisma.db.vocabItem.findMany({
+          where: { id: { in: [...new Set(words.map((w) => w.vocabId))] } },
+          select: { id: true },
+        })
+      ).map((v) => v.id),
+    );
     if (attempts.length < dto.attempts.length) {
       this.log.warn(
         { dropped: dto.attempts.length - attempts.length },
@@ -86,6 +96,18 @@ export class SyncService {
             passed_at = COALESCE(lesson_progress.passed_at, EXCLUDED.passed_at),
             updated_at = now()`;
       }
+      // FR-308: the newest change to each word wins; a phone clock far ahead is not trusted.
+      for (const w of words) {
+        const at = new Date(Math.min(Date.parse(w.updatedAt), latestWord));
+        if (!knownVocab.has(w.vocabId)) continue;
+        await tx.$executeRaw`
+          INSERT INTO word_list (learner_id, vocab_id, box, due, removed, updated_at)
+          VALUES (${learnerId}::uuid, ${w.vocabId}::uuid, ${w.box}, ${w.due}::date, ${w.removed}, ${at})
+          ON CONFLICT (learner_id, vocab_id) DO UPDATE SET
+            box = EXCLUDED.box, due = EXCLUDED.due, removed = EXCLUDED.removed,
+            updated_at = EXCLUDED.updated_at
+          WHERE word_list.updated_at < EXCLUDED.updated_at`;
+      }
       // The app sends its running total per day; the larger value wins.
       for (const d of activity) {
         await tx.$executeRaw`
@@ -97,7 +119,7 @@ export class SyncService {
       }
     });
 
-    const [lessons, days] = await Promise.all([
+    const [lessons, days, list] = await Promise.all([
       this.prisma.db.lessonProgress.findMany({
         where: { learnerId },
         select: { lessonId: true, bestScore: true, passed: true },
@@ -107,11 +129,19 @@ export class SyncService {
         orderBy: { date: 'asc' },
         select: { date: true, seconds: true },
       }),
+      this.prisma.db.wordListEntry.findMany({ where: { learnerId } }),
     ]);
     return {
       stored: dto.attempts.map((a) => a.id),
       lessons,
       activity: days.map((d) => ({ date: d.date.toISOString().slice(0, 10), seconds: d.seconds })),
+      words: list.map((w) => ({
+        vocabId: w.vocabId,
+        box: w.box,
+        due: w.due.toISOString().slice(0, 10),
+        removed: w.removed,
+        updatedAt: w.updatedAt.toISOString(),
+      })),
     };
   }
 }

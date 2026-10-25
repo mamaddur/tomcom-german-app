@@ -138,16 +138,35 @@ export async function createVocab(input: {
   plural?: string;
   meaning: L10n;
   audioId?: string;
+  tradeTags: string[];
 }) {
   const result = await call((t) =>
     api<Vocab>('/v1/studio/vocab', {
       method: 'POST',
-      body: { ...input, tradeTags: [] },
+      body: input,
       accessToken: t,
     }),
   );
   if (result.ok) revalidatePath('/[locale]/studio/vocab', 'page');
   return result;
+}
+
+/** FR-306: which trades a word belongs to. Keeps every other field as it is. */
+export async function setVocabTrades(locale: string, id: string, form: FormData): Promise<void> {
+  const tradeTags = form.getAll('trade').map(String);
+  const result = await call(async (t) => {
+    const v = await api<Vocab>(`/v1/studio/vocab/${id}`, { accessToken: t });
+    // The API refuses unknown fields: send back only what VocabInput accepts.
+    const fields = ['german', 'article', 'plural', 'meaning', 'audioId', 'imageId'] as const;
+    const current = v as unknown as Record<string, unknown>;
+    const body = Object.fromEntries([
+      ...fields.filter((k) => current[k] != null).map((k) => [k, current[k]]),
+      ['tradeTags', tradeTags],
+    ]);
+    return api<Vocab>(`/v1/studio/vocab/${id}`, { method: 'PUT', body, accessToken: t });
+  });
+  revalidatePath(`/${locale}/studio/vocab`);
+  redirect(`/${locale}/studio/vocab${result.ok ? '' : `?error=${result.code}`}`);
 }
 
 function dropEmpty(l: L10n): L10n {

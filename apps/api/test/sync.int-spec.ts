@@ -125,4 +125,51 @@ describe('offline sync of quiz attempts and learning time (FR-405, FR-204, NFR-0
   it('needs a learner session', async () => {
     await http().post('/v1/sync').send({ attempts: [], activity: [] }).expect(401);
   });
+
+  it('syncs the word list: newest change wins, removals reach other phones (FR-308)', async () => {
+    const author = await prisma.db.user.findFirstOrThrow({ where: { role: 'author' } });
+    const vocab = await prisma.db.vocabItem.create({
+      data: {
+        german: 'Hammer',
+        meaning: { te: 'సుత్తి', en: 'hammer' },
+        tradeTags: [],
+        createdBy: author.id,
+        updatedBy: author.id,
+      },
+    });
+    const word = (box: number, updatedAt: string, removed = false) => ({
+      vocabId: vocab.id,
+      box,
+      due: '2026-10-27',
+      removed,
+      updatedAt,
+    });
+    await sync({ attempts: [], activity: [], words: [word(2, '2026-10-25T10:00:00Z')] }).expect(
+      200,
+    );
+    // An older change from another phone does not overwrite the newer one.
+    const stale = await sync({
+      attempts: [],
+      activity: [],
+      words: [word(0, '2026-10-25T09:00:00Z')],
+    }).expect(200);
+    expect(stale.body.words).toEqual([
+      expect.objectContaining({ vocabId: vocab.id, box: 2, removed: false }),
+    ]);
+    const removed = await sync({
+      attempts: [],
+      activity: [],
+      words: [word(2, '2026-10-25T11:00:00Z', true)],
+    }).expect(200);
+    expect(removed.body.words).toEqual([expect.objectContaining({ removed: true })]);
+    // Unknown words are ignored; requests without `words` still work.
+    await sync({
+      attempts: [],
+      activity: [],
+      words: [{ ...word(1, '2026-10-25T12:00:00Z'), vocabId: randomUUID() }],
+    }).expect(200);
+    await sync({ attempts: [], activity: [], words: [word(9, '2026-10-25T12:00:00Z')] }).expect(
+      400,
+    );
+  });
 });

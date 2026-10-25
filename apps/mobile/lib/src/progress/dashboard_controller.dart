@@ -23,6 +23,9 @@ class DashboardController extends ChangeNotifier {
   Future<void> refresh() async {
     try {
       final config = await api.appConfig();
+      if (config['features'] case final Map<String, dynamic> f) {
+        progress.setFeatures(f.map((k, v) => MapEntry(k, v == true)));
+      }
       updateAvailable = config['update'] == 'optional';
       if (config['learning'] case final Map<String, dynamic> learning) {
         progress.setRules(LearningRules.fromJson(learning));
@@ -46,6 +49,7 @@ class DashboardController extends ChangeNotifier {
       final result = await api.sync(
         attempts: progress.pendingAttempts.take(100).toList(),
         activity: progress.activityForSync(),
+        words: progress.wordsForSync(),
       );
       progress.applySync(result);
     } on ApiException {

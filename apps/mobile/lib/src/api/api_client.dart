@@ -166,10 +166,11 @@ class ApiClient {
   Future<Map<String, dynamic>> sync({
     required List<Map<String, dynamic>> attempts,
     required List<Map<String, dynamic>> activity,
+    List<Map<String, dynamic>> words = const [],
   }) async => await _authed(
     'POST',
     '/v1/sync',
-    body: {'attempts': attempts, 'activity': activity},
+    body: {'attempts': attempts, 'activity': activity, 'words': words},
   ) as Map<String, dynamic>;
 
   // ── Level checkpoints (FR-404, online only) ──
