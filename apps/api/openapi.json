@@ -52,6 +52,188 @@
           "health"
         ]
       }
+    },
+    "/v1/auth/otp/request": {
+      "post": {
+        "operationId": "AuthController_requestOtp",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OtpRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OtpRequestResultDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/v1/auth/otp/verify": {
+      "post": {
+        "operationId": "AuthController_verifyOtp",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OtpVerifyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OtpVerifyResultDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/v1/auth/register": {
+      "post": {
+        "operationId": "AuthController_register",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/v1/auth/refresh": {
+      "post": {
+        "operationId": "AuthController_refresh",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RefreshDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TokensDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/v1/auth/logout": {
+      "post": {
+        "operationId": "AuthController_logout",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RefreshDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/v1/consent/notice": {
+      "get": {
+        "operationId": "ConsentController_notice",
+        "parameters": [
+          {
+            "name": "locale",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "te",
+                "en"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConsentNoticeDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "consent"
+        ]
+      }
     }
   },
   "info": {
@@ -125,6 +307,333 @@
         "required": [
           "status",
           "checks"
+        ]
+      },
+      "OtpRequestDto": {
+        "type": "object",
+        "properties": {
+          "phone": {
+            "type": "string",
+            "example": "+915500000002",
+            "description": "Indian mobile number; spaces and 0/91 prefixes accepted"
+          },
+          "locale": {
+            "type": "string",
+            "enum": [
+              "te",
+              "en"
+            ],
+            "description": "Language of the SMS"
+          }
+        },
+        "required": [
+          "phone",
+          "locale"
+        ]
+      },
+      "OtpRequestResultDto": {
+        "type": "object",
+        "properties": {
+          "expiresInSeconds": {
+            "type": "number"
+          },
+          "resendAfterSeconds": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "expiresInSeconds",
+          "resendAfterSeconds"
+        ]
+      },
+      "DeviceDto": {
+        "type": "object",
+        "properties": {
+          "clientId": {
+            "type": "string",
+            "description": "Installation ID generated by the app",
+            "minLength": 8,
+            "maxLength": 64
+          },
+          "platform": {
+            "type": "string",
+            "enum": [
+              "android",
+              "ios",
+              "web"
+            ]
+          },
+          "appVersion": {
+            "type": "string",
+            "example": "0.1.0"
+          }
+        },
+        "required": [
+          "clientId",
+          "platform",
+          "appVersion"
+        ]
+      },
+      "OtpVerifyDto": {
+        "type": "object",
+        "properties": {
+          "phone": {
+            "type": "string",
+            "example": "+915500000002"
+          },
+          "code": {
+            "type": "string",
+            "example": "123456"
+          },
+          "device": {
+            "$ref": "#/components/schemas/DeviceDto"
+          }
+        },
+        "required": [
+          "phone",
+          "code",
+          "device"
+        ]
+      },
+      "TokensDto": {
+        "type": "object",
+        "properties": {
+          "accessToken": {
+            "type": "string"
+          },
+          "refreshToken": {
+            "type": "string"
+          },
+          "expiresInSeconds": {
+            "type": "number"
+          },
+          "tokenType": {
+            "type": "string",
+            "enum": [
+              "Bearer"
+            ]
+          }
+        },
+        "required": [
+          "accessToken",
+          "refreshToken",
+          "expiresInSeconds",
+          "tokenType"
+        ]
+      },
+      "OnboardingStateDto": {
+        "type": "object",
+        "properties": {
+          "profileComplete": {
+            "type": "boolean",
+            "description": "Name, district and trade captured (FR-103, step 2b)"
+          }
+        },
+        "required": [
+          "profileComplete"
+        ]
+      },
+      "UserSummaryDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "learner",
+              "trainer",
+              "tomcom_admin",
+              "author",
+              "reviewer",
+              "super_admin"
+            ]
+          },
+          "uiLocale": {
+            "type": "string",
+            "enum": [
+              "te",
+              "en"
+            ]
+          },
+          "onboarding": {
+            "$ref": "#/components/schemas/OnboardingStateDto"
+          }
+        },
+        "required": [
+          "id",
+          "role",
+          "uiLocale",
+          "onboarding"
+        ]
+      },
+      "OtpVerifyResultDto": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "authenticated",
+              "registration_required"
+            ]
+          },
+          "tokens": {
+            "description": "When status is authenticated",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/TokensDto"
+              }
+            ]
+          },
+          "user": {
+            "description": "When status is authenticated",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/UserSummaryDto"
+              }
+            ]
+          },
+          "registrationToken": {
+            "type": "string",
+            "description": "When status is registration_required: pass to POST /auth/register"
+          },
+          "registrationExpiresInSeconds": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "ConsentInputDto": {
+        "type": "object",
+        "properties": {
+          "noticeVersion": {
+            "type": "number",
+            "description": "Version of the notice the learner saw"
+          },
+          "purposes": {
+            "example": [
+              "learning",
+              "progress_sharing"
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "noticeVersion",
+          "purposes"
+        ]
+      },
+      "RegisterDto": {
+        "type": "object",
+        "properties": {
+          "registrationToken": {
+            "type": "string"
+          },
+          "locale": {
+            "type": "string",
+            "enum": [
+              "te",
+              "en"
+            ],
+            "description": "Interface language chosen by the learner (FR-102)"
+          },
+          "consent": {
+            "$ref": "#/components/schemas/ConsentInputDto"
+          },
+          "device": {
+            "$ref": "#/components/schemas/DeviceDto"
+          }
+        },
+        "required": [
+          "registrationToken",
+          "locale",
+          "consent",
+          "device"
+        ]
+      },
+      "SessionDto": {
+        "type": "object",
+        "properties": {
+          "tokens": {
+            "$ref": "#/components/schemas/TokensDto"
+          },
+          "user": {
+            "$ref": "#/components/schemas/UserSummaryDto"
+          }
+        },
+        "required": [
+          "tokens",
+          "user"
+        ]
+      },
+      "RefreshDto": {
+        "type": "object",
+        "properties": {
+          "refreshToken": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "refreshToken"
+        ]
+      },
+      "ConsentPurposeDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "required": {
+            "type": "boolean"
+          },
+          "label": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "required",
+          "label"
+        ]
+      },
+      "ConsentNoticeDto": {
+        "type": "object",
+        "properties": {
+          "version": {
+            "type": "number"
+          },
+          "locale": {
+            "type": "string",
+            "enum": [
+              "te",
+              "en"
+            ]
+          },
+          "title": {
+            "type": "string"
+          },
+          "text": {
+            "type": "string"
+          },
+          "purposes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ConsentPurposeDto"
+            }
+          }
+        },
+        "required": [
+          "version",
+          "locale",
+          "title",
+          "text",
+          "purposes"
         ]
       }
     }

@@ -4,6 +4,14 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 case "${1:-up}" in
   up)
+    if [ ! -f apps/api/.env.local ]; then
+      # Fresh random dev keys; never committed (.gitignore).
+      sed -e "s|^PII_ENCRYPTION_KEY=.*|PII_ENCRYPTION_KEY=$(openssl rand -base64 32)|" \
+          -e "s|^PII_HMAC_KEY=.*|PII_HMAC_KEY=$(openssl rand -base64 32)|" \
+          -e "s|^JWT_SECRET=.*|JWT_SECRET=$(openssl rand -base64 32)|" \
+          apps/api/.env.example > apps/api/.env.local
+      echo "Created apps/api/.env.local with random dev keys"
+    fi
     docker compose up -d --wait
     for db in tomcom_dev tomcom_test; do
       DATABASE_URL="postgresql://tomcom:tomcom@localhost:5432/$db" \

@@ -1,6 +1,8 @@
 import type { INestApplication } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule, type OpenAPIObject } from '@nestjs/swagger';
 import helmet from 'helmet';
+import { ProblemFilter } from './common/problem.filter.js';
+import { createValidationPipe } from './common/validation.js';
 
 export const API_PREFIX = 'v1';
 
@@ -8,6 +10,8 @@ export const API_PREFIX = 'v1';
 export function configureApp(app: INestApplication): void {
   app.use(helmet());
   app.setGlobalPrefix(API_PREFIX);
+  app.useGlobalPipes(createValidationPipe());
+  app.useGlobalFilters(new ProblemFilter());
   app.enableShutdownHooks();
 }
 

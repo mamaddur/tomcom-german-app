@@ -72,6 +72,13 @@ The app records 16 kHz mono Opus, capped at about 15 s. That keeps every attempt
 ### 3.4 Certificates (FR-701–705)
 When a learner passes a checkpoint and every lesson in the level is at 80% or above, a job is queued. The job renders a PDF (Telugu and English fonts embedded) showing name, level, date, score, certificate ID and a QR code that links to `https://<verify-domain>/c/{code}`. The code is a random 12-character Crockford base32 string, so codes can't be guessed. The verify page shows name, level, date and status (valid or revoked). Target: under 1 minute (story 5). The PDF says plainly that it is a course-completion certificate and not an official exam result (FR-705).
 
+### 3.5 Consent-first registration (FR-101, FR-104, story 1)
+Story 1 needs both "after the OTP the learner reaches language selection" and "consent is recorded before any personal data is saved". So verifying an OTP for an unknown number does **not** create a user:
+1. `POST /auth/otp/request`: the code is hashed in Redis for 5 minutes. Synthetic `+9155…` numbers use `DEV_OTP` outside production, and no SMS is sent.
+2. `POST /auth/otp/verify`: an existing learner gets a session. A new number gets a registration token, and the phone is held **encrypted in Redis for 15 minutes**, not in the database.
+3. The app shows language selection, then the consent notice (`GET /consent/notice?locale=te`).
+4. `POST /auth/register`: one transaction creates the user (phone encrypted, HMAC for lookup), the consent record (notice version, purposes, locale, device) and the device. The registration token works once.
+
 ## 4. Security and privacy (NFR-09–15)
 - TLS 1.2+ everywhere. Encryption at rest is on for RDS, S3 and ElastiCache. Secrets live in AWS Secrets Manager.
 - Phone numbers are stored encrypted at the application level (KMS envelope), with an HMAC column for lookup. Names and districts rely on DB-level encryption.

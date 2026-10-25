@@ -10,8 +10,12 @@ step() { printf '\n\033[1m▶ %s\033[0m\n' "$*"; }
 
 step "Install tools";             scripts/install-tools.sh >/dev/null
 step "Format";                    pnpm -s format:check
-step "OpenAPI spec up to date";   pnpm -s --filter @tomcom/api openapi >/dev/null
-                                  git diff --exit-code -- apps/api/openapi.json
+step "OpenAPI spec up to date"    # a fresh export must match the working copy
+spec_before=$(mktemp); cp apps/api/openapi.json "$spec_before"
+pnpm -s --filter @tomcom/api openapi >/dev/null
+if ! diff -q "$spec_before" apps/api/openapi.json >/dev/null; then
+  echo "apps/api/openapi.json was stale and has been regenerated — review and commit it" >&2; exit 1
+fi
 step "Lint";                      pnpm -s lint
 step "Types";                     pnpm -s typecheck
 step "Unit tests";                pnpm -s test

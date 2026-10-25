@@ -7,6 +7,9 @@ import { resolve } from 'node:path';
 process.env.DATABASE_URL ??= 'postgresql://openapi:openapi@localhost:5432/openapi';
 process.env.REDIS_URL ??= 'redis://localhost:6379/0';
 process.env.APP_ENV ??= 'test';
+for (const k of ['PII_ENCRYPTION_KEY', 'PII_HMAC_KEY', 'JWT_SECRET']) {
+  process.env[k] ??= Buffer.alloc(32).toString('base64');
+}
 process.env.LOG_LEVEL = 'silent';
 
 async function run(): Promise<void> {
