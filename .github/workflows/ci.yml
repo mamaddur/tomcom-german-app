@@ -169,7 +169,12 @@ jobs:
       - name: Build release APKs, one per CPU type
         run: |
           export JAVA_HOME="$JAVA_HOME_17_X64"
-          flutter build apk --release --split-per-abi --dart-define=API_BASE_URL=https://api.example.invalid
+          set -o pipefail
+          flutter build apk --release --split-per-abi --dart-define=API_BASE_URL=https://api.example.invalid 2>&1 | tee build.log || {
+            # Show the cause as annotations, which are visible without downloading the log.
+            grep -E -A3 "What went wrong|error:|Error:|FAILURE" build.log | head -30 | while IFS= read -r l; do echo "::error::$l"; done
+            exit 1
+          }
       - name: Each APK stays under 40 MB (NFR-02)
         run: |
           for f in build/app/outputs/flutter-apk/app-*-release.apk; do
