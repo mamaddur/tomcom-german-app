@@ -8,3 +8,4 @@ docs/
 *.md
 apps/api/openapi.json
 apps/api/src/generated/
+apps/web/next-env.d.ts
