@@ -152,6 +152,32 @@ jobs:
       - run: flutter analyze
       - run: flutter test
 
+  android:
+    # The hosted runner has the Android SDK; this machine does not. Catches Gradle/manifest
+    # problems early and keeps the app inside NFR-02's 40 MB.
+    name: Android release build (NFR-01, NFR-02)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    defaults:
+      run: { working-directory: apps/mobile }
+    steps:
+      - uses: actions/checkout@v7
+      - uses: subosito/flutter-action@v2
+        with: { flutter-version: 3.47.8, channel: stable, cache: true }
+      - run: flutter pub get
+      - run: flutter gen-l10n
+      - name: Build release APKs, one per CPU type
+        run: |
+          export JAVA_HOME="$JAVA_HOME_17_X64"
+          flutter build apk --release --split-per-abi --dart-define=API_BASE_URL=https://api.example.invalid
+      - name: Each APK stays under 40 MB (NFR-02)
+        run: |
+          for f in build/app/outputs/flutter-apk/app-*-release.apk; do
+            size=$(stat -c%s "$f")
+            echo "$(basename "$f"): $((size / 1024 / 1024)) MB"
+            if [ "$size" -ge 41943040 ]; then echo "::error::$f is over 40 MB (NFR-02)"; exit 1; fi
+          done
+
   security:
     name: Secrets, SAST, dependencies
     runs-on: ubuntu-24.04
