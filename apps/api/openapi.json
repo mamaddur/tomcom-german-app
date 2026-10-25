@@ -1627,6 +1627,97 @@
         ]
       }
     },
+    "/v1/admin/announcements": {
+      "get": {
+        "operationId": "AdminAnnouncementsController_list",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AdminAnnouncementDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "admin"
+        ]
+      },
+      "post": {
+        "operationId": "AdminAnnouncementsController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateAnnouncementDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminAnnouncementDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "admin"
+        ]
+      }
+    },
+    "/v1/admin/announcements/{id}": {
+      "delete": {
+        "operationId": "AdminAnnouncementsController_end",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "admin"
+        ]
+      }
+    },
     "/v1/me/export": {
       "get": {
         "operationId": "PrivacyController_export",
@@ -4095,6 +4186,83 @@
           "body",
           "startsAt",
           "endsAt"
+        ]
+      },
+      "AdminAnnouncementDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "title": {
+            "type": "object"
+          },
+          "body": {
+            "type": "object"
+          },
+          "batchCode": {
+            "type": "string",
+            "nullable": true
+          },
+          "startsAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "endsAt": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true
+          },
+          "active": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "body",
+          "startsAt",
+          "active"
+        ]
+      },
+      "AnnouncementTextDto": {
+        "type": "object",
+        "properties": {
+          "te": {
+            "type": "string"
+          },
+          "en": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "te",
+          "en"
+        ]
+      },
+      "CreateAnnouncementDto": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "$ref": "#/components/schemas/AnnouncementTextDto"
+          },
+          "body": {
+            "$ref": "#/components/schemas/AnnouncementTextDto"
+          },
+          "batchId": {
+            "type": "string",
+            "description": "Leave out for every learner (admins only)"
+          },
+          "startsAt": {
+            "type": "string"
+          },
+          "endsAt": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "title",
+          "body"
         ]
       },
       "EraseAccountDto": {

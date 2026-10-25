@@ -53,6 +53,17 @@ describe('admin portal staff sign-in (NFR-10)', () => {
     await expect(page.getByText('సూపర్ అడ్మిన్').isVisible()).resolves.toBe(true);
   });
 
+  it('a super admin reads the audit log, newest first (FR-909)', async () => {
+    await page.getByRole('navigation').getByRole('link', { name: 'ఆడిట్ లాగ్' }).click();
+    await page.waitForURL(`${WEB}/te/admin/audit`);
+    const rows = page.locator('table.data tbody tr');
+    await rows.first().waitFor();
+    // The failed and successful sign-ins above are among the newest entries.
+    const texts = await rows.allTextContents();
+    expect(texts.some((r) => r.includes('failure:otp_invalid'))).toBe(true);
+    expect(texts.some((r) => r.includes('staff_login') && r.includes('success'))).toBe(true);
+  });
+
   it('keeps tokens out of reach of page scripts', async () => {
     const cookies = await page.context().cookies();
     const session = cookies.filter((c) => c.name === 'tomcom_at' || c.name === 'tomcom_rt');

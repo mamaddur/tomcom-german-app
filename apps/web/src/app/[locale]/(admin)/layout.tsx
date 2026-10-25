@@ -39,7 +39,11 @@ export default async function AdminLayout({
             <>
               <Link href={`/${locale}/admin/batches`}>{t('nav.batches')}</Link>
               <Link href={`/${locale}/admin/learners`}>{t('nav.learners')}</Link>
+              <Link href={`/${locale}/admin/announcements`}>{t('nav.announcements')}</Link>
             </>
+          )}
+          {me.role === 'super_admin' && (
+            <Link href={`/${locale}/admin/audit`}>{t('nav.audit')}</Link>
           )}
           {(CONTENT_ROLES as readonly string[]).includes(me.role) && (
             <Link href={`/${locale}/studio`}>{t('nav.studio')}</Link>
