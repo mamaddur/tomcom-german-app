@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../../l10n/app_localizations.dart';
+import '../api/models.dart';
+import '../checkpoint/checkpoint_screen.dart';
 import '../progress/open_lesson.dart';
 import '../progress/progress_controller.dart';
 import 'content_controller.dart';
@@ -161,6 +163,8 @@ class _LevelCard extends StatelessWidget {
                   content: content,
                   progress: progress,
                 ),
+              if (content.checkpoints[level] case final cp? when cp.available)
+                _CheckpointTile(level: level, status: cp, content: content),
             ],
           ],
         ),
@@ -257,6 +261,66 @@ class _LessonTile extends StatelessWidget {
                   ? record?.screen ?? 0
                   : 0,
             ),
+    );
+  }
+}
+
+/// FR-404: the level checkpoint, taken online once every lesson is passed.
+class _CheckpointTile extends StatelessWidget {
+  const _CheckpointTile({
+    required this.level,
+    required this.status,
+    required this.content,
+  });
+  final String level;
+  final CheckpointStatus status;
+  final ContentController content;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
+    final latest = status.latest;
+    final Widget body;
+    if (status.passed) {
+      body = Text(
+        t.checkpointPassedBadge(((latest?.total ?? 1) * 100).round()),
+        style: TextStyle(color: Colors.green.shade700),
+      );
+    } else if (latest?.status == 'awaiting_marking') {
+      body = Text(t.checkpointAwaiting);
+    } else if (!status.eligible) {
+      body = Text(t.checkpointLocked(status.lessonsPassed, status.lessons));
+    } else {
+      body = Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          FilledButton.icon(
+            key: Key('checkpoint-$level'),
+            icon: const Icon(Icons.assignment),
+            label: Text(t.checkpointTake(level)),
+            onPressed: () async {
+              await Navigator.of(context).push(
+                MaterialPageRoute<void>(
+                  builder: (_) => CheckpointScreen(
+                    api: content.api,
+                    level: level,
+                    audio: content.audio,
+                    tempDir: content.tempDir,
+                  ),
+                ),
+              );
+              await content.refresh();
+            },
+          ),
+          const SizedBox(height: 4),
+          Text(t.checkpointNeedsInternet(45)),
+        ],
+      );
+    }
+    return Card(
+      margin: const EdgeInsets.only(top: 12),
+      color: Theme.of(context).colorScheme.surfaceContainerHighest,
+      child: Padding(padding: const EdgeInsets.all(12), child: body),
     );
   }
 }

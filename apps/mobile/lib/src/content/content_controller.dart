@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 
 import '../api/api_client.dart';
+import '../api/models.dart';
 import '../player/audio_service.dart';
 import 'pack_models.dart';
 import 'pack_store.dart';
@@ -33,6 +34,9 @@ class ContentController extends ChangeNotifier {
 
   final Map<String, PackInfo> remote = {};
   final Map<String, LessonPack> installed = {};
+
+  /// Checkpoint status per level (FR-404); empty offline.
+  final Map<String, CheckpointStatus> checkpoints = {};
   bool offline = false;
   String? downloadingLevel;
   double progress = 0;
@@ -64,6 +68,11 @@ class ContentController extends ChangeNotifier {
         ..clear()
         ..addEntries(offers.map((p) => MapEntry(p.level, p)));
       offline = false;
+      checkpoints
+        ..clear()
+        ..addEntries(
+          (await api.checkpoints()).map((c) => MapEntry(c.level, c)),
+        );
     } on ApiException catch (e) {
       // Downloaded lessons keep working without a connection (NFR-05).
       offline = e.code == 'network_error';

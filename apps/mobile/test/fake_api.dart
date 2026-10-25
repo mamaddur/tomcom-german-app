@@ -25,6 +25,11 @@ class FakeApi {
     'dailyGoalMinutes': 10,
   };
 
+  /// Checkpoints (FR-404): status per level, the attempt to hand out, and the result of submit.
+  List<Map<String, dynamic>> checkpoints = [];
+  Map<String, dynamic>? checkpointAttempt;
+  Map<String, dynamic> checkpointResult = {};
+
   /// Routes (e.g. `GET /v1/announcements`) that fail as if the network were down.
   final failRoutes = <String>{};
 
@@ -49,6 +54,22 @@ class FakeApi {
     if (req.headers["Authorization"] != null && expireAccessTokenOnce) {
       expireAccessTokenOnce = false;
       return _problem(401, 'access_token_invalid');
+    }
+    if (RegExp(r'^GET /v1/checkpoints/attempts/[^/]+/media/').hasMatch(route)) {
+      return http.Response.bytes(
+        List<int>.filled(64, 1),
+        200,
+        headers: {'content-type': 'audio/ogg'},
+      );
+    }
+    if (RegExp(r'^POST /v1/checkpoints/(A1|A2|B1)/attempts$').hasMatch(route)) {
+      return checkpointAttempt == null
+          ? _problem(409, 'lessons_not_passed')
+          : _json(200, checkpointAttempt!);
+    }
+    if (RegExp(r'^POST /v1/checkpoints/attempts/[^/]+/submit$')
+        .hasMatch(route)) {
+      return _json(200, checkpointResult);
     }
     final download = RegExp(r'^GET /v1/packs/(\w+)/(\d+)/download$')
         .firstMatch(route);
@@ -200,6 +221,8 @@ class FakeApi {
               {'date': e.key, 'seconds': e.value},
           ],
         });
+      case 'GET /v1/checkpoints':
+        return _json(200, checkpoints);
       case 'GET /v1/announcements':
         return _json(200, announcements);
       case 'GET /v1/me/export':

@@ -163,6 +163,40 @@ class ApiClient {
     body: {'attempts': attempts, 'activity': activity},
   ) as Map<String, dynamic>;
 
+  // ── Level checkpoints (FR-404, online only) ──
+
+  Future<List<CheckpointStatus>> checkpoints() async => [
+    for (final j in await _authed('GET', '/v1/checkpoints') as List<dynamic>)
+      CheckpointStatus.fromJson(j as Map<String, dynamic>),
+  ];
+
+  /// Starts an attempt, or resumes the open one.
+  Future<CheckpointAttempt> startCheckpoint(String level) async =>
+      CheckpointAttempt.fromJson(
+        await _authed('POST', '/v1/checkpoints/$level/attempts')
+            as Map<String, dynamic>,
+      );
+
+  Future<CheckpointAttempt> submitCheckpoint(
+    String attemptId, {
+    required Map<String, Object?> answers,
+    required Map<String, String> writing,
+  }) async => CheckpointAttempt.fromJson(
+    await _authed(
+      'POST',
+      '/v1/checkpoints/attempts/$attemptId/submit',
+      body: {'answers': answers, 'writing': writing},
+    ) as Map<String, dynamic>,
+  );
+
+  /// A listening recording of the learner's own open attempt.
+  Future<List<int>> checkpointAudio(String attemptId, String mediaId) async =>
+      await _authed(
+        'GET',
+        '/v1/checkpoints/attempts/$attemptId/media/$mediaId',
+        raw: true,
+      ) as List<int>;
+
   // ── Lesson packs (FR-307) ──
 
   Future<List<PackInfo>> packs() async => [
@@ -224,11 +258,18 @@ class ApiClient {
     String method,
     String path, {
     Map<String, dynamic>? body,
+    bool raw = false,
   }) async {
     final token = await store.read(SessionStore.accessTokenKey);
     if (token == null) throw ApiException(401, 'session_expired');
     try {
-      return await _send(method, path, body: body, accessToken: token);
+      return await _send(
+        method,
+        path,
+        body: body,
+        accessToken: token,
+        raw: raw,
+      );
     } on ApiException catch (e) {
       if (e.status != 401) rethrow;
       await _refresh();
@@ -237,6 +278,7 @@ class ApiClient {
         path,
         body: body,
         accessToken: await store.read(SessionStore.accessTokenKey),
+        raw: raw,
       );
     }
   }
@@ -270,6 +312,7 @@ class ApiClient {
     String path, {
     Map<String, dynamic>? body,
     String? accessToken,
+    bool raw = false,
   }) async {
     final request = http.Request(method, Uri.parse('$baseUrl$path'));
     request.headers['Accept'] = 'application/json';
@@ -288,6 +331,8 @@ class ApiClient {
     } on Exception {
       throw ApiException(0, 'network_error');
     }
+    // Binary downloads (recordings) come back as bytes when they succeed.
+    if (raw && response.statusCode < 400) return response.bodyBytes;
     final decoded = response.body.isEmpty
         ? null
         : jsonDecode(utf8.decode(response.bodyBytes));
