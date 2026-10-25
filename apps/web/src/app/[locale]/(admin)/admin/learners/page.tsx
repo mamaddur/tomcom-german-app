@@ -45,7 +45,16 @@ export default async function LearnersPage({
           {t.has(`errors.${error}`) ? t(`errors.${error}` as 'errors.error') : t('errors.error')}
         </p>
       )}
-      <p>{t('learners.count', { count: rows.length })}</p>
+      <p>
+        {t('learners.count', { count: rows.length })} ·{' '}
+        <a href={`/api/reports/xlsx?${filterQuery(values)}&locale=${locale}`} download>
+          {t('export.xlsx')}
+        </a>{' '}
+        ·{' '}
+        <a href={`/api/reports/pdf?${filterQuery(values)}&locale=${locale}`} download>
+          {t('export.pdf')}
+        </a>
+      </p>
       {rows.length > 0 && (
         <table className="data">
           <thead>

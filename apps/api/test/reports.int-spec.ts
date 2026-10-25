@@ -1,5 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import type { INestApplication } from '@nestjs/common';
+import ExcelJS from 'exceljs';
 import request from 'supertest';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { PrismaService } from '../src/infra/prisma.service.js';
@@ -198,5 +199,86 @@ describe('admin reports', () => {
       lessonTitle: { en: expect.stringMatching(/^Lesson/) },
     });
     expect(d.activity).toEqual([{ date: today, seconds: 600 }]);
+  });
+
+  it('exports Excel and PDF with the same numbers as the dashboard (FR-905, story 6)', async () => {
+    const batchA = await prisma.db.batch.findUniqueOrThrow({ where: { code: 'RPT-A' } });
+    const q = { batchId: batchA.id };
+    const dash = (await overview(admin, q).expect(200)).body;
+
+    const res = await http()
+      .get('/v1/admin/reports/export.xlsx')
+      .query(q)
+      .set(as(admin))
+      .buffer(true)
+      .parse((r, cb) => {
+        const chunks: Buffer[] = [];
+        r.on('data', (c: Buffer) => chunks.push(c));
+        r.on('end', () => cb(null, Buffer.concat(chunks)));
+      })
+      .expect(200);
+    expect(res.headers['content-type']).toContain('spreadsheetml');
+    expect(res.headers['content-disposition']).toMatch(
+      /attachment; filename="tomcom-report-.*\.xlsx"/,
+    );
+    const book = new ExcelJS.Workbook();
+    await book.xlsx.load(res.body as unknown as ArrayBuffer);
+    const [summary, byLesson, people] = book.worksheets;
+    const value = (label: string) =>
+      summary!.getColumn(1).values.indexOf(label) > 0
+        ? summary!.getRow(summary!.getColumn(1).values.indexOf(label)).getCell(2).value
+        : undefined;
+    expect(value('Learners')).toBe(dash.learners);
+    expect(value('Active learners')).toBe(dash.activeLearners);
+    expect(value('Quiz attempts')).toBe(dash.attempts);
+    expect(value('Average quiz score')).toBeCloseTo(dash.averageScore, 10);
+    expect(byLesson!.rowCount - 1).toBe(dash.lessons.length);
+    expect(byLesson!.getRow(3).getCell(7).value).toBe(dash.lessons[1].dropOff);
+    expect(people!.rowCount - 1).toBe(dash.learners);
+
+    const pdf = await http()
+      .get('/v1/admin/reports/export.pdf')
+      .query({ ...q, locale: 'te' })
+      .set(as(trainerA))
+      .buffer(true)
+      .parse((r, cb) => {
+        const chunks: Buffer[] = [];
+        r.on('data', (c: Buffer) => chunks.push(c));
+        r.on('end', () => cb(null, Buffer.concat(chunks)));
+      })
+      .expect(200);
+    expect(pdf.headers['content-type']).toBe('application/pdf');
+    expect((pdf.body as Buffer).subarray(0, 5).toString()).toBe('%PDF-');
+
+    // Exports hold names, so each is audited with its filters (FR-909).
+    const audit = await prisma.db.auditLog.findMany({
+      where: {
+        action: 'report_export',
+        details: { path: ['filters', 'batchId'], equals: batchA.id },
+      },
+    });
+    expect(audit.map((a) => (a.details as { format: string }).format).sort()).toEqual([
+      'pdf',
+      'xlsx',
+    ]);
+  });
+
+  it("a trainer cannot export another trainer's batch", async () => {
+    const batchB = await prisma.db.batch.findUniqueOrThrow({ where: { code: 'RPT-B' } });
+    const res = await http()
+      .get('/v1/admin/reports/export.xlsx')
+      .query({ batchId: batchB.id })
+      .set(as(trainerA))
+      .buffer(true)
+      .parse((r, cb) => {
+        const chunks: Buffer[] = [];
+        r.on('data', (c: Buffer) => chunks.push(c));
+        r.on('end', () => cb(null, Buffer.concat(chunks)));
+      })
+      .expect(200);
+    const book = new ExcelJS.Workbook();
+    await book.xlsx.load(res.body as unknown as ArrayBuffer);
+    // Scope wins over the filter: nobody from batch B appears.
+    expect(book.worksheets[2]!.rowCount).toBe(1);
   });
 });

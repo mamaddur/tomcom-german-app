@@ -150,6 +150,10 @@
       "passed": "పాస్",
       "averageBest": "సగటు ఉత్తమ స్కోరు",
       "dropOff": "ఇక్కడ ఆగిపోయినవారు"
+    },
+    "export": {
+      "xlsx": "Excel డౌన్‌లోడ్",
+      "pdf": "PDF డౌన్‌లోడ్"
     }
   },
   "studio": {
