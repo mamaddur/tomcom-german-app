@@ -2,14 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
 import '../l10n/app_localizations.dart';
+import 'content/content_controller.dart';
 import 'onboarding/onboarding_controller.dart';
 import 'onboarding/screens.dart';
 
 /// Root widget. The UI language follows the learner's choice; Telugu by default (BR-02).
 class TomcomApp extends StatefulWidget {
-  const TomcomApp({super.key, required this.controller});
+  const TomcomApp({super.key, required this.controller, required this.content});
 
   final OnboardingController controller;
+  final ContentController content;
 
   @override
   State<TomcomApp> createState() => _TomcomAppState();
@@ -52,7 +54,7 @@ class _TomcomAppState extends State<TomcomApp> {
           OnboardingStep.consent => ConsentScreen(c: c),
           OnboardingStep.profile => ProfileScreen(c: c),
           OnboardingStep.batch => BatchScreen(c: c),
-          OnboardingStep.home => HomeScreen(c: c),
+          OnboardingStep.home => HomeScreen(c: c, content: widget.content),
         },
       ),
     );

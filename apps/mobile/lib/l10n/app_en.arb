@@ -180,10 +180,6 @@
       }
     }
   },
-  "homeComingSoon": "Lessons arrive in the next update.",
-  "@homeComingSoon": {
-    "description": "Placeholder until lessons exist (step 4)."
-  },
   "signOut": "Sign out",
   "@signOut": {
     "description": "Sign out button."
@@ -235,5 +231,102 @@
   "errorGeneric": "Something went wrong. Please try again.",
   "@errorGeneric": {
     "description": "Any other error."
+  },
+  "lessons": "Lessons",
+  "@lessons": {
+    "description": "Home button that opens the levels and lessons."
+  },
+  "levelsTitle": "Levels and downloads",
+  "@levelsTitle": {
+    "description": "Levels screen title (FR-307)."
+  },
+  "notPublished": "Not available yet",
+  "@notPublished": {
+    "description": "A level with no published lessons."
+  },
+  "download": "Download",
+  "@download": {
+    "description": "Download a level for offline use."
+  },
+  "downloadSize": "{size} MB · {count} lessons",
+  "@downloadSize": {
+    "description": "Size and lesson count before download.",
+    "placeholders": {
+      "size": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "downloadConfirmTitle": "Download {level}?",
+  "@downloadConfirmTitle": {
+    "description": "Download confirmation title.",
+    "placeholders": {
+      "level": {
+        "type": "String"
+      }
+    }
+  },
+  "downloadConfirmBody": "This uses about {size} MB. Use Wi-Fi if you can; on mobile data it uses your data pack. After downloading, these lessons work without internet.",
+  "@downloadConfirmBody": {
+    "description": "Explains data use before downloading (NFR-02).",
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "cancel": "Cancel",
+  "@cancel": {
+    "description": "Cancel button."
+  },
+  "downloading": "Downloading… {percent}%",
+  "@downloading": {
+    "description": "Download progress.",
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "installed": "Downloaded · works offline",
+  "@installed": {
+    "description": "Level is installed."
+  },
+  "updateAvailable": "New lessons available ({size} MB)",
+  "@updateAvailable": {
+    "description": "A newer pack exists.",
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "update": "Update",
+  "@update": {
+    "description": "Download the newer pack."
+  },
+  "offlineBanner": "You are offline. Downloaded lessons still work.",
+  "@offlineBanner": {
+    "description": "Shown when the server cannot be reached."
+  },
+  "minutes": "{n} min",
+  "@minutes": {
+    "description": "Estimated lesson length.",
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "errorDownload": "The download did not finish. Please try again.",
+  "@errorDownload": {
+    "description": "Download failed or was interrupted."
+  },
+  "errorPackDamaged": "The download was damaged, so it was not installed. Please try again.",
+  "@errorPackDamaged": {
+    "description": "Checksum or integrity failure."
   }
 }

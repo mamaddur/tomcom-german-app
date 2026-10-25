@@ -11,6 +11,10 @@ class FakeApi {
   String uiLocale = 'te';
   String? batch;
   int accessTokenVersion = 1;
+
+  /// Published packs: level → (version, zip bytes, sha256).
+  final packs =
+      <String, ({int version, List<int> zip, String sha256, int lessons})>{};
   bool expireAccessTokenOnce = false;
 
   late final client = MockClient((req) async {
@@ -24,7 +28,31 @@ class FakeApi {
       expireAccessTokenOnce = false;
       return _problem(401, 'access_token_invalid');
     }
+    final download = RegExp(r'^GET /v1/packs/(\w+)/(\d+)/download$')
+        .firstMatch(route);
+    if (download != null) {
+      final p = packs[download.group(1)];
+      return p == null
+          ? _problem(404, 'pack_not_found')
+          : http.Response.bytes(
+              p.zip,
+              200,
+              headers: {'content-type': 'application/zip'},
+            );
+    }
     switch (route) {
+      case 'GET /v1/packs':
+        return _json(200, [
+          for (final e in packs.entries)
+            {
+              'level': e.key,
+              'version': e.value.version,
+              'bytes': e.value.zip.length,
+              'sha256': e.value.sha256,
+              'lessonCount': e.value.lessons,
+              'publishedAt': '2026-10-25T00:00:00Z',
+            },
+        ]);
       case 'POST /v1/auth/otp/request':
         return _json(202, {'expiresInSeconds': 300, 'resendAfterSeconds': 30});
       case 'POST /v1/auth/otp/verify':

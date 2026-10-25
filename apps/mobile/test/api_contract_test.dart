@@ -27,6 +27,8 @@ void main() {
     '/v1/me/batch': 'post',
     '/v1/reference/districts': 'get',
     '/v1/reference/trades': 'get',
+    '/v1/packs': 'get',
+    '/v1/packs/{level}/{version}/download': 'get',
   };
 
   const usedFields = {
@@ -48,6 +50,7 @@ void main() {
       'selfDeclaredLevel',
     ],
     'DeviceDto': ['clientId', 'platform', 'appVersion'],
+    'PackDto': ['level', 'version', 'bytes', 'sha256', 'lessonCount'],
   };
 
   usedEndpoints.forEach((path, method) {

@@ -1,10 +1,12 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
 import '../config.dart';
 import '../session/session_store.dart';
+import '../content/pack_models.dart';
 import 'models.dart';
 
 /// An error the API returned (`code` from application/problem+json), or `network_error`.
@@ -124,6 +126,61 @@ class ApiClient {
     for (final j in await _send('GET', path) as List<dynamic>)
       ReferenceItem.fromJson(j as Map<String, dynamic>),
   ];
+
+  // ── Lesson packs (FR-307) ──
+
+  Future<List<PackInfo>> packs() async => [
+    for (final j in await _authed('GET', '/v1/packs') as List<dynamic>)
+      PackInfo.fromJson(j as Map<String, dynamic>),
+  ];
+
+  /// Streams a pack zip to [target], reporting received bytes. Refreshes the session once if needed.
+  Future<void> downloadPack(
+    PackInfo pack,
+    File target, {
+    void Function(int received)? onProgress,
+  }) async {
+    Future<http.StreamedResponse> send() async {
+      final req = http.Request(
+        'GET',
+        Uri.parse('$baseUrl/v1/packs/${pack.level}/${pack.version}/download'),
+      );
+      req.headers['Authorization'] =
+          'Bearer ${await store.read(SessionStore.accessTokenKey)}';
+      return _http.send(req);
+    }
+
+    http.StreamedResponse res;
+    try {
+      res = await send();
+      if (res.statusCode == 401) {
+        await res.stream.drain<void>();
+        await _refresh();
+        res = await send();
+      }
+    } on ApiException {
+      rethrow;
+    } on Exception {
+      throw ApiException(0, 'network_error');
+    }
+    if (res.statusCode != 200) {
+      await res.stream.drain<void>();
+      throw ApiException(res.statusCode, 'download_failed');
+    }
+    final sink = target.openWrite();
+    var received = 0;
+    try {
+      await for (final chunk in res.stream) {
+        sink.add(chunk);
+        received += chunk.length;
+        onProgress?.call(received);
+      }
+    } on Exception {
+      throw ApiException(0, 'network_error');
+    } finally {
+      await sink.close();
+    }
+  }
 
   // ── Plumbing ──
 

@@ -1,7 +1,11 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:tomcom_german/src/api/api_client.dart';
 import 'package:tomcom_german/src/app.dart';
+import 'package:tomcom_german/src/content/content_controller.dart';
+import 'package:tomcom_german/src/content/pack_store.dart';
 import 'package:tomcom_german/src/onboarding/onboarding_controller.dart';
 import 'package:tomcom_german/src/session/session_store.dart';
 
@@ -18,9 +22,15 @@ void main() {
       store: store,
       httpClient: fake.client,
     );
+    final content = ContentController(
+      api: api,
+      store: PackStore(() async => Directory.systemTemp),
+      tempDir: () async => Directory.systemTemp,
+    );
     await tester.pumpWidget(
       TomcomApp(
         controller: OnboardingController(api: api, store: store),
+        content: content,
       ),
     );
     await tester.pumpAndSettle();

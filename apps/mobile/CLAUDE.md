@@ -16,9 +16,15 @@ Read the root `CLAUDE.md` first; its rules apply here. Flutter SDK 3.47.8 (this 
 - Targets: Android 8.0 (minSdk 26) with 2 GB RAM, iOS 15. Keep the install under 40 MB (NFR-02); lesson media comes in downloaded packs, never in the app bundle.
 - Every user-facing string goes in `lib/l10n/app_en.arb` (with an `@key` description) and `app_te.arb`. The parity test enforces both. Telugu text needs review by the Telugu language reviewer before release.
 - Telugu is the default locale (BR-02). Use icons plus Telugu labels and minimal typing (NFR-18).
-- Structure: `lib/src/api/` (client + models), `session/` (secure token store), `onboarding/` (controller + screens), `ui/` (shared widgets, error texts). Screens get state from a controller; tests use `test/fake_api.dart`.
+- Structure: `lib/src/api/` (client + models), `session/` (secure token store), `onboarding/` (controller + screens), `content/` (offline packs: models, `PackStore`, `ContentController`, levels screen), `ui/` (shared widgets, error texts). Screens get state from a controller; tests use `test/fake_api.dart`.
 - API client is hand-written (ADR-016). When you use a new endpoint or field, add it to `test/api_contract_test.dart`.
 - Before a language is chosen, screens are bilingual (Telugu first, English below) using `Bilingual`/`bilingualLabel`.
 - Release builds are HTTPS-only (`usesCleartextTraffic=false`); only debug builds may use plain HTTP to a local API.
 - The app talks only to our API. No vendor SDKs (LLM, speech, SMS) in the app; push uses FCM/APNs tokens registered through the API.
 - Never log PII. Use the app logger (added in step 2), never `print`.
+
+## Widget tests: real I/O and the fake clock
+- `testWidgets` runs on a fake clock. Real file or socket work started there **never completes**, so the test hangs without a timeout error. Run it inside `tester.runAsync(...)`, including the tap that starts it, and use sync file calls (`createTempSync`, `deleteSync`) in `setUp`/`tearDown`.
+- Start long operations directly from the button's `onPressed`, not after `await showDialog(...)`: the continuation runs in whatever zone opened the dialog.
+- `debugPrint` is throttled on a timer and may not show without pumping; use `print` for temporary tracing.
+- Packs: `PackStore.install` verifies the zip SHA-256 and every media file's SHA-256, extracts only manifest paths (Zip Slip guard), and swaps versions atomically. Keep those checks.

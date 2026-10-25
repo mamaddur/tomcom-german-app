@@ -5,6 +5,8 @@ import 'package:flutter/services.dart';
 
 import '../../l10n/app_localizations.dart';
 import '../api/models.dart';
+import '../content/content_controller.dart';
+import '../content/levels_screen.dart';
 import '../ui/widgets.dart';
 import 'onboarding_controller.dart';
 
@@ -470,8 +472,9 @@ class _BatchScreenState extends State<BatchScreen> {
 }
 
 class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key, required this.c});
+  const HomeScreen({super.key, required this.c, required this.content});
   final OnboardingController c;
+  final ContentController content;
 
   @override
   Widget build(BuildContext context) {
@@ -500,7 +503,14 @@ class HomeScreen extends StatelessWidget {
             Text(t.homeBatch(me!.batchName!)),
           ],
           const SizedBox(height: 24),
-          Text(t.homeComingSoon, style: Theme.of(context).textTheme.bodyLarge),
+          PrimaryButton(
+            label: t.lessons,
+            onPressed: () => Navigator.of(context).push(
+              MaterialPageRoute<void>(
+                builder: (_) => LevelsScreen(content: content),
+              ),
+            ),
+          ),
           const SizedBox(height: 32),
           Text(t.languageLabel, style: Theme.of(context).textTheme.titleMedium),
           const SizedBox(height: 8),
