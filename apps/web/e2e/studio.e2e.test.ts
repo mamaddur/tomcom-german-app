@@ -105,4 +105,32 @@ describe('content studio (FR-1001, FR-1003, FR-1004)', () => {
     await author.getByRole('heading', { name: 'Publish lesson packs' }).waitFor();
     expect(await author.getByRole('button', { name: 'Publish A1' }).count()).toBe(0);
   });
+
+  it(
+    'an author drafts a checkpoint; a reviewer sees what blocks publishing (FR-404)',
+    { timeout: 60_000 },
+    async () => {
+      await author.goto(`${WEB}/en/studio/checkpoints`);
+      await author.getByRole('link', { name: 'B1 checkpoint' }).click();
+      await author.waitForURL(`${WEB}/en/studio/checkpoints/B1`);
+      await author.getByLabel('Pass mark (%)').fill('65');
+      await author.getByRole('button', { name: 'Add question: Multiple choice' }).first().click();
+      await author.getByLabel('Prompt (Telugu)').last().fill('"Danke" అంటే ఏమిటి?');
+      await author.getByLabel('Prompt (English)').last().fill('What does "Danke" mean?');
+      await author.getByRole('button', { name: 'Save' }).click();
+      await author.getByRole('status').filter({ hasText: /Saved/ }).waitFor();
+
+      await reviewer.goto(`${WEB}/en/studio/checkpoints/B1`);
+      expect(await reviewer.getByText('Read-only for your role.').isVisible()).toBe(true);
+      expect(await reviewer.getByLabel('Pass mark (%)').inputValue()).toBe('65');
+      // The banks are far from full: publishing is refused with the reasons.
+      expect(
+        await reviewer.getByRole('heading', { name: 'Before it can be published' }).isVisible(),
+      ).toBe(true);
+      await reviewer.getByRole('button', { name: 'Publish checkpoint' }).click();
+      const error = reviewer.getByRole('status').filter({ hasText: 'not complete' });
+      await error.waitFor();
+      expect(await error.textContent()).toMatch(/sections\/reading|the bank has/);
+    },
+  );
 });

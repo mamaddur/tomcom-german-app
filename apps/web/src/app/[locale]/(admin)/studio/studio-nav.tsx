@@ -6,12 +6,13 @@ export async function StudioNav({
   current,
 }: {
   locale: string;
-  current: 'lessons' | 'vocab' | 'publish';
+  current: 'lessons' | 'vocab' | 'publish' | 'checkpoints';
 }) {
   const t = await getTranslations({ locale, namespace: 'studio' });
   const items = [
     ['lessons', `/${locale}/studio`],
     ['vocab', `/${locale}/studio/vocab`],
+    ['checkpoints', `/${locale}/studio/checkpoints`],
     ['publish', `/${locale}/studio/publish`],
   ] as const;
   return (

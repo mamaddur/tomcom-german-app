@@ -296,3 +296,29 @@ export interface AuditEntry {
   outcome: string;
   details: unknown;
 }
+
+// ── Checkpoints (FR-404) ──
+
+export interface WritingTask {
+  id: string;
+  prompt: L10n;
+  payload: { minWords: number; maxWords: number };
+  explanation: L10n;
+  difficulty: number;
+}
+
+export interface CheckpointContent {
+  passMark: number;
+  draw: { reading: number; listening: number; writing: number };
+  sections: { reading: Question[]; listening: Question[]; writing: WritingTask[] };
+}
+
+export interface Checkpoint {
+  level: 'A1' | 'A2' | 'B1';
+  content: CheckpointContent;
+  revision: number;
+  updatedAt: string | null;
+  publishedRevision: number | null;
+  publishedAt: string | null;
+  problems: string[];
+}

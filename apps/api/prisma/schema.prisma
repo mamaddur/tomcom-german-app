@@ -289,8 +289,9 @@ model Level {
   title Json // locale-keyed (ADR-007)
   order Int
 
-  lessons Lesson[]
-  packs   PackVersion[]
+  lessons    Lesson[]
+  packs      PackVersion[]
+  checkpoint Checkpoint?
 
   @@map("levels")
 }
@@ -590,4 +591,24 @@ model BatchInvite {
   @@unique([phoneHmac, batchId])
   @@index([phoneHmac])
   @@map("batch_invites")
+}
+
+/// FR-404. One checkpoint test per level. `content` is the draft authors edit (content-schema
+/// `checkpoint`); `publishedContent` is the version learners take. Never shipped in a pack
+/// (ADR-009): questions and answers stay on the server.
+model Checkpoint {
+  id                String    @id @default(uuid(7)) @db.Uuid
+  levelId           String    @unique @map("level_id") @db.Uuid
+  content           Json
+  revision          Int       @default(1)
+  updatedBy         String    @map("updated_by") @db.Uuid
+  updatedAt         DateTime  @updatedAt @map("updated_at") @db.Timestamptz
+  publishedContent  Json?     @map("published_content")
+  publishedRevision Int?      @map("published_revision")
+  publishedBy       String?   @map("published_by") @db.Uuid
+  publishedAt       DateTime? @map("published_at") @db.Timestamptz
+
+  level Level @relation(fields: [levelId], references: [id])
+
+  @@map("checkpoints")
 }
