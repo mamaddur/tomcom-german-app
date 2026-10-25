@@ -467,3 +467,25 @@ model PackVersion {
   @@unique([levelId, version])
   @@map("pack_versions")
 }
+
+// ── Platform settings and feature flags (build step 3d) ──────────────────
+
+/// FR-1101. Keys and allowed values are defined in code (src/settings/registry.ts); rows hold overrides.
+model Setting {
+  key       String   @id
+  value     Json
+  updatedBy String   @map("updated_by") @db.Uuid
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  @@map("settings")
+}
+
+/// FR-1103. Module switches; keys defined in code, rows hold overrides.
+model FeatureFlag {
+  key       String   @id
+  enabled   Boolean
+  updatedBy String   @map("updated_by") @db.Uuid
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  @@map("feature_flags")
+}

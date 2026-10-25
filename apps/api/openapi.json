@@ -58,6 +58,180 @@
         ]
       }
     },
+    "/v1/admin/settings": {
+      "get": {
+        "operationId": "SettingsController_list",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SettingDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "admin"
+        ]
+      }
+    },
+    "/v1/admin/settings/{key}": {
+      "put": {
+        "operationId": "SettingsController_set",
+        "parameters": [
+          {
+            "name": "key",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetSettingDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SettingDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "admin"
+        ]
+      }
+    },
+    "/v1/admin/feature-flags": {
+      "get": {
+        "operationId": "SettingsController_flags",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/FeatureFlagDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "admin"
+        ]
+      }
+    },
+    "/v1/admin/feature-flags/{key}": {
+      "put": {
+        "operationId": "SettingsController_setFlag",
+        "parameters": [
+          {
+            "name": "key",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetFlagDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FeatureFlagDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "admin"
+        ]
+      }
+    },
+    "/v1/app/config": {
+      "get": {
+        "operationId": "SettingsController_appConfig",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AppConfigDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "admin"
+        ]
+      }
+    },
     "/v1/health/live": {
       "get": {
         "operationId": "HealthController_live",
@@ -1448,6 +1622,102 @@
           "at",
           "action",
           "outcome"
+        ]
+      },
+      "SettingDto": {
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string",
+            "example": "quiz.passMark"
+          },
+          "value": {
+            "type": "object",
+            "example": 0.8
+          },
+          "default": {
+            "type": "object",
+            "example": 0.8
+          },
+          "description": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "key",
+          "value",
+          "default",
+          "description"
+        ]
+      },
+      "SetSettingDto": {
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": "object",
+            "example": 0.8,
+            "description": "Must be within the range defined for the setting"
+          }
+        },
+        "required": [
+          "value"
+        ]
+      },
+      "FeatureFlagDto": {
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string",
+            "example": "module.tutor"
+          },
+          "enabled": {
+            "type": "boolean"
+          },
+          "default": {
+            "type": "boolean"
+          },
+          "description": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "key",
+          "enabled",
+          "default",
+          "description"
+        ]
+      },
+      "SetFlagDto": {
+        "type": "object",
+        "properties": {
+          "enabled": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "enabled"
+        ]
+      },
+      "AppConfigDto": {
+        "type": "object",
+        "properties": {
+          "features": {
+            "type": "object",
+            "example": {
+              "module.tutor": true
+            },
+            "description": "Which optional modules the app should show"
+          },
+          "limits": {
+            "type": "object",
+            "example": {
+              "tutor.dailyMessageLimit": 30
+            }
+          }
+        },
+        "required": [
+          "features",
+          "limits"
         ]
       },
       "HealthDto": {

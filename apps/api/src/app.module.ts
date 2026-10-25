@@ -11,6 +11,7 @@ import { LearnersModule } from './learners/learners.module.js';
 import { createLoggerModule } from './logging/logger.module.js';
 import { MediaModule } from './media/media.module.js';
 import { ReferenceModule } from './reference/reference.module.js';
+import { SettingsModule } from './settings/settings.module.js';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { ReferenceModule } from './reference/reference.module.js';
     SmsModule,
     StorageModule,
     AuditModule,
+    SettingsModule,
     HealthModule,
     IdentityModule,
     ReferenceModule,

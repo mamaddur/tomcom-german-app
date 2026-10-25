@@ -88,7 +88,8 @@ describe('publishing lesson packs (FR-1004, ADR-008)', () => {
   afterAll(() => app.close());
   beforeEach(async () => {
     await resetState(app);
-    await prisma.db.$executeRaw`TRUNCATE lessons, vocab_items, media_assets, pack_versions CASCADE`;
+    await prisma.db
+      .$executeRaw`TRUNCATE lessons, vocab_items, media_assets, pack_versions, settings CASCADE`;
     await createStaff(app, 'author', '+915599300001');
     await createStaff(app, 'reviewer', '+915599300002');
     author = await login('+915599300001');
@@ -132,6 +133,7 @@ describe('publishing lesson packs (FR-1004, ADR-008)', () => {
     const manifest = JSON.parse(strFromU8(files['manifest.json']!));
     expect(validateLessonPack(manifest)).toEqual({ valid: true, errors: [] });
     expect(manifest.lessons.map((l: { id: string }) => l.id)).toEqual([lessonId]);
+    expect(manifest.settings).toEqual({ passMark: 0.8, questionsPerQuiz: 10 }); // FR-1101 defaults
     expect(Object.keys(files)).toContain(`audio/${audio}.opus`);
   });
 

@@ -70,7 +70,9 @@ All writes from the mobile app accept `Idempotency-Key` or carry a `clientId`.
 | PUT | `/admin/writing/{id}/override` | FR-407 |
 | GET/PUT | `/admin/tutor-flags` | FR-608 |
 | CRUD | `/admin/users` (staff, roles) · GET `/admin/audit-log` | FR-908, FR-909 (super_admin) |
-| GET/PUT | `/admin/settings` · `/admin/feature-flags` · `/admin/app-versions` | FR-1101–1103 (super_admin) |
+| GET / PUT | `/admin/settings` · `/admin/settings/{key}` `{value}` · `/admin/feature-flags` · `/admin/feature-flags/{key}` `{enabled}` (read: super_admin, tomcom_admin; write: super_admin) | FR-1101, FR-1103 |
+| GET | `/app/config` (public): feature switches and learner limits | FR-1103 |
+| GET/PUT | `/admin/app-versions` (step 10) | FR-1102 |
 
 ## Content studio (author, reviewer; super_admin read-only)
 | Method | Path | Role | Req |

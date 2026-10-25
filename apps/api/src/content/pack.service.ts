@@ -7,10 +7,8 @@ import { ApiError } from '../common/api-error.js';
 import type { LevelCode, MediaAsset, PackVersion, Prisma } from '../generated/prisma/client.js';
 import type { AccessClaims } from '../identity/token.service.js';
 import { PrismaService } from '../infra/prisma.service.js';
+import { SettingsService } from '../settings/settings.service.js';
 import { toPackLesson } from './lesson-shape.js';
-
-/** Quiz settings shipped in every pack. Admin-configurable with FR-1101 (PR 3d). */
-export const DEFAULT_PACK_SETTINGS = { passMark: 0.8, questionsPerQuiz: 10 };
 
 type PackLesson = ReturnType<typeof toPackLesson>;
 interface Snapshot {
@@ -32,6 +30,7 @@ export class PackService {
   constructor(
     private readonly prisma: PrismaService,
     @Inject(OBJECT_STORAGE) private readonly storage: ObjectStorage,
+    private readonly settings: SettingsService,
   ) {}
 
   async publish(level: LevelCode, auth: AccessClaims) {
@@ -87,7 +86,11 @@ export class PackService {
           level,
           version,
           publishedAt: new Date().toISOString(),
-          settings: DEFAULT_PACK_SETTINGS,
+          // FR-1101: the quiz settings in force when the pack is published.
+          settings: {
+            passMark: await this.settings.get('quiz.passMark'),
+            questionsPerQuiz: await this.settings.get('quiz.questionsPerQuiz'),
+          },
           lessons: packLessons,
           vocab: vocab.items,
           media: media.map(mediaRef),
