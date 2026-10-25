@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+# Blocks commits containing secrets (CLAUDE.md rule 6). Install: git config core.hooksPath .githooks
+set -euo pipefail
+root=$(git rev-parse --show-toplevel)
+if [ -x "$root/tools/bin/gitleaks" ]; then
+  "$root/tools/bin/gitleaks" git --pre-commit --staged --redact --no-banner -c "$root/.gitleaks.toml" "$root"
+else
+  echo "pre-commit: gitleaks missing — run scripts/install-tools.sh" >&2
+  exit 1
+fi

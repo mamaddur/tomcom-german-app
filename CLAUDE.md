@@ -18,7 +18,7 @@ Four front ends, one API:
 Backend: NestJS modular monolith (TypeScript), PostgreSQL, Redis/BullMQ, S3-compatible storage + CDN, hosted in an Indian region.
 See `docs/architecture.md` for the full picture and ADRs.
 
-## Repository layout (proposed, see ADR-002)
+## Repository layout (ADR-002)
 
 ```
 apps/
@@ -29,7 +29,8 @@ packages/
   api-client-ts/   generated from OpenAPI (web)
   api-client-dart/ generated from OpenAPI (mobile)
   content-schema/  JSON Schema for lesson packs (shared by api, studio, mobile)
-infra/             Terraform (dev, staging; prod modules applied only by pipeline)
+infra/             Terraform — added once hosting is decided (ADR-011, ADR-014)
+scripts/           dev-services.sh, verify.sh, install-tools.sh
 docs/              architecture, data model, API, ADRs, runbooks
 tools/seed/        synthetic data generator — the ONLY data source for dev/staging
 ```
@@ -70,4 +71,20 @@ CI green (lint, types, tests, SAST, dependency scan, secret scan), acceptance cr
 
 ## Commands
 
-To be filled in at build step 1 (bootstrap). Each app's CLAUDE.md will list its own `dev`, `test`, `lint` and `build` commands.
+Requirements: Node 22, pnpm 10, Docker, Flutter 3.47.8 (`/opt/flutter/bin` on the build machine).
+
+| Task | Command |
+|---|---|
+| First-time setup | `pnpm install && git config core.hooksPath .githooks && scripts/install-tools.sh` |
+| Start / stop local Postgres + Redis (applies migrations) | `scripts/dev-services.sh up` / `down` / `reset` |
+| Everything CI checks, locally | `scripts/verify.sh` (`--fast` skips integration, Flutter, Semgrep) |
+| Lint / types / unit tests / build, all JS packages | `pnpm lint` / `pnpm typecheck` / `pnpm test` / `pnpm build` |
+| Synthetic data | `pnpm --filter @tomcom/seed generate --learners 200` |
+
+Each app's own CLAUDE.md lists its `dev`, `test`, `lint` and `build` commands.
+
+## Working locally (current mode, ADR-014)
+
+There is no GitHub remote or cloud yet. Work happens on a branch per build step in the local git repo. Claude Code commits to that branch and stops; a human reviews the diff and merges into `main`. Claude Code never merges into `main`. `scripts/verify.sh` stands in for CI until the repo is on GitHub, where `.github/workflows/ci.yml` runs the same checks plus Semgrep registry rules and the OSV scan of Dart packages.
+
+Synthetic phone numbers use the `+9155…` prefix, which no real Indian mobile has (`tools/seed`).

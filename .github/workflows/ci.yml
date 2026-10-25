@@ -1,0 +1,99 @@
+# CI for every PR and push to main (NFR-20, pack 4A.2). Branch protection must require all jobs.
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NEXT_TELEMETRY_DISABLED: 1
+
+jobs:
+  node:
+    name: Lint, types, unit tests, build
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with: { node-version-file: .nvmrc, cache: pnpm }
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm format:check
+      - name: OpenAPI spec is up to date
+        run: pnpm --filter @tomcom/api openapi && git diff --exit-code -- apps/api/openapi.json
+      - run: pnpm lint
+      - run: pnpm typecheck
+      - run: pnpm test
+      - run: pnpm build
+
+  api-integration:
+    name: API integration tests
+    runs-on: ubuntu-24.04
+    services:
+      postgres:
+        image: pgvector/pgvector:0.8.0-pg16
+        env: { POSTGRES_USER: tomcom, POSTGRES_PASSWORD: tomcom, POSTGRES_DB: tomcom_test }
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U tomcom" --health-interval 2s --health-retries 30
+      redis:
+        image: redis:7.4-alpine
+        ports: ['6379:6379']
+        options: >-
+          --health-cmd "redis-cli ping" --health-interval 2s --health-retries 30
+    env:
+      DATABASE_URL: postgresql://tomcom:tomcom@localhost:5432/tomcom_test
+      REDIS_URL: redis://localhost:6379/15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with: { node-version-file: .nvmrc, cache: pnpm }
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter @tomcom/api prisma:deploy
+      - run: pnpm --filter @tomcom/api test:int
+
+  mobile:
+    name: Flutter analyze and test
+    runs-on: ubuntu-24.04
+    defaults:
+      run: { working-directory: apps/mobile }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with: { flutter-version: 3.47.8, channel: stable, cache: true }
+      - run: flutter pub get
+      - run: flutter gen-l10n
+      - run: dart format --set-exit-if-changed lib test
+      - run: flutter analyze
+      - run: flutter test
+
+  security:
+    name: Secrets, SAST, dependencies
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with: { node-version-file: .nvmrc, cache: pnpm }
+      - run: scripts/install-tools.sh
+      - name: Secret scan (full history)
+        run: tools/bin/gitleaks git --redact --no-banner -c .gitleaks.toml .
+      - name: Semgrep (registry + project rules)
+        run: >-
+          tools/.venv/bin/semgrep scan --metrics=off --error
+          --config p/typescript --config p/secrets --config .semgrep/project.yml
+          apps packages tools/seed
+      - name: Dependency scan (npm + Dart)
+        run: |
+          pnpm audit --audit-level low
+          tools/bin/osv-scanner scan source --lockfile pnpm-lock.yaml --lockfile apps/mobile/pubspec.lock

@@ -1,6 +1,16 @@
-# Open questions — planning stop
+# Open questions
 
-Planning (Step 0) is complete. **I'm waiting for your approval before writing any code.**
+Planning approved on 2026-10-25 with "do it on this local machine for now". Step 1 is built locally (ADR-014).
+
+## New from step 1
+
+1. **Framework major upgrades.** Newer majors are out: NestJS 12, Next.js 16, Prisma 7 and Vitest 5 (Vitest 5 is already adopted). Step 1 stays on NestJS 11, Next.js 15 and Prisma 6. Advisories in their transitive dependencies (multer, postcss, deepmerge-ts, js-yaml) are pinned to patched versions through `pnpm.overrides` in the root `package.json`, and `pnpm audit` is clean. Recommend: one dedicated upgrade PR before step 2, so we don't build 7 months of code on superseded majors. **Approve?**
+2. **Placeholder app name.** The learner app shows "German for Work" / "పని కోసం జర్మన్" until TOMCOM decides branding (D). The Telugu UI strings are my drafts and need the Telugu reviewer.
+3. **This machine is a cloud container, not your computer.** Work here is lost when the session's container is reclaimed. Until a GitHub repo exists, nothing is backed up. **Please create the repo soon** (A2), or download the work.
+4. **Not checkable here, checked in CI only:** Semgrep registry rulesets (semgrep.dev blocked) and the OSV scan of Dart packages (api.osv.dev blocked). No Android SDK or Xcode here, so there are no device builds yet. Device builds need the Android SDK (step 4).
+5. **Staging auto-deploy and Terraform** (step 1 in the plan) are deferred until hosting is decided (C4).
+6. **S3-compatible storage for local dev.** The `minio/minio` image can't be pulled here. I'll pick an alternative in step 3, when media upload needs it.
+7. **Automated PR review** (Claude Code GitHub Action, pack 4A.1) needs the GitHub repo and an API key secret. I'll add it once both exist.
 
 ## A. Needed from you before Step 1
 

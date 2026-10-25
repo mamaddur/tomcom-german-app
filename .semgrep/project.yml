@@ -1,0 +1,29 @@
+# Project guardrails from CLAUDE.md, enforced in CI next to the registry rulesets.
+rules:
+  - id: no-raw-unsafe-sql
+    languages: [typescript]
+    severity: ERROR
+    message: Use Prisma's tagged $queryRaw / $executeRaw; the *Unsafe variants allow SQL injection.
+    pattern-either:
+      - pattern: $X.$queryRawUnsafe(...)
+      - pattern: $X.$executeRawUnsafe(...)
+
+  - id: no-logging-request-bodies
+    languages: [typescript]
+    severity: ERROR
+    message: Request bodies and headers can contain PII (phone, OTP, names). Log IDs, not payloads (NFR-09).
+    pattern-either:
+      - pattern: $LOG.$METHOD(..., $REQ.body, ...)
+      - pattern: $LOG.$METHOD(..., $REQ.headers, ...)
+      - pattern: '$LOG.$METHOD(..., {..., body: $REQ.body, ...}, ...)'
+
+  - id: vendor-sdk-only-in-adapters
+    languages: [typescript]
+    severity: ERROR
+    message: Vendor SDKs (LLM, speech, SMS, push) may only be imported inside apps/api/src/adapters (ADR-010, NFR-15).
+    paths:
+      exclude: ['/apps/api/src/adapters/**']
+    pattern-either:
+      - pattern: import $X from "=~/^(@anthropic-ai|openai|@google-cloud\/speech|@google\/genai|microsoft-cognitiveservices-speech-sdk|firebase-admin|twilio|@aws-sdk\/client-bedrock.*)/"
+      - pattern: import {...} from "=~/^(@anthropic-ai|openai|@google-cloud\/speech|@google\/genai|microsoft-cognitiveservices-speech-sdk|firebase-admin|twilio|@aws-sdk\/client-bedrock.*)/"
+      - pattern: import * as $X from "=~/^(@anthropic-ai|openai|@google-cloud\/speech|@google\/genai|microsoft-cognitiveservices-speech-sdk|firebase-admin|twilio|@aws-sdk\/client-bedrock.*)/"

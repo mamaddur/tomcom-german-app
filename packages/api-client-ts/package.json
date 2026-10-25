@@ -1,0 +1,21 @@
+{
+  "name": "@tomcom/api-client-ts",
+  "version": "0.1.0",
+  "private": true,
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "generate": "openapi-typescript ../../apps/api/openapi.json -o src/schema.d.ts",
+    "build": "pnpm generate && tsc -p tsconfig.json",
+    "lint": "eslint src",
+    "typecheck": "pnpm generate && tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "openapi-fetch": "~0.14.1"
+  },
+  "devDependencies": {
+    "openapi-typescript": "^7.13.0",
+    "vitest": "^5.0.5"
+  }
+}

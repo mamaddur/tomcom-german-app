@@ -1,0 +1,17 @@
+{
+  "name": "@tomcom/seed",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Synthetic data generator. The only data source for dev and staging (DPDP, CLAUDE.md rule 3).",
+  "scripts": {
+    "generate": "tsx src/cli.ts",
+    "lint": "eslint src",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "@types/node": "^22.20.5",
+    "tsx": "^4.23.15",
+    "vitest": "^5.0.5"
+  }
+}

@@ -1,0 +1,27 @@
+:root {
+  --bg: #fbfaf7;
+  --fg: #1d1b16;
+  --muted: #5d584d;
+  --accent: #1f5fbf;
+  color-scheme: light;
+}
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  /* Telugu needs a font with full conjunct support; system fallbacks cover dev. */
+  font-family: 'Noto Sans Telugu', 'Noto Sans', system-ui, sans-serif;
+  line-height: 1.6;
+}
+main {
+  max-width: 48rem;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+nav {
+  display: flex;
+  gap: 1rem;
+}
+a {
+  color: var(--accent);
+}
