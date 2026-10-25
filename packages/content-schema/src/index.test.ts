@@ -59,3 +59,27 @@ describe('validateLessonPack', () => {
     expect(validateLessonPack(pack).errors.join()).toMatch(/unknown vocab/);
   });
 });
+
+describe('validateLesson / validateVocabItem', () => {
+  it('accepts a single lesson from the sample pack', async () => {
+    const { validateLesson } = await import('./index');
+    expect(validateLesson(samplePack().lessons[0])).toEqual({ valid: true, errors: [] });
+  });
+
+  it('reports a lesson missing Telugu text', async () => {
+    const { validateLesson } = await import('./index');
+    const lesson = samplePack().lessons[0]!;
+    delete (lesson.description as { te?: string }).te;
+    const result = validateLesson(lesson);
+    expect(result.valid).toBe(false);
+    expect(result.errors.join()).toMatch(/description/);
+  });
+
+  it('checks vocab items', async () => {
+    const { validateVocabItem } = await import('./index');
+    expect(validateVocabItem(samplePack().vocab[0]).valid).toBe(true);
+    expect(validateVocabItem({ ...samplePack().vocab[0], meaning: { en: 'hello' } }).valid).toBe(
+      false,
+    );
+  });
+});

@@ -8,6 +8,25 @@ const ajv = new Ajv2020({ allErrors: true, strict: true, allowUnionTypes: true }
 addFormats(ajv);
 
 const validate = ajv.compile(lessonPackSchema);
+const SCHEMA_ID = lessonPackSchema.$id;
+const lessonValidator = ajv.getSchema(`${SCHEMA_ID}#/$defs/lesson`)!;
+const vocabValidator = ajv.getSchema(`${SCHEMA_ID}#/$defs/vocabItem`)!;
+
+/**
+ * Checks one lesson in pack shape (FR-301, FR-401, BR-02): every text in te + en, screens and
+ * questions well-formed. Used by the studio API before a lesson can go to review.
+ */
+export function validateLesson(lesson: unknown): ValidationResult {
+  return lessonValidator(lesson)
+    ? { valid: true, errors: [] }
+    : { valid: false, errors: (lessonValidator.errors ?? []).map(formatError) };
+}
+
+export function validateVocabItem(item: unknown): ValidationResult {
+  return vocabValidator(item)
+    ? { valid: true, errors: [] }
+    : { valid: false, errors: (vocabValidator.errors ?? []).map(formatError) };
+}
 
 export interface ValidationResult {
   valid: boolean;

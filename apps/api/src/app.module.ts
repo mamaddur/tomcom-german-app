@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { SmsModule } from './adapters/sms/sms.module.js';
 import { AuditModule } from './audit/audit.module.js';
 import { CommonModule } from './common/common.module.js';
+import { ContentModule } from './content/content.module.js';
 import { HealthModule } from './health/health.module.js';
 import { IdentityModule } from './identity/identity.module.js';
 import { InfraModule } from './infra/infra.module.js';
@@ -20,6 +21,7 @@ import { ReferenceModule } from './reference/reference.module.js';
     IdentityModule,
     ReferenceModule,
     LearnersModule,
+    ContentModule,
   ],
 })
 export class AppModule {}

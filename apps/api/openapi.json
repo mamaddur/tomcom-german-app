@@ -535,6 +535,576 @@
           "me"
         ]
       }
+    },
+    "/v1/studio/levels": {
+      "get": {
+        "operationId": "StudioController_levels",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/LevelDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "studio"
+        ]
+      }
+    },
+    "/v1/studio/lessons": {
+      "get": {
+        "operationId": "StudioController_list",
+        "parameters": [
+          {
+            "name": "level",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "enum": [
+                "A1",
+                "A2",
+                "B1"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "enum": [
+                "draft",
+                "in_review",
+                "approved",
+                "published"
+              ],
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/LessonSummaryDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "studio"
+        ]
+      },
+      "post": {
+        "operationId": "StudioController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateLessonDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LessonDetailDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "studio"
+        ]
+      }
+    },
+    "/v1/studio/lessons/{id}": {
+      "get": {
+        "operationId": "StudioController_get",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LessonDetailDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "studio"
+        ]
+      },
+      "put": {
+        "operationId": "StudioController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateLessonDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LessonDetailDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "studio"
+        ]
+      }
+    },
+    "/v1/studio/lessons/{id}/transition": {
+      "post": {
+        "operationId": "StudioController_transition",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TransitionDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LessonDetailDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "studio"
+        ]
+      }
+    },
+    "/v1/studio/lessons/{id}/comments": {
+      "post": {
+        "operationId": "StudioController_comment",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CommentDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LessonDetailDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "studio"
+        ]
+      }
+    },
+    "/v1/studio/lessons/{id}/revisions": {
+      "get": {
+        "operationId": "StudioController_revisions",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/RevisionDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "studio"
+        ]
+      }
+    },
+    "/v1/studio/lessons/{id}/rollback": {
+      "post": {
+        "operationId": "StudioController_rollback",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RollbackDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LessonDetailDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "studio"
+        ]
+      }
+    },
+    "/v1/studio/levels/{level}/lesson-order": {
+      "put": {
+        "operationId": "StudioController_reorder",
+        "parameters": [
+          {
+            "name": "level",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LessonOrderDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/LessonSummaryDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "studio"
+        ]
+      }
+    },
+    "/v1/studio/vocab": {
+      "get": {
+        "operationId": "StudioController_searchVocab",
+        "parameters": [
+          {
+            "name": "q",
+            "required": false,
+            "in": "query",
+            "description": "Search the German word",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/VocabDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "studio"
+        ]
+      },
+      "post": {
+        "operationId": "StudioController_createVocab",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VocabInputDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VocabDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "studio"
+        ]
+      }
+    },
+    "/v1/studio/vocab/{id}": {
+      "get": {
+        "operationId": "StudioController_getVocab",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VocabDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "studio"
+        ]
+      },
+      "put": {
+        "operationId": "StudioController_updateVocab",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VocabInputDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VocabDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "studio"
+        ]
+      }
     }
   },
   "info": {
@@ -1249,6 +1819,609 @@
         },
         "required": [
           "code"
+        ]
+      },
+      "LevelDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string",
+            "enum": [
+              "A1",
+              "A2",
+              "B1"
+            ]
+          },
+          "title": {
+            "type": "object",
+            "example": {
+              "te": "A1 – ప్రారంభ స్థాయి",
+              "en": "A1 – Beginner"
+            }
+          },
+          "lessonCount": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "id",
+          "code",
+          "title",
+          "lessonCount"
+        ]
+      },
+      "LessonSummaryDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "level": {
+            "type": "string",
+            "enum": [
+              "A1",
+              "A2",
+              "B1"
+            ]
+          },
+          "order": {
+            "type": "number"
+          },
+          "title": {
+            "type": "object",
+            "example": {
+              "te": "పలకరింపులు",
+              "en": "Greetings"
+            }
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "draft",
+              "in_review",
+              "approved",
+              "published"
+            ]
+          },
+          "revision": {
+            "type": "number"
+          },
+          "publishedRevision": {
+            "type": "number",
+            "nullable": true
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "level",
+          "order",
+          "title",
+          "status",
+          "revision",
+          "updatedAt"
+        ]
+      },
+      "CreateLessonDto": {
+        "type": "object",
+        "properties": {
+          "level": {
+            "type": "string",
+            "enum": [
+              "A1",
+              "A2",
+              "B1"
+            ]
+          },
+          "title": {
+            "type": "object",
+            "example": {
+              "te": "పలకరింపులు",
+              "en": "Greetings"
+            }
+          }
+        },
+        "required": [
+          "level",
+          "title"
+        ]
+      },
+      "ScreenDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Stable id chosen by the studio (UUID); keep it across saves"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "explain",
+              "vocab",
+              "dialogue",
+              "practice"
+            ]
+          },
+          "body": {
+            "type": "object",
+            "description": "Type-specific fields as in the lesson-pack schema (body, vocabIds, lines, prompt/target)"
+          },
+          "order": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "id",
+          "type",
+          "body",
+          "order"
+        ]
+      },
+      "QuestionInputDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Stable id (UUID). Never reuse an id for a different question (ADR-008)"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "mcq",
+              "listen_choose",
+              "match_pairs",
+              "fill_gap",
+              "word_order"
+            ]
+          },
+          "prompt": {
+            "type": "object",
+            "example": {
+              "te": "పలకరింపులు",
+              "en": "Greetings"
+            }
+          },
+          "payload": {
+            "type": "object",
+            "example": {
+              "options": [
+                "Hallo",
+                "Tschüss"
+              ]
+            }
+          },
+          "answer": {
+            "type": "object",
+            "example": 0,
+            "description": "Shape depends on the question type"
+          },
+          "explanation": {
+            "type": "object",
+            "example": {
+              "te": "పలకరింపులు",
+              "en": "Greetings"
+            }
+          },
+          "difficulty": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 3
+          }
+        },
+        "required": [
+          "id",
+          "type",
+          "prompt",
+          "payload",
+          "answer",
+          "explanation",
+          "difficulty"
+        ]
+      },
+      "ReviewCommentDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "revision": {
+            "type": "number"
+          },
+          "authorId": {
+            "type": "string"
+          },
+          "body": {
+            "type": "string"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "revision",
+          "authorId",
+          "body",
+          "createdAt"
+        ]
+      },
+      "LessonDetailDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "level": {
+            "type": "string",
+            "enum": [
+              "A1",
+              "A2",
+              "B1"
+            ]
+          },
+          "order": {
+            "type": "number"
+          },
+          "title": {
+            "type": "object",
+            "example": {
+              "te": "పలకరింపులు",
+              "en": "Greetings"
+            }
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "draft",
+              "in_review",
+              "approved",
+              "published"
+            ]
+          },
+          "revision": {
+            "type": "number"
+          },
+          "publishedRevision": {
+            "type": "number",
+            "nullable": true
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "description": {
+            "type": "object",
+            "example": {
+              "te": "పలకరింపులు",
+              "en": "Greetings"
+            }
+          },
+          "estMinutes": {
+            "type": "number"
+          },
+          "tradeTags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "screens": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ScreenDto"
+            }
+          },
+          "questions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/QuestionInputDto"
+            }
+          },
+          "comments": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ReviewCommentDto"
+            }
+          },
+          "updatedBy": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "level",
+          "order",
+          "title",
+          "status",
+          "revision",
+          "updatedAt",
+          "description",
+          "estMinutes",
+          "tradeTags",
+          "screens",
+          "questions",
+          "comments",
+          "updatedBy"
+        ]
+      },
+      "ScreenInputDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Stable id chosen by the studio (UUID); keep it across saves"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "explain",
+              "vocab",
+              "dialogue",
+              "practice"
+            ]
+          },
+          "body": {
+            "type": "object",
+            "description": "Type-specific fields as in the lesson-pack schema (body, vocabIds, lines, prompt/target)"
+          }
+        },
+        "required": [
+          "id",
+          "type",
+          "body"
+        ]
+      },
+      "UpdateLessonDto": {
+        "type": "object",
+        "properties": {
+          "expectedRevision": {
+            "type": "number",
+            "description": "The revision this edit started from; a newer one on the server gives 409"
+          },
+          "title": {
+            "type": "object",
+            "example": {
+              "te": "పలకరింపులు",
+              "en": "Greetings"
+            }
+          },
+          "description": {
+            "type": "object",
+            "example": {
+              "te": "పలకరింపులు",
+              "en": "Greetings"
+            }
+          },
+          "estMinutes": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 120
+          },
+          "tradeTags": {
+            "example": [
+              "construction"
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "screens": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ScreenInputDto"
+            }
+          },
+          "questions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/QuestionInputDto"
+            }
+          }
+        },
+        "required": [
+          "expectedRevision",
+          "title",
+          "description",
+          "estMinutes",
+          "tradeTags",
+          "screens",
+          "questions"
+        ]
+      },
+      "TransitionDto": {
+        "type": "object",
+        "properties": {
+          "to": {
+            "type": "string",
+            "enum": [
+              "in_review",
+              "approved",
+              "draft"
+            ]
+          },
+          "comment": {
+            "type": "string",
+            "description": "Required when a reviewer sends a lesson back",
+            "maxLength": 2000
+          }
+        },
+        "required": [
+          "to"
+        ]
+      },
+      "CommentDto": {
+        "type": "object",
+        "properties": {
+          "body": {
+            "type": "string",
+            "maxLength": 2000
+          }
+        },
+        "required": [
+          "body"
+        ]
+      },
+      "RevisionDto": {
+        "type": "object",
+        "properties": {
+          "revision": {
+            "type": "number"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "draft",
+              "in_review",
+              "approved",
+              "published"
+            ]
+          },
+          "createdBy": {
+            "type": "string"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "required": [
+          "revision",
+          "status",
+          "createdBy",
+          "createdAt"
+        ]
+      },
+      "RollbackDto": {
+        "type": "object",
+        "properties": {
+          "revision": {
+            "type": "number",
+            "description": "Revision to restore; it becomes a new draft revision"
+          }
+        },
+        "required": [
+          "revision"
+        ]
+      },
+      "LessonOrderDto": {
+        "type": "object",
+        "properties": {
+          "lessonIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "lessonIds"
+        ]
+      },
+      "VocabDto": {
+        "type": "object",
+        "properties": {
+          "german": {
+            "type": "string",
+            "example": "Hallo"
+          },
+          "audioId": {
+            "type": "string",
+            "description": "Media id of the native-speaker recording (FR-302)"
+          },
+          "article": {
+            "type": "string",
+            "enum": [
+              "der",
+              "die",
+              "das"
+            ]
+          },
+          "plural": {
+            "type": "string"
+          },
+          "meaning": {
+            "type": "object",
+            "example": {
+              "te": "హలో",
+              "en": "hello"
+            }
+          },
+          "imageId": {
+            "type": "string"
+          },
+          "tradeTags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "id": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "required": [
+          "german",
+          "meaning",
+          "tradeTags",
+          "id",
+          "updatedAt"
+        ]
+      },
+      "VocabInputDto": {
+        "type": "object",
+        "properties": {
+          "german": {
+            "type": "string",
+            "example": "Hallo"
+          },
+          "audioId": {
+            "type": "string",
+            "description": "Media id of the native-speaker recording (FR-302)"
+          },
+          "article": {
+            "type": "string",
+            "enum": [
+              "der",
+              "die",
+              "das"
+            ]
+          },
+          "plural": {
+            "type": "string"
+          },
+          "meaning": {
+            "type": "object",
+            "example": {
+              "te": "హలో",
+              "en": "hello"
+            }
+          },
+          "imageId": {
+            "type": "string"
+          },
+          "tradeTags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "german",
+          "meaning",
+          "tradeTags"
         ]
       }
     }

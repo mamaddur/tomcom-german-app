@@ -266,3 +266,157 @@ model AuditLog {
   @@index([actorId, at])
   @@map("audit_log")
 }
+
+// ── Content (build step 3a) ──────────────────────────────────────────────
+// Authors edit lessons as a unit (lesson + screens + questions). Every save is a revision;
+// publishing (3b) snapshots approved lessons into an immutable pack per level (ADR-008).
+
+enum LevelCode {
+  A1
+  A2
+  B1
+}
+
+model Level {
+  id    String    @id @default(uuid(7)) @db.Uuid
+  code  LevelCode @unique
+  title Json // locale-keyed (ADR-007)
+  order Int
+
+  lessons Lesson[]
+
+  @@map("levels")
+}
+
+enum ContentStatus {
+  draft
+  in_review
+  approved
+  published
+}
+
+enum ScreenType {
+  explain
+  vocab
+  dialogue
+  practice
+}
+
+enum QuestionType {
+  mcq
+  listen_choose
+  match_pairs
+  fill_gap
+  word_order
+}
+
+/// Stable id: progress and attempts point here, never at a revision (ADR-008).
+model Lesson {
+  id                String        @id @default(uuid(7)) @db.Uuid
+  levelId           String        @map("level_id") @db.Uuid
+  order             Int
+  title             Json
+  description       Json
+  estMinutes        Int           @map("est_minutes")
+  tradeTags         String[]      @map("trade_tags")
+  status            ContentStatus @default(draft)
+  /// Increments on every save; clients send it back to avoid lost updates.
+  revision          Int           @default(1)
+  /// Revision currently live in a published pack, if any.
+  publishedRevision Int?          @map("published_revision")
+  createdBy         String        @map("created_by") @db.Uuid
+  updatedBy         String        @map("updated_by") @db.Uuid
+  createdAt         DateTime      @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt         DateTime      @updatedAt @map("updated_at") @db.Timestamptz
+
+  level     Level            @relation(fields: [levelId], references: [id])
+  screens   Screen[]
+  questions Question[]
+  comments  ReviewComment[]
+  revisions LessonRevision[]
+
+  @@index([levelId, order])
+  @@map("lessons")
+}
+
+/// FR-301. `body` holds the type-specific fields validated by @tomcom/content-schema.
+model Screen {
+  id       String     @id @db.Uuid
+  lessonId String     @map("lesson_id") @db.Uuid
+  order    Int
+  type     ScreenType
+  body     Json
+
+  lesson Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  @@index([lessonId, order])
+  @@map("screens")
+}
+
+/// FR-401, FR-403: the lesson's question bank (15–20 per lesson planned).
+model Question {
+  id          String       @id @db.Uuid
+  lessonId    String       @map("lesson_id") @db.Uuid
+  type        QuestionType
+  prompt      Json
+  payload     Json
+  answer      Json
+  explanation Json
+  difficulty  Int
+
+  lesson Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  @@index([lessonId])
+  @@map("questions")
+}
+
+/// FR-302, FR-306. Reused across lessons; goes live when a level is next published.
+model VocabItem {
+  id        String   @id @default(uuid(7)) @db.Uuid
+  german    String
+  audioId   String?  @map("audio_id") @db.Uuid
+  article   String?
+  plural    String?
+  meaning   Json
+  imageId   String?  @map("image_id") @db.Uuid
+  tradeTags String[] @map("trade_tags")
+  createdBy String   @map("created_by") @db.Uuid
+  updatedBy String   @map("updated_by") @db.Uuid
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  @@index([german])
+  @@map("vocab_items")
+}
+
+/// FR-1003: reviewer and author discussion on a lesson revision.
+model ReviewComment {
+  id         String    @id @default(uuid(7)) @db.Uuid
+  lessonId   String    @map("lesson_id") @db.Uuid
+  revision   Int
+  authorId   String    @map("author_id") @db.Uuid
+  body       String
+  createdAt  DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  resolvedAt DateTime? @map("resolved_at") @db.Timestamptz
+
+  lesson Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  @@index([lessonId, createdAt])
+  @@map("review_comments")
+}
+
+/// FR-1005: full snapshot of every saved revision; rollback restores one as a new draft.
+model LessonRevision {
+  id        String        @id @default(uuid(7)) @db.Uuid
+  lessonId  String        @map("lesson_id") @db.Uuid
+  revision  Int
+  status    ContentStatus
+  snapshot  Json
+  createdBy String        @map("created_by") @db.Uuid
+  createdAt DateTime      @default(now()) @map("created_at") @db.Timestamptz
+
+  lesson Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  @@unique([lessonId, revision])
+  @@map("lesson_revisions")
+}

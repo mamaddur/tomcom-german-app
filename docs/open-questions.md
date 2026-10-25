@@ -32,6 +32,11 @@ Planning approved on 2026-10-25 with "do it on this local machine for now". Step
 3. **Telugu names of the 33 districts and 7 trades** (`apps/api/prisma/migrations/20261025100200_reference_districts_trades`) are my transliterations and need the Telugu reviewer. The trade list is a placeholder until TOMCOM confirms it (D).
 4. **SMS gateway.** Until a DLT-registered gateway and a dev key exist, only synthetic `+9155…` numbers can sign in (OTP `123456`, no SMS sent). This also guarantees no real numbers in dev.
 
+## New from step 3
+
+1. **Vocabulary edits are not reviewed one by one.** Vocabulary is shared across lessons. A change reaches learners only when a reviewer next publishes a level, and the published pack is checked as a whole at that moment (step 3b). If TOMCOM wants every vocabulary change reviewed separately, it becomes its own workflow.
+2. **AI drafting help for questions and Telugu translations (FR-1006, Could)** is deferred to step 7, when the LLM vendor and key are settled.
+
 ## B. Decisions on the plan (my recommendation first)
 
 1. ADR-007: **locale-keyed content (`jsonb`) instead of `_te/_en` columns.** This departs from pack §2.4 so the system can meet NFR-16. Recommend: yes.
