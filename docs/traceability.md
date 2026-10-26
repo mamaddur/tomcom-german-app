@@ -1,6 +1,6 @@
 # Traceability: requirement → code → tests
 
-Updated in every PR (CLAUDE.md). Only requirements with code are listed; see `build-plan.md` for where the rest land.
+Updated in every PR (CLAUDE.md). Requirements with code are listed first; the ones not built yet, and what each is waiting for, are in the last section.
 
 | Req | Status | Code | Tests |
 |---|---|---|---|
@@ -77,3 +77,21 @@ Updated in every PR (CLAUDE.md). Only requirements with code are listed; see `bu
 | FR-1101 / FR-1103 (portal) | Done | `/admin/settings`: module switches and every setting with a form per type (number, text, list, maintenance message); super admins change, TOMCOM admins read; out-of-range values explained | `apps/web/e2e/staff-login.e2e.test.ts`, `apps/api/test/settings.int-spec.ts` |
 | FR-306 | Done | Vocabulary is tagged with trade codes in the studio (checked against the trade list); the app's Words screen shows the words of the learner's trade from downloaded levels, with audio. Switchable (`module.tradePacks`) | `apps/api/test/studio.int-spec.ts`, `apps/mobile/test/words_test.dart` |
 | FR-308 | Done | Star a word in a lesson or the Words screen; "My word list" with Leitner review (1, 2, 4, 7, 15, 30 days; a miss comes back tomorrow); synced through `/v1/sync` (newest change wins, removals reach other phones). Switchable (`module.bookmarks`) | `apps/api/test/sync.int-spec.ts`, `apps/mobile/test/progress_controller_test.dart`, `test/words_test.dart` |
+
+## Not built yet, and what each is waiting for
+
+| Req | Why it is not built | Needs from a person or vendor |
+|---|---|---|
+| FR-501, FR-502, FR-503 | Pronunciation scoring (step 6) | Speech vendor with India-region processing, dev key (open questions A.3, NFR-14) |
+| FR-601, FR-602, FR-603, FR-604, FR-605, FR-606, FR-607, FR-608 | AI tutor (step 7) | LLM vendor and key; speech vendor for FR-602 (open questions A.3, C2) |
+| FR-1006 | AI help to draft questions and Telugu translations (Could), after the tutor | LLM vendor and key; always reviewed by a human |
+| NFR-15, NFR-22 | Tutor prompt filtering, 90-day conversation deletion, usage caps and alerts. They belong with the AI tutor and speech work | Same vendors as above |
+| FR-105 | Optional placement test (Should): how it scores and which level it unlocks is a scope decision | TOMCOM decision (open questions) |
+| FR-406 | Mock exams in the external exam format (Should): which exam (Goethe, telc, ÖSD) is undecided | TOMCOM decision (open questions) |
+| NFR-14 | Data residency: needs the hosting region and vendor regions | Hosting decision; vendor choice |
+| NFR-06, NFR-07, NFR-08 | Scale, availability and backups are properties of the hosting set-up | Hosting decision (C4); Terraform in `infra/` |
+| NFR-12 | Third-party security test before go-live | External auditor, TOMCOM's call on CERT-In empanelment |
+| NFR-21 | Handover of code and credentials, apps under TOMCOM's store accounts | Store account owner; end of project |
+| NFR-03 | Cold start under 3 s and API p95 under 500 ms are not measured yet | A mid-range Android phone and a hosted API to measure against |
+| NFR-17 (app) | Large text and screen readers in the app are not yet tested by hand. The admin portal is built to WCAG 2.1 AA | A test pass on a real phone with TalkBack or VoiceOver |
+| BR-01 | A business outcome, measured by the readiness and checkpoint reports once learners use the app | Real use by learners |
