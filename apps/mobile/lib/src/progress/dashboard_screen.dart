@@ -115,6 +115,16 @@ class _HomeScreenState extends State<HomeScreen> {
                 Text(t.homeBatch(me!.batchName!)),
               ],
               const SizedBox(height: 16),
+              if (dashboard.updateAvailable)
+                Card(
+                  key: const Key('update-available'),
+                  color: Colors.amber.shade50,
+                  margin: const EdgeInsets.only(bottom: 12),
+                  child: ListTile(
+                    leading: const Icon(Icons.system_update),
+                    title: Text(t.updateAvailable2),
+                  ),
+                ),
               for (final a in dashboard.visible)
                 _AnnouncementBanner(
                   announcement: a,

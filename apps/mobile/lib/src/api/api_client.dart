@@ -143,8 +143,17 @@ class ApiClient {
   // ── Dashboard (FR-204, FR-205) ──
 
   /// Public start-up config; `learning` holds the unlock and daily-goal rules.
-  Future<Map<String, dynamic>> appConfig() async =>
-      await _send('GET', '/v1/app/config') as Map<String, dynamic>;
+  /// Public start-up config. Sends this app's version so the server can ask for an update
+  /// (FR-1102); `learning` holds the unlock and daily-goal rules.
+  Future<Map<String, dynamic>> appConfig() async {
+    final platform = defaultTargetPlatform == TargetPlatform.iOS
+        ? 'ios'
+        : 'android';
+    return await _send(
+      'GET',
+      '/v1/app/config?platform=$platform&version=$appVersion',
+    ) as Map<String, dynamic>;
+  }
 
   Future<List<Announcement>> announcements() async => [
     for (final j in await _authed('GET', '/v1/announcements') as List<dynamic>)

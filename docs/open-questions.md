@@ -54,6 +54,15 @@ Planning approved on 2026-10-25 with "do it on this local machine for now". Step
 5. **Taking a checkpoint, my assumptions:** it opens once every published lesson of the level is passed. An attempt lasts at most 90 minutes, and a learner can start 3 a day. Reopening the app resumes the open attempt. Tell me if TOMCOM wants a waiting period after a fail.
 4. **Checkpoint review is lighter than lessons:** an author saves drafts, and any reviewer who did not make the last edit publishes (four eyes). There is no separate "in review" state. Say if checkpoints need the full lesson workflow.
 
+## CI: installing ffmpeg on GitHub's runners (needs your decision)
+
+The "API integration tests" job sometimes times out while `apt-get` installs ffmpeg (#18, #19, #21, #22 and #25 hit it; re-running the job passes). Retries, an apt lock timeout and turning off man-db didn't remove it, and I can't read the runner logs from this session. Options:
+1. **Copy static ffmpeg out of a Docker image pinned by digest** (`mwader/static-ffmpeg:7.1.1`). All media tests pass with it locally. It is third-party, so this is a supply-chain call; I prepared the change but did not commit it.
+2. **Build our own small CI image** with ffmpeg once hosting is set up (step 10).
+3. **Keep apt** and re-run when it hangs.
+
+Until you choose, I'm re-running failed jobs. No check is skipped.
+
 ## New from step 9
 
 1. **Bulk upload doesn't create accounts.** Pack §2 requires consent before personal data is saved (story 1). So an uploaded number is kept only as an invite: just the encrypted number, for 90 days. When that person registers in the app with their own consent, they join the batch automatically. People who already use the app move into the batch at once. Names in the file are ignored. **Removing expired invites needs the scheduled-jobs worker (step 10)**; until then they are only ignored after 90 days. Please confirm this matches how TOMCOM recruits.

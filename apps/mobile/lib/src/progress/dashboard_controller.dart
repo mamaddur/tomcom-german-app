@@ -12,6 +12,9 @@ class DashboardController extends ChangeNotifier {
   final ApiClient api;
   final ProgressController progress;
   List<Announcement> announcements = const [];
+
+  /// FR-1102: a newer version exists (not required yet).
+  bool updateAvailable = false;
   final Set<String> _dismissed = {};
 
   List<Announcement> get visible =>
@@ -20,6 +23,7 @@ class DashboardController extends ChangeNotifier {
   Future<void> refresh() async {
     try {
       final config = await api.appConfig();
+      updateAvailable = config['update'] == 'optional';
       if (config['learning'] case final Map<String, dynamic> learning) {
         progress.setRules(LearningRules.fromJson(learning));
       }
