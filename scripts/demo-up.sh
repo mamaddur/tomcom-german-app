@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # One command for a local demo: Postgres, Redis and object store (Docker), the demo A1 course,
 # the API on :3000 and the admin portal on :3001, both in the background.
-# Usage: scripts/demo-up.sh [up|down]     Needs Docker running, Node 22, pnpm and ffmpeg.
+# Usage: scripts/demo-up.sh [up|down|reset]   `reset` wipes the local demo database first (dev only).
+# Needs Docker running, Node 22, pnpm and ffmpeg.
 set -euo pipefail
 cd "$(dirname "$0")/.."
 LOGS="${TMPDIR:-/tmp}/tomcom-demo"
@@ -22,6 +23,7 @@ case "${1:-up}" in
     fi
     wait_for http://localhost:3000/v1/app/config "The API"
     pnpm --filter @tomcom/api seed:demo
+    pnpm --filter @tomcom/seed -s generate --learners 40 | pnpm --filter @tomcom/api -s seed:demo-learners
     if ! up_url http://localhost:3001/en/login; then
       nohup pnpm --filter @tomcom/web dev > "$LOGS/web.log" 2>&1 &
     fi
@@ -36,12 +38,18 @@ Demo is running.
   Phone app    : cd apps/mobile && flutter run --dart-define=API_BASE_URL=http://localhost:3000
                  (Android emulator: http://10.0.2.2:3000). Learner sign-in: any +9155… number, code 123456.
   Logs         : $LOGS
-  Stop         : scripts/demo-up.sh down
+  Stop         : scripts/demo-up.sh down     Start over: scripts/demo-up.sh reset
 MSG
+    ;;
+  reset)
+    # Starts again from an empty database: the demo course, learners and progress are rebuilt.
+    scripts/stop-port.sh 3000 3001 || true
+    scripts/dev-services.sh reset
+    exec "$0" up
     ;;
   down)
     scripts/stop-port.sh 3000 3001 || true
     scripts/dev-services.sh down
     ;;
-  *) echo "usage: $0 [up|down]" >&2; exit 2 ;;
+  *) echo "usage: $0 [up|down|reset]" >&2; exit 2 ;;
 esac

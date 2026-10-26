@@ -17,6 +17,7 @@
     "prisma:generate": "prisma generate",
     "seed:dev": "node --import @swc-node/register/esm-register scripts/seed-dev.ts",
     "seed:demo": "node --import @swc-node/register/esm-register scripts/seed-demo.ts",
+    "seed:demo-learners": "node --import @swc-node/register/esm-register scripts/seed-demo-learners.ts",
     "staff:create": "node --import @swc-node/register/esm-register scripts/create-staff.ts"
   },
   "dependencies": {

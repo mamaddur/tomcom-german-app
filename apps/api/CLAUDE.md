@@ -13,6 +13,7 @@ Read the root `CLAUDE.md` first; its rules apply here.
 | New migration | `pnpm prisma:migrate --name <change>` |
 | Regenerate OpenAPI (commit the result) | `pnpm openapi` |
 | Publish a small synthetic A1 course so the phone app has lessons (API running; needs ffmpeg; audio is a placeholder tone) | `pnpm seed:demo` |
+| Add 40 synthetic learners with progress, checkpoints and certificates (after `seed:demo`) | `pnpm --filter @tomcom/seed -s generate --learners 40 \| pnpm --filter @tomcom/api -s seed:demo-learners` |
 
 ## Conventions
 - **ES modules** (NestJS 12 is ESM-only). Relative imports end in `.js` (`import { x } from './x.js'`), even in `.ts` files.
