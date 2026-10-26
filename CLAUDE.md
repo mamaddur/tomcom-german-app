@@ -77,6 +77,7 @@ Requirements: Node 22, pnpm 10, Docker, ffmpeg (media conversion), Flutter 3.47.
 |---|---|
 | First-time setup | `pnpm install && git config core.hooksPath .githooks && scripts/install-tools.sh` |
 | Start / stop local Postgres + Redis (applies migrations) | `scripts/dev-services.sh up` / `down` / `reset` |
+| One command for a local demo: services, demo A1 course, API :3000 and admin portal :3001 | `scripts/demo-up.sh` / `scripts/demo-up.sh down` |
 | Everything CI checks, locally | `scripts/verify.sh` (`--fast` skips integration, Flutter, Semgrep) |
 | Lint / types / unit tests / build, all JS packages | `pnpm lint` / `pnpm typecheck` / `pnpm test` / `pnpm build` |
 | Synthetic data | `pnpm --filter @tomcom/seed generate --learners 200` |
