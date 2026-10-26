@@ -6,7 +6,8 @@ import { WEB } from './helpers';
 const LEARNER = '+915500000014'; // demo learner part-way through A1 (scripts/demo-up.sh)
 const CODE = '123456'; // synthetic numbers always accept this code in dev
 
-describe('student web (FR-101 FR-301 FR-401 FR-601)', () => {
+/** Needs the demo course and sample learners (`scripts/demo-up.sh`); CI seeds staff only, so it is skipped there. Run with E2E_DEMO=1. */
+describe.skipIf(!process.env.E2E_DEMO)('student web (FR-101 FR-301 FR-401 FR-601)', () => {
   let browser: Browser;
   beforeAll(async () => {
     browser = await chromium.launch();

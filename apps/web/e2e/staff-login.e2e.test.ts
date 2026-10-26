@@ -22,7 +22,7 @@ describe('admin portal staff sign-in (NFR-10)', () => {
   afterAll(() => browser?.close());
 
   it('sends a signed-out visitor to the Telugu login page', async () => {
-    await page.goto(WEB);
+    await page.goto(`${WEB}/te/admin`);
     await page.waitForURL(`${WEB}/te/login`);
     await expect(
       page.getByRole('heading', { name: 'సిబ్బంది సైన్-ఇన్' }).isVisible(),
