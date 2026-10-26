@@ -52,6 +52,19 @@ class FakeApi {
   /// Announcements served to the learner (FR-205).
   List<Map<String, dynamic>> announcements = [];
 
+  /// Module switches served in `GET /v1/app/config` (FR-1103); empty means every module is on.
+  Map<String, bool> features = {};
+
+  /// The AI tutor (FR-601, FR-607, FR-608): the conversation, the next answer, and a way to fail.
+  List<Map<String, dynamic>> tutorHistory = [];
+  String tutorAnswer = 'Sag <de>Guten Morgen!</de> am Morgen.';
+  int tutorRemaining = 29;
+  bool tutorDemo = true;
+  int? tutorFailStatus;
+  String tutorFailCode = 'tutor_unavailable';
+  final tutorSent = <Map<String, dynamic>>[];
+  final tutorFlags = <Map<String, dynamic>>[];
+
   late final client = MockClient((req) async {
     requests.add(req);
     final body = req.body.isEmpty
@@ -65,6 +78,14 @@ class FakeApi {
     if (req.headers["Authorization"] != null && expireAccessTokenOnce) {
       expireAccessTokenOnce = false;
       return _problem(401, 'access_token_invalid');
+    }
+    if (RegExp(r'^POST /v1/tutor/messages/[^/]+/flag$').hasMatch(route)) {
+      // Like the real API: unknown fields are a 400.
+      if (!body.keys.every({'reason'}.contains)) {
+        return _problem(400, 'validation_failed');
+      }
+      tutorFlags.add(body);
+      return http.Response('', 204);
     }
     if (RegExp(r'^GET /v1/me/certificates/[^/]+/pdf$').hasMatch(route)) {
       return http.Response.bytes(
@@ -181,7 +202,7 @@ class FakeApi {
         return _json(200, _me());
       case 'GET /v1/app/config':
         return _json(200, {
-          'features': <String, bool>{},
+          'features': features,
           'limits': <String, int>{},
           'learning': learning,
           'update': update,
@@ -251,6 +272,26 @@ class FakeApi {
             for (final e in serverActivity.entries)
               {'date': e.key, 'seconds': e.value},
           ],
+        });
+      case 'GET /v1/tutor/messages':
+        return _json(200, tutorHistory);
+      case 'POST /v1/tutor/messages':
+        if (!body.keys.every({'text', 'level', 'lessonId'}.contains)) {
+          return _problem(400, 'validation_failed');
+        }
+        if (tutorFailStatus != null) {
+          return _problem(tutorFailStatus!, tutorFailCode, {
+            if (tutorFailStatus == 429) 'resumesAt': '2026-10-26T18:30:00.000Z',
+          });
+        }
+        tutorSent.add(body);
+        return _json(200, {
+          'id': 'reply-${tutorSent.length}',
+          'reply': tutorAnswer,
+          'germanPhrases': <String>[],
+          'remainingToday': tutorRemaining,
+          'demo': tutorDemo,
+          'filtered': false,
         });
       case 'GET /v1/me/certificates':
         return _json(200, certificates);

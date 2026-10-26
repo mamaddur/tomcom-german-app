@@ -329,3 +329,48 @@ class Certificate {
   final bool valid;
   final String verifyUrl;
 }
+
+/// The tutor's answer to one message (FR-601). German phrases are wrapped in `<de>…</de>` (FR-603).
+class TutorReply {
+  TutorReply({
+    required this.id,
+    required this.reply,
+    required this.remainingToday,
+    required this.demo,
+    required this.filtered,
+  });
+  factory TutorReply.fromJson(Map<String, dynamic> j) => TutorReply(
+    id: j['id'] as String,
+    reply: j['reply'] as String,
+    remainingToday: j['remainingToday'] as int,
+    demo: j['demo'] as bool,
+    filtered: j['filtered'] as bool,
+  );
+  final String id;
+  final String reply;
+  final int remainingToday;
+
+  /// True while the API runs the built-in stand-in instead of a real language model.
+  final bool demo;
+  final bool filtered;
+}
+
+/// One message of the learner's conversation with the tutor.
+class TutorMessage {
+  TutorMessage({
+    required this.id,
+    required this.fromTutor,
+    required this.text,
+    this.flagged = false,
+  });
+  factory TutorMessage.fromJson(Map<String, dynamic> j) => TutorMessage(
+    id: j['id'] as String,
+    fromTutor: j['role'] == 'assistant',
+    text: j['content'] as String,
+    flagged: j['flagged'] as bool? ?? false,
+  );
+  final String id;
+  final bool fromTutor;
+  final String text;
+  bool flagged;
+}

@@ -7,6 +7,7 @@ import '../content/levels_screen.dart';
 import '../onboarding/onboarding_controller.dart';
 import '../ui/widgets.dart';
 import '../profile/profile_screen.dart';
+import '../tutor/tutor_screen.dart';
 import '../words/words_screen.dart';
 import 'dashboard_controller.dart';
 import 'open_lesson.dart';
@@ -51,6 +52,22 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   // Back on the dashboard after learning: send new attempts and time.
+  /// The tutor knows the level and lesson the learner is on (FR-604).
+  void _openTutor() {
+    final target = widget.progress.continueTarget(
+      widget.content.installed.values,
+    );
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => TutorScreen(
+          content: widget.content,
+          level: target?.pack.level ?? 'A1',
+          lessonId: target?.lesson.id,
+        ),
+      ),
+    );
+  }
+
   void _openLevels() => Navigator.of(context)
       .push(
         MaterialPageRoute<void>(
@@ -154,6 +171,15 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               const SizedBox(height: 16),
               PrimaryButton(label: t.lessons, onPressed: _openLevels),
+              if (widget.progress.feature('module.tutor')) ...[
+                const SizedBox(height: 12),
+                OutlinedButton.icon(
+                  key: const Key('tutor'),
+                  icon: const Icon(Icons.chat_bubble_outline),
+                  label: Text(t.tutorButton),
+                  onPressed: _openTutor,
+                ),
+              ],
               if (widget.progress.feature('module.tradePacks') ||
                   widget.progress.feature('module.bookmarks')) ...[
                 const SizedBox(height: 12),

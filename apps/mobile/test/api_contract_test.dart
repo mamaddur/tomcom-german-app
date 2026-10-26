@@ -40,6 +40,8 @@ void main() {
     '/v1/checkpoints/attempts/{id}/submit': 'post',
     '/v1/checkpoints/attempts/{id}/media/{mediaId}': 'get',
     '/v1/packs/{level}/{version}/download': 'get',
+    '/v1/tutor/messages': 'post',
+    '/v1/tutor/messages/{id}/flag': 'post',
   };
 
   const usedFields = {
@@ -123,6 +125,11 @@ void main() {
     ],
     'DeviceDto': ['clientId', 'platform', 'appVersion'],
     'PackDto': ['level', 'version', 'bytes', 'sha256', 'lessonCount'],
+    // Every field the app sends is listed: the API rejects unknown fields.
+    'TutorSendDto': ['text', 'level', 'lessonId'],
+    'TutorReplyDto': ['id', 'reply', 'remainingToday', 'demo', 'filtered'],
+    'TutorHistoryItemDto': ['id', 'role', 'content', 'flagged'],
+    'TutorFlagRequestDto': ['reason'],
   };
 
   usedEndpoints.forEach((path, method) {
@@ -132,6 +139,13 @@ void main() {
         isTrue,
       );
     });
+  });
+
+  test('get /v1/tutor/messages exists', () {
+    expect(
+      (paths['/v1/tutor/messages'] as Map<String, dynamic>).containsKey('get'),
+      isTrue,
+    );
   });
 
   usedFields.forEach((schema, fields) {

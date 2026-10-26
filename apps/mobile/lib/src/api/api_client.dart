@@ -207,6 +207,35 @@ class ApiClient {
         raw: true,
       ) as List<int>;
 
+  // ── AI tutor (FR-601, FR-607, FR-608; online only) ──
+
+  /// Throws `tutor_daily_limit` (with `resumesAt`) over the daily limit, `tutor_unavailable` when
+  /// no model is connected, and `feature_disabled` when TOMCOM switched the tutor off.
+  Future<TutorReply> tutorSend(
+    String text,
+    String level, {
+    String? lessonId,
+  }) async => TutorReply.fromJson(
+    await _authed(
+      'POST',
+      '/v1/tutor/messages',
+      body: {'text': text, 'level': level, 'lessonId': ?lessonId},
+    ) as Map<String, dynamic>,
+  );
+
+  Future<List<TutorMessage>> tutorHistory() async => [
+    for (final j in await _authed('GET', '/v1/tutor/messages') as List<dynamic>)
+      TutorMessage.fromJson(j as Map<String, dynamic>),
+  ];
+
+  Future<void> tutorFlag(String messageId, String reason) async {
+    await _authed(
+      'POST',
+      '/v1/tutor/messages/$messageId/flag',
+      body: {'reason': reason},
+    );
+  }
+
   // ── Certificates (FR-701, FR-702) ──
 
   Future<List<Certificate>> certificates() async => [
