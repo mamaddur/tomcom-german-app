@@ -34,6 +34,7 @@ export class PrivacyService {
         lessonProgress: true,
         quizAttempts: { orderBy: { finishedAt: 'asc' } },
         dailyActivity: { orderBy: { date: 'asc' } },
+        certificates: { include: { level: { select: { code: true } } } },
         checkpointAttempts: {
           orderBy: { startedAt: 'asc' },
           include: { level: { select: { code: true } } },
@@ -98,6 +99,13 @@ export class PrivacyService {
         answers: a.answers,
         finishedAt: a.finishedAt,
       })),
+      certificates: user.certificates.map((c) => ({
+        code: c.code,
+        level: c.level.code,
+        score: c.score,
+        issuedAt: c.issuedAt,
+        revokedAt: c.revokedAt,
+      })),
       checkpoints: user.checkpointAttempts.map((a) => ({
         level: a.level.code,
         status: a.status,
@@ -136,6 +144,8 @@ export class PrivacyService {
         where: { learnerId: userId, leftAt: null },
         data: { leftAt: now },
       });
+      // Certificates stay verifiable, but no longer show the name.
+      await tx.certificate.updateMany({ where: { learnerId: userId }, data: { holderName: null } });
       // Consent records stay as evidence, marked withdrawn.
       await tx.consent.updateMany({
         where: { userId, withdrawnAt: null },

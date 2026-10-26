@@ -91,3 +91,5 @@ Draft content is edited in place. **Publishing creates an immutable `pack_versio
 
 ## Retention
 Tutor messages: 90 days. Pronunciation audio: deleted right after scoring. Erasure requests: profile and identifiers are deleted. Attempts are kept with a pseudonymous ID for aggregate statistics, **subject to confirmation by TOMCOM's DPO**. Backups: 30 days (NFR-08).
+
+| `certificates` | id, code (unique, public), learner_id, level_id, attempt_id, holder_name (copied at issue; erased with the account), score, issued_at, revoked_at, revoked_by, revoke_reason | FR-701–705 |

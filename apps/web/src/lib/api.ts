@@ -353,3 +353,29 @@ export interface ReadinessRow {
   sectionScores: Record<string, number>;
   passedAt: string;
 }
+
+// ── Certificates (FR-701–FR-705) ──
+
+export interface CertificateCheck {
+  code: string;
+  holderName: string | null;
+  level: string;
+  issuedAt: string;
+  score: number;
+  status: 'valid' | 'revoked';
+  revokedAt: string | null;
+  statement: L10n;
+}
+
+export interface AdminCertificate {
+  id: string;
+  code: string;
+  level: string;
+  holderName: string | null;
+  score: number;
+  issuedAt: string;
+  status: 'valid' | 'revoked';
+  revokedAt: string | null;
+  batchCode: string | null;
+  revokeReason: string | null;
+}

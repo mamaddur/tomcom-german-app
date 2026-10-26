@@ -30,6 +30,9 @@ class FakeApi {
   Map<String, dynamic>? checkpointAttempt;
   Map<String, dynamic> checkpointResult = {};
 
+  /// The learner's certificates (FR-701).
+  List<Map<String, dynamic>> certificates = [];
+
   /// Routes (e.g. `GET /v1/announcements`) that fail as if the network were down.
   final failRoutes = <String>{};
 
@@ -54,6 +57,13 @@ class FakeApi {
     if (req.headers["Authorization"] != null && expireAccessTokenOnce) {
       expireAccessTokenOnce = false;
       return _problem(401, 'access_token_invalid');
+    }
+    if (RegExp(r'^GET /v1/me/certificates/[^/]+/pdf$').hasMatch(route)) {
+      return http.Response.bytes(
+        '%PDF-1.7 synthetic'.codeUnits,
+        200,
+        headers: {'content-type': 'application/pdf'},
+      );
     }
     if (RegExp(r'^GET /v1/checkpoints/attempts/[^/]+/media/').hasMatch(route)) {
       return http.Response.bytes(
@@ -221,6 +231,8 @@ class FakeApi {
               {'date': e.key, 'seconds': e.value},
           ],
         });
+      case 'GET /v1/me/certificates':
+        return _json(200, certificates);
       case 'GET /v1/checkpoints':
         return _json(200, checkpoints);
       case 'GET /v1/announcements':

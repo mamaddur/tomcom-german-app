@@ -300,3 +300,32 @@ class CheckpointAttempt extends CheckpointResult {
   final List<QuizQuestion> listening;
   final List<WritingTask> writing;
 }
+
+/// A level certificate (FR-701). [verifyUrl] is what its QR code opens (FR-703).
+class Certificate {
+  Certificate({
+    required this.id,
+    required this.code,
+    required this.level,
+    required this.score,
+    required this.issuedAt,
+    required this.valid,
+    required this.verifyUrl,
+  });
+  factory Certificate.fromJson(Map<String, dynamic> j) => Certificate(
+    id: j['id'] as String,
+    code: j['code'] as String,
+    level: j['level'] as String,
+    score: (j['score'] as num).toDouble(),
+    issuedAt: DateTime.parse(j['issuedAt'] as String),
+    valid: j['status'] == 'valid',
+    verifyUrl: j['verifyUrl'] as String,
+  );
+  final String id;
+  final String code;
+  final String level;
+  final double score;
+  final DateTime issuedAt;
+  final bool valid;
+  final String verifyUrl;
+}

@@ -50,7 +50,8 @@
       "announcements": "Announcements",
       "audit": "Audit log",
       "marking": "Mark writing",
-      "readiness": "Exam readiness"
+      "readiness": "Exam readiness",
+      "certificates": "Certificates"
     },
     "forbidden": "You don't have access to this page.",
     "homeIntro": "Choose what to work on.",
@@ -128,7 +129,9 @@
       "batch_not_allowed": "You can only send announcements to your own batches.",
       "announcement_not_found": "This announcement does not exist or is not yours.",
       "attempt_not_found": "This attempt is not waiting for your marks (already marked, or not in your batches).",
-      "attempt_closed": "This attempt was already marked."
+      "attempt_closed": "This attempt was already marked.",
+      "already_revoked": "This certificate was already withdrawn.",
+      "certificate_not_found": "Certificate not found."
     },
     "filters": {
       "title": "Filters",
@@ -222,6 +225,20 @@
       "reading": "Reading",
       "listening": "Listening",
       "writing": "Writing"
+    },
+    "certificates": {
+      "title": "Certificates",
+      "intro": "Course completion certificates issued when a learner passes every lesson and the level checkpoint. The code links to the public check page.",
+      "none": "No certificates yet.",
+      "code": "Code",
+      "issued": "Issued",
+      "valid": "Valid",
+      "revoked": "Withdrawn: {reason}",
+      "revoke": "Withdraw…",
+      "reason": "Reason (shown to staff, not on the public page)",
+      "confirmRevoke": "Withdraw certificate",
+      "revokedDone": "Certificate withdrawn. The check page now says so.",
+      "nameWithheld": "(name erased)"
     }
   },
   "studio": {
@@ -390,5 +407,20 @@
       "ready": "Ready to publish",
       "notReady": "{n, plural, =1{1 problem} other{# problems}}"
     }
+  },
+  "verify": {
+    "title": "Certificate check",
+    "valid": "Valid certificate",
+    "revoked": "This certificate was withdrawn on {date}.",
+    "holder": "Name",
+    "nameWithheld": "Name withheld at the holder's request",
+    "level": "Level",
+    "levelValue": "German {level}",
+    "date": "Issued on",
+    "score": "Checkpoint score",
+    "id": "Certificate ID",
+    "notFound": "No certificate has this ID. Check the code on the certificate.",
+    "tooMany": "Too many checks from this network. Try again in an hour.",
+    "error": "The check is not available right now. Try again later."
   }
 }

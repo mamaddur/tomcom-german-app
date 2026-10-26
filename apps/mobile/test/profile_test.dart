@@ -196,4 +196,54 @@ void main() {
       },
     );
   });
+
+  testWidgets('lists certificates and downloads one as PDF (FR-701, FR-702)', (
+    tester,
+  ) async {
+    tester.view
+      ..physicalSize = const Size(1080, 2400)
+      ..devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    fake.certificates = [
+      {
+        'id': 'c1',
+        'code': 'TC-7K2M9QX4PA',
+        'level': 'A1',
+        'holderName': 'రవి',
+        'score': 0.82,
+        'issuedAt': '2026-10-25T12:00:00Z',
+        'status': 'valid',
+        'revokedAt': null,
+        'verifyUrl': 'https://verify.example/c/TC-7K2M9QX4PA',
+      },
+    ];
+    final original = shareFile;
+    final shared = <String>[];
+    shareFile = (f) async => shared.add(f.path);
+    addTearDown(() => shareFile = original);
+
+    await openProfile(tester);
+    expect(find.text('జర్మన్ A1 · 82% · TC-7K2M9QX4PA'), findsOneWidget);
+    await tester.runAsync(() async {
+      await tester.tap(find.byTooltip('PDF డౌన్‌లోడ్'));
+      for (var i = 0; i < 50 && shared.isEmpty; i++) {
+        await Future<void>.delayed(const Duration(milliseconds: 20));
+      }
+    });
+    expect(shared.single, endsWith('tomcom-certificate-TC-7K2M9QX4PA.pdf'));
+  });
+
+  testWidgets('without certificates, says how to get one', (tester) async {
+    tester.view
+      ..physicalSize = const Size(1080, 2400)
+      ..devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    await openProfile(tester);
+    expect(
+      find.text(
+        'ఒక స్థాయిలోని అన్ని పాఠాలు, చెక్‌పాయింట్ పాస్ అయితే దాని సర్టిఫికెట్ వస్తుంది.',
+      ),
+      findsOneWidget,
+    );
+  });
 }

@@ -130,6 +130,8 @@ class MyProfileScreen extends StatelessWidget {
                 },
               ),
               const SizedBox(height: 24),
+              _Certificates(c: c, content: content),
+              const SizedBox(height: 24),
               _DataRights(c: c, content: content, progress: progress),
               const SizedBox(height: 24),
               Text(
@@ -326,6 +328,96 @@ class _DataRightsState extends State<_DataRights> {
           label: Text(t.deleteAccount),
           onPressed: () => _delete(t),
         ),
+      ],
+    );
+  }
+}
+
+/// FR-701, FR-702: the learner's level certificates, each downloadable as PDF.
+class _Certificates extends StatefulWidget {
+  const _Certificates({required this.c, required this.content});
+  final OnboardingController c;
+  final ContentController content;
+
+  @override
+  State<_Certificates> createState() => _CertificatesState();
+}
+
+class _CertificatesState extends State<_Certificates> {
+  List<Certificate>? _list;
+  String? _busy;
+
+  @override
+  void initState() {
+    super.initState();
+    widget.c.api.certificates().then(
+      (l) {
+        if (mounted) setState(() => _list = l);
+      },
+      onError: (Object _) {
+        // Offline: the section stays empty until the next visit.
+      },
+    );
+  }
+
+  Future<void> _download(Certificate cert, AppLocalizations t) async {
+    final messenger = ScaffoldMessenger.of(context);
+    setState(() => _busy = cert.id);
+    try {
+      final bytes = await widget.c.api.certificatePdf(cert.id);
+      final dir = await widget.content.tempDir();
+      final file = File('${dir.path}/tomcom-certificate-${cert.code}.pdf');
+      await file.writeAsBytes(bytes, flush: true);
+      await shareFile(file);
+    } on ApiException {
+      messenger.showSnackBar(SnackBar(content: Text(t.errorDownload)));
+    } finally {
+      if (mounted) setState(() => _busy = null);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
+    final list = _list ?? const <Certificate>[];
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text(t.myCertificates, style: Theme.of(context).textTheme.titleMedium),
+        if (list.isEmpty)
+          Padding(
+            padding: const EdgeInsets.only(top: 4),
+            child: Text(t.noCertificates),
+          ),
+        for (final cert in list)
+          ListTile(
+            key: Key('certificate-${cert.code}'),
+            contentPadding: EdgeInsets.zero,
+            leading: Icon(
+              cert.valid ? Icons.workspace_premium : Icons.block,
+              color: cert.valid ? Colors.amber.shade800 : Colors.grey,
+            ),
+            title: Text(
+              t.certificateLine(
+                cert.level,
+                (cert.score * 100).round(),
+                cert.code,
+              ),
+            ),
+            subtitle: cert.valid ? null : Text(t.certificateWithdrawn),
+            trailing: cert.valid
+                ? IconButton(
+                    tooltip: t.downloadPdf,
+                    icon: _busy == cert.id
+                        ? const SizedBox.square(
+                            dimension: 18,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : const Icon(Icons.picture_as_pdf),
+                    onPressed: _busy == null ? () => _download(cert, t) : null,
+                  )
+                : null,
+          ),
       ],
     );
   }

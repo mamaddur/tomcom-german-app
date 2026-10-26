@@ -40,10 +40,16 @@ const envSchema = z
     /** Optional: in the cloud the workload's role supplies credentials. */
     S3_ACCESS_KEY: z.string().optional(),
     S3_SECRET_KEY: z.string().optional(),
+    /** Public certificate verification page; the QR code on each certificate points here (FR-703). */
+    VERIFY_BASE_URL: z.string().url().default('http://localhost:3001/c'),
   })
   .refine((e) => e.APP_ENV !== 'prod' || e.SMS_PROVIDER !== 'none', {
     message: 'production needs an SMS provider',
     path: ['SMS_PROVIDER'],
+  })
+  .refine((e) => e.APP_ENV !== 'prod' || e.VERIFY_BASE_URL.startsWith('https://'), {
+    message: 'certificate QR codes must point to an https page in production',
+    path: ['VERIFY_BASE_URL'],
   });
 
 export type Env = z.infer<typeof envSchema>;

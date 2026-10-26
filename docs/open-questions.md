@@ -62,6 +62,7 @@ Planning approved on 2026-10-25 with "do it on this local machine for now". Step
 ## New from step 8
 
 1. **Erasure is immediate (FR-804)**, with a confirmation on the phone and no waiting period. The API erases the name, phone number, profile, devices and sessions. Consent records stay, marked withdrawn, as evidence. Quiz attempts, lesson results and learning time stay under the now anonymous id, for statistics. This is the `[A]` assumption in `data-model.md` and **needs TOMCOM's DPO**. If the DPO wants those deleted too, it's a one-line change. The access token of the erased session stays valid for up to 15 minutes, but the account behind it no longer holds personal data.
+3. **Certificate check page shows the full name** (story 5 asks for "name, level, date and status"), plus the score. After an erasure, the page shows "name withheld". The certificate text is my draft and **needs TOMCOM's approval and the Telugu reviewer**, especially the "not an official exam result" sentence (FR-705). Production needs `VERIFY_BASE_URL` on an https domain TOMCOM controls; boot fails otherwise.
 2. **The data export is JSON**, opened in the phone's share sheet so the learner can save it or send it. If TOMCOM wants a PDF instead, tell me.
 
 ## B. Decisions on the plan (my recommendation first)

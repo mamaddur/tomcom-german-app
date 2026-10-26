@@ -197,6 +197,18 @@ class ApiClient {
         raw: true,
       ) as List<int>;
 
+  // ── Certificates (FR-701, FR-702) ──
+
+  Future<List<Certificate>> certificates() async => [
+    for (final j
+        in await _authed('GET', '/v1/me/certificates') as List<dynamic>)
+      Certificate.fromJson(j as Map<String, dynamic>),
+  ];
+
+  Future<List<int>> certificatePdf(String id) async =>
+      await _authed('GET', '/v1/me/certificates/$id/pdf', raw: true)
+          as List<int>;
+
   // ── Lesson packs (FR-307) ──
 
   Future<List<PackInfo>> packs() async => [
