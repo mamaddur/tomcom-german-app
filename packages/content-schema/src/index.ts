@@ -11,6 +11,7 @@ const validate = ajv.compile(lessonPackSchema);
 const SCHEMA_ID = lessonPackSchema.$id;
 const lessonValidator = ajv.getSchema(`${SCHEMA_ID}#/$defs/lesson`)!;
 const vocabValidator = ajv.getSchema(`${SCHEMA_ID}#/$defs/vocabItem`)!;
+const checkpointValidator = ajv.getSchema(`${SCHEMA_ID}#/$defs/checkpoint`)!;
 
 /**
  * Checks one lesson in pack shape (FR-301, FR-401, BR-02): every text in te + en, screens and
@@ -70,6 +71,50 @@ function questionErrors(questions: QuestionShape[]): string[] {
     }
   }
   return errors;
+}
+
+export interface CheckpointShape {
+  passMark: number;
+  draw: { reading: number; listening: number; writing: number };
+  sections: {
+    reading: QuestionShape[];
+    listening: QuestionShape[];
+    writing: Array<{ id: string; payload: { minWords: number; maxWords: number } }>;
+  };
+}
+
+/**
+ * Checks a level checkpoint (FR-404). With `forPublish`, every bank must also hold at least as
+ * many items as an attempt draws, so each attempt can be filled.
+ */
+export function validateCheckpoint(
+  checkpoint: unknown,
+  opts: { forPublish?: boolean } = {},
+): ValidationResult {
+  if (!checkpointValidator(checkpoint)) {
+    return { valid: false, errors: (checkpointValidator.errors ?? []).map(formatError) };
+  }
+  const c = checkpoint as CheckpointShape;
+  const errors = [...questionErrors(c.sections.reading), ...questionErrors(c.sections.listening)];
+  for (const q of c.sections.listening) {
+    if (!q.payload.audio) errors.push(`question ${q.id}: a listening question needs a recording`);
+  }
+  for (const w of c.sections.writing) {
+    if (w.payload.minWords > w.payload.maxWords)
+      errors.push(`task ${w.id}: minWords is above maxWords`);
+  }
+  const ids = [...c.sections.reading, ...c.sections.listening, ...c.sections.writing].map(
+    (q) => q.id,
+  );
+  if (new Set(ids).size !== ids.length) errors.push('duplicate question id');
+  if (opts.forPublish) {
+    for (const s of ['reading', 'listening', 'writing'] as const) {
+      if (c.sections[s].length < c.draw[s]) {
+        errors.push(`${s}: the bank has ${c.sections[s].length}, an attempt draws ${c.draw[s]}`);
+      }
+    }
+  }
+  return { valid: errors.length === 0, errors };
 }
 
 export function validateVocabItem(item: unknown): ValidationResult {

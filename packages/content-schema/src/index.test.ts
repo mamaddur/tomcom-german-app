@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { validateLessonPack } from './index';
+import { validateCheckpoint, validateLessonPack } from './index';
 import { AUDIO_MORGEN, samplePack } from './sample-pack';
 
 describe('validateLessonPack', () => {
@@ -168,5 +168,70 @@ describe('quiz question shapes (FR-401)', () => {
       { type: 'listen_choose', payload: { audio: qid(99), options: ['a', 'b'] }, answer: 0 },
     ]);
     expect(result.errors.join()).toMatch(/missing audio media/);
+  });
+});
+
+describe('validateCheckpoint (FR-404)', () => {
+  const cid = (n: number) => `00000000-0000-4000-8000-${String(900 + n).padStart(12, '0')}`;
+  const base = {
+    prompt: { te: 'ప్రశ్న', en: 'Question' },
+    explanation: { te: 'వివరణ', en: 'Explanation' },
+    difficulty: 1,
+  };
+  const checkpoint = () => ({
+    passMark: 0.6,
+    draw: { reading: 1, listening: 1, writing: 1 },
+    sections: {
+      reading: [{ id: cid(1), type: 'mcq', payload: { options: ['a', 'b'] }, answer: 0, ...base }],
+      listening: [
+        {
+          id: cid(2),
+          type: 'listen_choose',
+          payload: { audio: AUDIO_MORGEN, options: ['a', 'b'] },
+          answer: 1,
+          ...base,
+        },
+      ],
+      writing: [{ id: cid(3), payload: { minWords: 20, maxWords: 60 }, ...base }],
+    },
+  });
+
+  it('accepts a complete checkpoint, also for publishing', () => {
+    expect(validateCheckpoint(checkpoint(), { forPublish: true })).toEqual({
+      valid: true,
+      errors: [],
+    });
+  });
+
+  it('needs a recording for every listening question', () => {
+    const c = checkpoint();
+    c.sections.listening[0] = {
+      ...c.sections.listening[0]!,
+      type: 'mcq',
+      payload: { options: ['a', 'b'] } as never,
+    };
+    expect(validateCheckpoint(c).errors.join()).toMatch(/needs a recording/);
+  });
+
+  it('checks answer keys like lesson quizzes', () => {
+    const c = checkpoint();
+    c.sections.reading[0]!.answer = 5;
+    expect(validateCheckpoint(c).valid).toBe(false);
+  });
+
+  it('can be saved with a small bank but not published', () => {
+    const c = checkpoint();
+    c.draw.reading = 10;
+    expect(validateCheckpoint(c).valid).toBe(true);
+    expect(validateCheckpoint(c, { forPublish: true }).errors.join()).toMatch(
+      /reading: the bank has 1, an attempt draws 10/,
+    );
+  });
+
+  it('rejects a pass mark out of range and writing limits the wrong way round', () => {
+    expect(validateCheckpoint({ ...checkpoint(), passMark: 0.2 }).valid).toBe(false);
+    const c = checkpoint();
+    c.sections.writing[0]!.payload = { minWords: 80, maxWords: 40 };
+    expect(validateCheckpoint(c).errors.join()).toMatch(/minWords is above maxWords/);
   });
 });

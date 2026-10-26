@@ -587,6 +587,108 @@
           }
         }
       ]
+    },
+    "writingTask": {
+      "description": "A writing task in a checkpoint (FR-404). Marked by a trainer; AI marking (FR-407) can assist later.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "prompt", "payload", "explanation", "difficulty"],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "prompt": {
+          "$ref": "#/$defs/l10n"
+        },
+        "payload": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["minWords", "maxWords"],
+          "properties": {
+            "minWords": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 300
+            },
+            "maxWords": {
+              "type": "integer",
+              "minimum": 5,
+              "maximum": 500
+            }
+          }
+        },
+        "explanation": {
+          "$ref": "#/$defs/l10n",
+          "description": "Marking guide for the trainer"
+        },
+        "difficulty": {
+          "enum": [1, 2, 3]
+        }
+      }
+    },
+    "checkpoint": {
+      "description": "Level checkpoint test (FR-404, ADR-009): served and scored by the server, never shipped in a pack.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["passMark", "draw", "sections"],
+      "properties": {
+        "passMark": {
+          "type": "number",
+          "minimum": 0.4,
+          "maximum": 1
+        },
+        "draw": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["reading", "listening", "writing"],
+          "description": "How many items each attempt draws from each section's bank",
+          "properties": {
+            "reading": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 30
+            },
+            "listening": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 30
+            },
+            "writing": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 3
+            }
+          }
+        },
+        "sections": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["reading", "listening", "writing"],
+          "properties": {
+            "reading": {
+              "type": "array",
+              "maxItems": 200,
+              "items": {
+                "$ref": "#/$defs/question"
+              }
+            },
+            "listening": {
+              "type": "array",
+              "maxItems": 200,
+              "items": {
+                "$ref": "#/$defs/question"
+              }
+            },
+            "writing": {
+              "type": "array",
+              "maxItems": 50,
+              "items": {
+                "$ref": "#/$defs/writingTask"
+              }
+            }
+          }
+        }
+      }
     }
   }
 }

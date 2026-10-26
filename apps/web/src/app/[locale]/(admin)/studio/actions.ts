@@ -4,6 +4,8 @@ import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import {
   api,
+  type Checkpoint,
+  type CheckpointContent,
   ApiProblem,
   apiUpload,
   type L10n,
@@ -150,4 +152,26 @@ export async function createVocab(input: {
 
 function dropEmpty(l: L10n): L10n {
   return Object.fromEntries(Object.entries(l).filter(([, v]) => v.trim() !== ''));
+}
+
+// ── Checkpoints (FR-404) ──
+
+export async function saveCheckpoint(
+  level: string,
+  expectedRevision: number,
+  content: CheckpointContent,
+): Promise<ActionResult<Checkpoint>> {
+  return call((t) =>
+    api<Checkpoint>(`/v1/studio/checkpoints/${level}`, {
+      method: 'PUT',
+      body: { expectedRevision, content },
+      accessToken: t,
+    }),
+  );
+}
+
+export async function publishCheckpoint(level: string): Promise<ActionResult<Checkpoint>> {
+  return call((t) =>
+    api<Checkpoint>(`/v1/studio/checkpoints/${level}/publish`, { method: 'POST', accessToken: t }),
+  );
 }

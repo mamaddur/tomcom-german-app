@@ -12,10 +12,16 @@ import {
   type ActionResult,
 } from '../../actions';
 
-type T = ReturnType<typeof useTranslations<'studio'>>;
+export type T = ReturnType<typeof useTranslations<'studio'>>;
 type German = { text: string; audio: string };
 const SCREEN_TYPES = ['explain', 'practice', 'dialogue', 'vocab'] as const;
-const QUESTION_TYPES = ['mcq', 'listen_choose', 'match_pairs', 'fill_gap', 'word_order'] as const;
+export const QUESTION_TYPES = [
+  'mcq',
+  'listen_choose',
+  'match_pairs',
+  'fill_gap',
+  'word_order',
+] as const;
 
 /** FR-1001/1003/1005 in the browser. Authors edit; reviewers review; the API enforces both again. */
 export function LessonEditor({
@@ -316,7 +322,7 @@ export function LessonEditor({
 
 // ── Pieces ──
 
-function Card({
+export function Card({
   title,
   onRemove,
   t,
@@ -340,7 +346,7 @@ function Card({
   );
 }
 
-function L10nInputs({
+export function L10nInputs({
   label,
   value,
   onChange,
@@ -400,7 +406,7 @@ function GermanInput({
 }
 
 /** Uploads a recording (converted on the server, FR-1002) and plays it back. */
-function AudioUpload({
+export function AudioUpload({
   audio,
   onChange,
   t,
@@ -564,7 +570,7 @@ function ScreenFields({
   }
 }
 
-function QuestionFields({
+export function QuestionFields({
   question: q,
   onChange,
   t,
@@ -749,7 +755,7 @@ function newScreen(type: Screen['type']): Screen {
   }
 }
 
-function newQuestion(type: Question['type']): Question {
+export function newQuestion(type: Question['type']): Question {
   return {
     id: crypto.randomUUID(),
     type,
@@ -767,6 +773,6 @@ function newQuestion(type: Question['type']): Question {
   };
 }
 
-function errorText(t: T, code: string) {
+export function errorText(t: T, code: string) {
   return t.has(`errors.${code}`) ? t(`errors.${code}` as 'errors.generic') : t('errors.generic');
 }

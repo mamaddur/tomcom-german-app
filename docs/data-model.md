@@ -48,6 +48,7 @@ Draft content is edited in place. **Publishing creates an immutable `pack_versio
 |---|---|---|
 | `lesson_progress` | learner_id, lesson_id (PK pair), best_score, passed, passed_at, updated_at | FR-203. Recomputable from attempts. Locked/available/in progress are worked out in the app. |
 | `quiz_attempts` | id, client_id (unique), learner_id, lesson_id, pack_version, answers jsonb (`questionId`, `response`, `correct`), score, passed, duration_ms, finished_at, received_at | FR-405. Every attempt is kept. |
+| `checkpoints` | id, level_id (unique), content jsonb (draft: passMark, draw, sections), revision, updated_by, published_content jsonb, published_revision, published_by, published_at | FR-404. Never shipped in a pack (ADR-009). |
 | `checkpoint_attempts` | id, learner_id, checkpoint_id, section_scores jsonb, total, passed, started_at, submitted_at | FR-404. Online only. |
 | `writing_submissions` | id, attempt_ref, text, ai_score, ai_feedback L10n, rubric jsonb, trainer_score nullable, trainer_id, overridden_at | FR-407 |
 | `pronunciation_attempts` | id, learner_id, ref_type (`vocab`/`sentence`/`checkpoint`), ref_id, overall_score, word_scores jsonb, vendor, latency_ms, created_at | FR-501, FR-502. No audio is stored (audio deleted after scoring [A]). |

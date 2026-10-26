@@ -1490,6 +1490,121 @@
         ]
       }
     },
+    "/v1/studio/checkpoints": {
+      "get": {
+        "operationId": "CheckpointsController_list",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CheckpointDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "studio"
+        ]
+      }
+    },
+    "/v1/studio/checkpoints/{level}": {
+      "get": {
+        "operationId": "CheckpointsController_get",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CheckpointDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "studio"
+        ]
+      },
+      "put": {
+        "operationId": "CheckpointsController_save",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SaveCheckpointDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CheckpointDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "studio"
+        ]
+      }
+    },
+    "/v1/studio/checkpoints/{level}/publish": {
+      "post": {
+        "operationId": "CheckpointsController_publish",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CheckpointDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "studio"
+        ]
+      }
+    },
     "/v1/studio/media": {
       "post": {
         "operationId": "MediaController_upload",
@@ -4098,6 +4213,73 @@
         "required": [
           "pack",
           "skippedLessonIds"
+        ]
+      },
+      "CheckpointDto": {
+        "type": "object",
+        "properties": {
+          "level": {
+            "type": "string",
+            "enum": [
+              "A1",
+              "A2",
+              "B1"
+            ]
+          },
+          "content": {
+            "type": "object",
+            "description": "content-schema `checkpoint`: passMark, draw, sections"
+          },
+          "revision": {
+            "type": "number",
+            "description": "0 before the first save"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true
+          },
+          "publishedRevision": {
+            "type": "number",
+            "nullable": true
+          },
+          "publishedAt": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true
+          },
+          "problems": {
+            "description": "What blocks publishing; empty when ready",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "level",
+          "content",
+          "revision",
+          "updatedAt",
+          "publishedRevision",
+          "publishedAt",
+          "problems"
+        ]
+      },
+      "SaveCheckpointDto": {
+        "type": "object",
+        "properties": {
+          "expectedRevision": {
+            "type": "number"
+          },
+          "content": {
+            "type": "object",
+            "description": "content-schema `checkpoint`; drafts may be incomplete"
+          }
+        },
+        "required": [
+          "expectedRevision",
+          "content"
         ]
       },
       "MediaDto": {

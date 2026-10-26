@@ -46,6 +46,13 @@ Planning approved on 2026-10-25 with "do it on this local machine for now". Step
 4. **Quiz answers are taps, never typing** (NFR-18). "Fill the gap" offers choices, and "word order" uses word tiles. If TOMCOM wants typed answers for B1, they would be a new question type.
 5. **Multiple-choice options keep the author's order**, so options like "all of the above" stay last. Pairs and word tiles are shuffled.
 
+## New from step 5 (checkpoints)
+
+1. **Checkpoint sections today: reading, listening and writing.** FR-404 also asks for speaking, which needs the speech vendor (C2). It joins when pronunciation scoring (step 6) is connected. Until then, a level can be passed without a speaking section. **Is that acceptable for the pilot, or should certificates wait for speaking?**
+2. **Writing is marked by a trainer** against the author's marking guide. AI marking (FR-407) assists later, and the trainer can override it.
+3. **Pass rule, my assumption:** the overall score across sections must reach the checkpoint's pass mark (default 60%, like Goethe A1). Tell me if each section needs its own minimum.
+4. **Checkpoint review is lighter than lessons:** an author saves drafts, and any reviewer who did not make the last edit publishes (four eyes). There is no separate "in review" state. Say if checkpoints need the full lesson workflow.
+
 ## New from step 9
 
 1. **Bulk upload doesn't create accounts.** Pack §2 requires consent before personal data is saved (story 1). So an uploaded number is kept only as an invite: just the encrypted number, for 90 days. When that person registers in the app with their own consent, they join the batch automatically. People who already use the app move into the batch at once. Names in the file are ignored. **Removing expired invites needs the scheduled-jobs worker (step 10)**; until then they are only ignored after 90 days. Please confirm this matches how TOMCOM recruits.

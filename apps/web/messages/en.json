@@ -200,7 +200,8 @@
     "nav": {
       "lessons": "Lessons",
       "vocab": "Vocabulary",
-      "publish": "Publish"
+      "publish": "Publish",
+      "checkpoints": "Checkpoints"
     },
     "status": {
       "draft": "Draft",
@@ -326,7 +327,38 @@
       "duplicate_ids": "Two items have the same ID.",
       "validation_failed": "Please check the fields.",
       "session_expired": "Your session ended. Please sign in again.",
-      "generic": "Something went wrong. Please try again."
+      "generic": "Something went wrong. Please try again.",
+      "checkpoint_incomplete": "This checkpoint is not complete yet."
+    },
+    "checkpoints": {
+      "title": "Checkpoint tests",
+      "intro": "One checkpoint per level, taken online at the end of the level (FR-404). Each attempt draws questions from these banks; answers stay on the server. Speaking is added when pronunciation scoring is connected.",
+      "editorTitle": "{level} checkpoint",
+      "revisionLine": "Draft revision {n}.",
+      "publishedLine": "Learners take revision {n}.",
+      "notPublished": "Not published yet.",
+      "rules": "Rules",
+      "passMark": "Pass mark (%)",
+      "draw": "{section}: questions per attempt",
+      "sections": {
+        "reading": "Reading",
+        "listening": "Listening",
+        "writing": "Writing"
+      },
+      "bankSize": "{n} in the bank, {draw} per attempt",
+      "listeningHint": "Every listening question needs a recording.",
+      "writingHint": "A trainer marks writing with the guide below.",
+      "guideTe": "Marking guide (Telugu)",
+      "guideEn": "Marking guide (English)",
+      "minWords": "Minimum words",
+      "maxWords": "Maximum words",
+      "addWriting": "Add writing task",
+      "problems": "Before it can be published",
+      "publish": "Publish checkpoint",
+      "published": "Published the {level} checkpoint, revision {n}.",
+      "bankSummary": "Reading {reading} · Listening {listening} · Writing {writing}",
+      "ready": "Ready to publish",
+      "notReady": "{n, plural, =1{1 problem} other{# problems}}"
     }
   }
 }
