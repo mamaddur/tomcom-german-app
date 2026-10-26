@@ -46,17 +46,18 @@ model User {
   createdAt  DateTime   @default(now()) @map("created_at") @db.Timestamptz
   updatedAt  DateTime   @updatedAt @map("updated_at") @db.Timestamptz
 
-  consents       Consent[]
-  devices        Device[]
-  refreshTokens  RefreshToken[]
-  profile        LearnerProfile?
-  enrolments     Enrolment[]
-  trainerOf      BatchTrainer[]
-  credential     StaffCredential?
-  announcements  Announcement[]   @relation("AnnouncementCreator")
-  quizAttempts   QuizAttempt[]    @relation("QuizAttempts")
-  lessonProgress LessonProgress[] @relation("LessonProgress")
-  dailyActivity  DailyActivity[]  @relation("DailyActivity")
+  consents           Consent[]
+  devices            Device[]
+  refreshTokens      RefreshToken[]
+  profile            LearnerProfile?
+  enrolments         Enrolment[]
+  trainerOf          BatchTrainer[]
+  credential         StaffCredential?
+  announcements      Announcement[]      @relation("AnnouncementCreator")
+  quizAttempts       QuizAttempt[]       @relation("QuizAttempts")
+  lessonProgress     LessonProgress[]    @relation("LessonProgress")
+  dailyActivity      DailyActivity[]     @relation("DailyActivity")
+  checkpointAttempts CheckpointAttempt[] @relation("CheckpointAttempts")
 
   @@map("users")
 }
@@ -289,9 +290,10 @@ model Level {
   title Json // locale-keyed (ADR-007)
   order Int
 
-  lessons    Lesson[]
-  packs      PackVersion[]
-  checkpoint Checkpoint?
+  lessons            Lesson[]
+  packs              PackVersion[]
+  checkpoint         Checkpoint?
+  checkpointAttempts CheckpointAttempt[]
 
   @@map("levels")
 }
@@ -611,4 +613,44 @@ model Checkpoint {
   level Level @relation(fields: [levelId], references: [id])
 
   @@map("checkpoints")
+}
+
+enum CheckpointAttemptStatus {
+  in_progress
+  awaiting_marking
+  passed
+  failed
+  expired
+}
+
+/// FR-404, FR-405. One sitting of a level checkpoint. `items` holds the drawn questions with
+/// their answer keys and never leaves the server (ADR-009). Writing is marked by a trainer.
+model CheckpointAttempt {
+  id                 String                  @id @default(uuid(7)) @db.Uuid
+  learnerId          String                  @map("learner_id") @db.Uuid
+  levelId            String                  @map("level_id") @db.Uuid
+  checkpointRevision Int                     @map("checkpoint_revision")
+  passMark           Float                   @map("pass_mark")
+  /// { reading: Question[], listening: Question[], writing: WritingTask[] } as drawn.
+  items              Json
+  /// { answers: { questionId: response }, writing: { taskId: text } }
+  responses          Json?
+  /// { reading, listening, writing? } as 0–1.
+  sectionScores      Json?                   @map("section_scores")
+  /// { taskId: { score: 0–1, comment } } from the trainer.
+  writingMarks       Json?                   @map("writing_marks")
+  total              Float?
+  status             CheckpointAttemptStatus @default(in_progress)
+  startedAt          DateTime                @default(now()) @map("started_at") @db.Timestamptz
+  expiresAt          DateTime                @map("expires_at") @db.Timestamptz
+  submittedAt        DateTime?               @map("submitted_at") @db.Timestamptz
+  markedBy           String?                 @map("marked_by") @db.Uuid
+  markedAt           DateTime?               @map("marked_at") @db.Timestamptz
+
+  learner User  @relation("CheckpointAttempts", fields: [learnerId], references: [id], onDelete: Cascade)
+  level   Level @relation(fields: [levelId], references: [id])
+
+  @@index([learnerId, levelId])
+  @@index([status])
+  @@map("checkpoint_attempts")
 }

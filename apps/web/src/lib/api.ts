@@ -322,3 +322,34 @@ export interface Checkpoint {
   publishedAt: string | null;
   problems: string[];
 }
+
+export interface MarkingItem {
+  id: string;
+  level: string;
+  learnerName: string;
+  batchCode: string | null;
+  submittedAt: string;
+  sectionScores: Record<string, number>;
+  passMark: number;
+  tasks: Array<{
+    id: string;
+    prompt: L10n;
+    guide: L10n;
+    minWords: number;
+    maxWords: number;
+    text: string;
+  }>;
+}
+
+export interface ReadinessRow {
+  learnerId: string;
+  firstName: string | null;
+  lastName: string | null;
+  batchCode: string | null;
+  districtCode: string | null;
+  tradeCode: string | null;
+  level: string;
+  score: number;
+  sectionScores: Record<string, number>;
+  passedAt: string;
+}

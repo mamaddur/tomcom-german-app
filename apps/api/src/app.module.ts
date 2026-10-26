@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { SmsModule } from './adapters/sms/sms.module.js';
 import { AdminModule } from './admin/admin.module.js';
+import { AssessmentModule } from './assessment/assessment.module.js';
 import { StorageModule } from './adapters/storage/storage.module.js';
 import { AuditModule } from './audit/audit.module.js';
 import { CommonModule } from './common/common.module.js';
@@ -36,6 +37,7 @@ import { SettingsModule } from './settings/settings.module.js';
     NotificationsModule,
     PrivacyModule,
     AdminModule,
+    AssessmentModule,
   ],
 })
 export class AppModule {}

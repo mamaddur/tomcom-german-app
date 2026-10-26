@@ -9,6 +9,7 @@ import type {
   LearnerRowDto,
   LessonFunnelDto,
   OverviewDto,
+  ReadinessRowDto,
   ReportFilterDto,
 } from './reports.dto.js';
 import { batchScope, maskPhone } from './scope.js';
@@ -217,6 +218,59 @@ export class ReportsService {
       minutes: Math.round(Number(r.seconds ?? 0) / 60),
       lastSeenAt: r.last_seen_at,
     }));
+  }
+
+  /**
+   * FR-907 readiness list: learners who passed a level checkpoint, for exam nomination. One row
+   * per learner and level (their best pass). The date range applies to the pass date.
+   */
+  async readiness(auth: AccessClaims, f: ReportFilterDto): Promise<ReadinessRowDto[]> {
+    const pop = await this.population(auth, f);
+    const levelFilter = pop.level ? Prisma.sql`AND lv.code::text = ${pop.level}` : Prisma.empty;
+    const rows = await this.prisma.db.$queryRaw<
+      Array<{
+        learner_id: string;
+        first_name: string | null;
+        last_name: string | null;
+        batch_code: string | null;
+        district_code: string | null;
+        trade_code: string | null;
+        level: string;
+        total: number;
+        section_scores: Record<string, number>;
+        submitted_at: Date;
+      }>
+    >`
+      WITH pop AS (${pop.sql})
+      SELECT DISTINCT ON (a.learner_id, lv.code)
+        a.learner_id, u.first_name, u.last_name, pop.batch_code, pop.district_code, pop.trade_code,
+        lv.code::text AS level, a.total, a.section_scores, a.submitted_at
+      FROM checkpoint_attempts a
+      JOIN pop ON pop.learner_id = a.learner_id
+      JOIN users u ON u.id = a.learner_id
+      JOIN levels lv ON lv.id = a.level_id
+      WHERE a.status = 'passed' AND a.submitted_at >= ${pop.start} AND a.submitted_at < ${pop.end}
+        ${levelFilter}
+      ORDER BY a.learner_id, lv.code, a.total DESC, a.submitted_at ASC`;
+    return rows
+      .map((r) => ({
+        learnerId: r.learner_id,
+        firstName: r.first_name,
+        lastName: r.last_name,
+        batchCode: r.batch_code,
+        districtCode: r.district_code,
+        tradeCode: r.trade_code,
+        level: r.level,
+        score: Number(r.total),
+        sectionScores: r.section_scores,
+        passedAt: r.submitted_at,
+      }))
+      .sort(
+        (a, b) =>
+          a.level.localeCompare(b.level) ||
+          (a.batchCode ?? '').localeCompare(b.batchCode ?? '') ||
+          (a.firstName ?? '').localeCompare(b.firstName ?? ''),
+      );
   }
 
   /** FR-904. A trainer may open only learners in their own batches (FR-908). */

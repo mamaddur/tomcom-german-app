@@ -288,3 +288,13 @@ code.details {
   font-size: 0.8rem;
   word-break: break-all;
 }
+blockquote.answer {
+  background: #fff;
+  border-left: 4px solid var(--accent);
+  margin: 0.5rem 0;
+  padding: 0.5rem 0.75rem;
+  white-space: pre-wrap;
+}
+.muted {
+  color: var(--muted);
+}

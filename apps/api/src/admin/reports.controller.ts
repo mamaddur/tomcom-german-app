@@ -2,7 +2,13 @@ import { Controller, Get, Param, ParseUUIDPipe, Query } from '@nestjs/common';
 import { ApiBearerAuth, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { Auth, Roles } from '../identity/auth.guard.js';
 import type { AccessClaims } from '../identity/token.service.js';
-import { LearnerDetailDto, LearnerRowDto, OverviewDto, ReportFilterDto } from './reports.dto.js';
+import {
+  LearnerDetailDto,
+  LearnerRowDto,
+  OverviewDto,
+  ReadinessRowDto,
+  ReportFilterDto,
+} from './reports.dto.js';
 import { ReportsService } from './reports.service.js';
 
 /** FR-902–FR-904, scoped per FR-908. */
@@ -17,6 +23,13 @@ export class ReportsController {
   @ApiOkResponse({ type: OverviewDto })
   overview(@Auth() auth: AccessClaims, @Query() f: ReportFilterDto): Promise<OverviewDto> {
     return this.reports.overview(auth, f);
+  }
+
+  /** FR-907: who passed a level checkpoint (for exam nomination). */
+  @Get('readiness')
+  @ApiOkResponse({ type: [ReadinessRowDto] })
+  readiness(@Auth() auth: AccessClaims, @Query() f: ReportFilterDto): Promise<ReadinessRowDto[]> {
+    return this.reports.readiness(auth, f);
   }
 
   @Get('learners')

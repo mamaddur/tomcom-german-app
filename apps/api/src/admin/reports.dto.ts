@@ -99,3 +99,16 @@ export class LearnerDetailDto extends LearnerRowDto {
   })
   tutorUsage!: unknown[];
 }
+
+export class ReadinessRowDto {
+  @ApiProperty() learnerId!: string;
+  @ApiPropertyOptional({ nullable: true, type: String }) firstName!: string | null;
+  @ApiPropertyOptional({ nullable: true, type: String }) lastName!: string | null;
+  @ApiPropertyOptional({ nullable: true, type: String }) batchCode!: string | null;
+  @ApiPropertyOptional({ nullable: true, type: String }) districtCode!: string | null;
+  @ApiPropertyOptional({ nullable: true, type: String }) tradeCode!: string | null;
+  @ApiProperty({ enum: ['A1', 'A2', 'B1'] }) level!: string;
+  @ApiProperty({ description: 'Best passing checkpoint score, 0–1' }) score!: number;
+  @ApiProperty({ type: Object }) sectionScores!: Record<string, number>;
+  @ApiProperty({ description: 'When that checkpoint was submitted' }) passedAt!: Date;
+}
