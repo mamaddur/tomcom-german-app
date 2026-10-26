@@ -710,6 +710,42 @@
         ]
       }
     },
+    "/v1/sync": {
+      "post": {
+        "operationId": "SyncController_post",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SyncRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SyncResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "me"
+        ]
+      }
+    },
     "/v1/studio/levels": {
       "get": {
         "operationId": "StudioController_levels",
@@ -2426,6 +2462,162 @@
         },
         "required": [
           "code"
+        ]
+      },
+      "AttemptAnswerDto": {
+        "type": "object",
+        "properties": {
+          "questionId": {
+            "type": "string"
+          },
+          "response": {
+            "type": "object",
+            "description": "Option index, or list of indices for pairs and word order"
+          },
+          "correct": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "questionId",
+          "response",
+          "correct"
+        ]
+      },
+      "AttemptDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Client-generated UUID; a resend with the same id is ignored"
+          },
+          "lessonId": {
+            "type": "string"
+          },
+          "packVersion": {
+            "type": "number"
+          },
+          "score": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "passed": {
+            "type": "boolean"
+          },
+          "durationMs": {
+            "type": "number",
+            "maximum": 10800000
+          },
+          "answers": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AttemptAnswerDto"
+            }
+          },
+          "finishedAt": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "lessonId",
+          "packVersion",
+          "score",
+          "passed",
+          "durationMs",
+          "answers",
+          "finishedAt"
+        ]
+      },
+      "ActivityDto": {
+        "type": "object",
+        "properties": {
+          "date": {
+            "type": "string",
+            "example": "2026-10-25"
+          },
+          "seconds": {
+            "type": "number",
+            "maximum": 86400
+          }
+        },
+        "required": [
+          "date",
+          "seconds"
+        ]
+      },
+      "SyncRequestDto": {
+        "type": "object",
+        "properties": {
+          "attempts": {
+            "maxItems": 100,
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AttemptDto"
+            }
+          },
+          "activity": {
+            "maxItems": 60,
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ActivityDto"
+            }
+          }
+        },
+        "required": [
+          "attempts",
+          "activity"
+        ]
+      },
+      "LessonResultDto": {
+        "type": "object",
+        "properties": {
+          "lessonId": {
+            "type": "string"
+          },
+          "bestScore": {
+            "type": "number"
+          },
+          "passed": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "lessonId",
+          "bestScore",
+          "passed"
+        ]
+      },
+      "SyncResponseDto": {
+        "type": "object",
+        "properties": {
+          "stored": {
+            "description": "Attempt ids the server now holds; remove them from the outbox",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "lessons": {
+            "description": "All of the learner's lesson results",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/LessonResultDto"
+            }
+          },
+          "activity": {
+            "description": "Learning time for the last 60 days",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ActivityDto"
+            }
+          }
+        },
+        "required": [
+          "stored",
+          "lessons",
+          "activity"
         ]
       },
       "LevelDto": {

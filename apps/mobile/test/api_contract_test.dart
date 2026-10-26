@@ -30,6 +30,7 @@ void main() {
     '/v1/packs': 'get',
     '/v1/app/config': 'get',
     '/v1/announcements': 'get',
+    '/v1/sync': 'post',
     '/v1/packs/{level}/{version}/download': 'get',
   };
 
@@ -44,6 +45,20 @@ void main() {
     'AppConfigDto': ['learning'],
     'LearningRulesDto': ['sequentialUnlock', 'dailyGoalMinutes'],
     'AnnouncementDto': ['id', 'title', 'body'],
+    // Every field the app's outbox sends (the API rejects unknown fields).
+    'AttemptDto': [
+      'id',
+      'lessonId',
+      'packVersion',
+      'score',
+      'passed',
+      'durationMs',
+      'answers',
+      'finishedAt',
+    ],
+    'ActivityDto': ['date', 'seconds'],
+    'SyncResponseDto': ['stored', 'lessons', 'activity'],
+    'LessonResultDto': ['lessonId', 'bestScore', 'passed'],
     'MeOnboardingDto': ['profileComplete', 'batchJoined'],
     'BatchSummaryDto': ['name'],
     'UpdateProfileDto': [

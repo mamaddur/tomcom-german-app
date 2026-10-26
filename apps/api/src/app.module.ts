@@ -8,6 +8,7 @@ import { HealthModule } from './health/health.module.js';
 import { IdentityModule } from './identity/identity.module.js';
 import { InfraModule } from './infra/infra.module.js';
 import { LearnersModule } from './learners/learners.module.js';
+import { LearningModule } from './learning/learning.module.js';
 import { createLoggerModule } from './logging/logger.module.js';
 import { MediaModule } from './media/media.module.js';
 import { NotificationsModule } from './notifications/notifications.module.js';
@@ -27,6 +28,7 @@ import { SettingsModule } from './settings/settings.module.js';
     IdentityModule,
     ReferenceModule,
     LearnersModule,
+    LearningModule,
     ContentModule,
     MediaModule,
     NotificationsModule,

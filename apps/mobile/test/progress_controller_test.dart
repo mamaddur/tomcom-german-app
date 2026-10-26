@@ -145,4 +145,71 @@ void main() {
       expect(p.goalMetToday, isFalse);
     });
   });
+
+  group('server sync (FR-405, NFR-05)', () {
+    test('a stored attempt leaves the outbox; results merge best-wins', () {
+      final p = make();
+      final pack = memoryPack();
+      final [l1, l2, _] = pack.lessons;
+      p.recordQuiz(pack, l1, 0.7, passMark: 0.8, attemptId: 'a1');
+      p.recordQuiz(pack, l1, 0.6, passMark: 0.8, attemptId: 'a2');
+      expect(p.pendingAttempts.map((a) => a['id']), ['a1', 'a2']);
+
+      p.applySync({
+        'stored': ['a1'],
+        'lessons': [
+          // Passed on another phone.
+          {'lessonId': l1.id, 'bestScore': 0.9, 'passed': true},
+          {'lessonId': l2.id, 'bestScore': 0.5, 'passed': false},
+        ],
+        'activity': <Object>[],
+      });
+      expect(p.pendingAttempts.map((a) => a['id']), ['a2']);
+      expect(p.recordOf(l1.id)!.bestScore, 0.9);
+      expect(p.statusOf(pack, l1), LessonStatus.passed);
+      expect(p.statusOf(pack, l2), LessonStatus.inProgress);
+    });
+
+    test('a weaker server result never lowers what the phone has', () {
+      final p = make();
+      final pack = memoryPack();
+      final l1 = pack.lessons.first;
+      p.recordQuiz(pack, l1, 1, passMark: 0.8);
+      p.applySync({
+        'stored': <Object>[],
+        'lessons': [
+          {'lessonId': l1.id, 'bestScore': 0.4, 'passed': false},
+        ],
+        'activity': <Object>[],
+      });
+      expect(p.recordOf(l1.id)!.bestScore, 1);
+      expect(p.statusOf(pack, l1), LessonStatus.passed);
+    });
+
+    test(
+      'daily time: sends the last 60 days; the larger value wins on merge',
+      () {
+        final p = make();
+        now = DateTime.utc(2026, 7, 1, 6);
+        p.addLearningTime(
+          const Duration(minutes: 5),
+        ); // older than 60 days by 25 Oct
+        now = DateTime.utc(2026, 10, 25, 6);
+        p.addLearningTime(const Duration(minutes: 3));
+        expect(p.activityForSync(), [
+          {'date': '2026-10-25', 'seconds': 180},
+        ]);
+        p.applySync({
+          'stored': <Object>[],
+          'lessons': <Object>[],
+          'activity': [
+            {'date': '2026-10-25', 'seconds': 600},
+            {'date': '2026-10-24', 'seconds': 700},
+          ],
+        });
+        expect(p.todayMinutes, 10);
+        expect(p.streak, 2);
+      },
+    );
+  });
 }

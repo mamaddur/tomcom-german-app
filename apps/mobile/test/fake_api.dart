@@ -27,6 +27,11 @@ class FakeApi {
   /// Routes (e.g. `GET /v1/announcements`) that fail as if the network were down.
   final failRoutes = <String>{};
 
+  /// What `POST /v1/sync` has received, and the results it returns (FR-405).
+  final syncedAttempts = <Map<String, dynamic>>[];
+  final serverLessons = <String, ({double best, bool passed})>{};
+  final serverActivity = <String, int>{};
+
   /// Announcements served to the learner (FR-205).
   List<Map<String, dynamic>> announcements = [];
 
@@ -138,6 +143,60 @@ class FakeApi {
           'features': <String, bool>{},
           'limits': <String, int>{},
           'learning': learning,
+        });
+      case 'POST /v1/sync':
+        // Like the real API (forbidNonWhitelisted): unknown fields are a 400.
+        const fields = {
+          'id',
+          'lessonId',
+          'packVersion',
+          'score',
+          'passed',
+          'durationMs',
+          'answers',
+          'finishedAt',
+        };
+        for (final a
+            in (body['attempts'] as List).cast<Map<String, dynamic>>()) {
+          if (!fields.containsAll(a.keys)) {
+            return _problem(400, 'validation_failed');
+          }
+        }
+        for (final a
+            in (body['attempts'] as List).cast<Map<String, dynamic>>()) {
+          if (syncedAttempts.any((s) => s['id'] == a['id'])) {
+            continue;
+          }
+          syncedAttempts.add(a);
+          final old = serverLessons[a['lessonId']];
+          final score = (a['score'] as num).toDouble();
+          serverLessons[a['lessonId'] as String] = (
+            best: old == null || score > old.best ? score : old.best,
+            passed: (old?.passed ?? false) || a['passed'] == true,
+          );
+        }
+        for (final d
+            in (body['activity'] as List).cast<Map<String, dynamic>>()) {
+          final day = d['date'] as String;
+          final seconds = d['seconds'] as int;
+          if (seconds > (serverActivity[day] ?? 0)) {
+            serverActivity[day] = seconds;
+          }
+        }
+        return _json(200, {
+          'stored': [for (final a in body['attempts'] as List) a['id']],
+          'lessons': [
+            for (final e in serverLessons.entries)
+              {
+                'lessonId': e.key,
+                'bestScore': e.value.best,
+                'passed': e.value.passed,
+              },
+          ],
+          'activity': [
+            for (final e in serverActivity.entries)
+              {'date': e.key, 'seconds': e.value},
+          ],
         });
       case 'GET /v1/announcements':
         return _json(200, announcements);

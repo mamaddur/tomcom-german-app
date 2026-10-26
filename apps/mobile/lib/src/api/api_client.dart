@@ -138,6 +138,18 @@ class ApiClient {
       Announcement.fromJson(j as Map<String, dynamic>),
   ];
 
+  // ── Progress sync (FR-405, NFR-05) ──
+
+  /// Sends quiz attempts and daily learning time; returns the learner's results on the server.
+  Future<Map<String, dynamic>> sync({
+    required List<Map<String, dynamic>> attempts,
+    required List<Map<String, dynamic>> activity,
+  }) async => await _authed(
+    'POST',
+    '/v1/sync',
+    body: {'attempts': attempts, 'activity': activity},
+  ) as Map<String, dynamic>;
+
   // ── Lesson packs (FR-307) ──
 
   Future<List<PackInfo>> packs() async => [

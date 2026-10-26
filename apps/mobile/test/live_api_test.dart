@@ -2,6 +2,8 @@ import 'dart:io';
 import 'dart:math';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:tomcom_german/src/progress/progress_controller.dart';
+import 'package:uuid/uuid.dart';
 import 'package:tomcom_german/src/api/api_client.dart';
 import 'package:tomcom_german/src/api/models.dart';
 import 'package:tomcom_german/src/session/session_store.dart';
@@ -68,6 +70,32 @@ void main() {
       // ignore: avoid_print
       print(
         'live pack: ${offer.level} v${offer.version}, ${pack.lessons.length} lessons, ${pack.media.length} media',
+      );
+
+      // FR-405: a quiz attempt for a real lesson syncs, and a resend is ignored.
+      final progress = ProgressController(dir: dir)..open('live');
+      final lesson = pack.lessons.first;
+      progress.recordQuiz(
+        pack,
+        lesson,
+        0.9,
+        passMark: pack.settings.passMark,
+        attemptId: const Uuid().v4(),
+      );
+      final body = progress.pendingAttempts;
+      final first = await api.sync(
+        attempts: body,
+        activity: progress.activityForSync(),
+      );
+      progress.applySync(first);
+      expect(progress.pendingAttempts, isEmpty);
+      final again = await api.sync(attempts: body, activity: const []);
+      expect(again['stored'], [body.single['id']]);
+      expect(
+        (again['lessons'] as List).cast<Map<String, dynamic>>().singleWhere(
+          (l) => l['lessonId'] == lesson.id,
+        )['passed'],
+        isTrue,
       );
       await dir.delete(recursive: true);
     }
