@@ -202,6 +202,14 @@ class FakeApi {
         });
       case 'GET /v1/announcements':
         return _json(200, announcements);
+      case 'GET /v1/me/export':
+        return _json(200, {
+          'exportedAt': '2026-10-25T00:00:00Z',
+          'account': {'id': 'u1', 'phone': '+915500000101'},
+        });
+      case 'POST /v1/me/erase':
+        registered = false;
+        return http.Response('', 204);
       case 'GET /v1/reference/districts':
         return _json(200, [
           {

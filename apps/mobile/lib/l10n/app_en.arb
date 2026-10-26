@@ -596,5 +596,37 @@
   "notYet": "Not yet",
   "@notYet": {
     "description": "Shown when a statistic has no value yet."
+  },
+  "myData": "Your data",
+  "@myData": {
+    "description": "Profile section heading (FR-804)."
+  },
+  "downloadMyData": "Download my data",
+  "@downloadMyData": {
+    "description": "Button: export the learner's data (FR-804)."
+  },
+  "downloadMyDataHint": "A file with everything TOMCOM holds about you. You can save it or send it.",
+  "@downloadMyDataHint": {
+    "description": "Explains the data export."
+  },
+  "deleteAccount": "Delete my account",
+  "@deleteAccount": {
+    "description": "Button: erase the account (FR-804)."
+  },
+  "deleteAccountTitle": "Delete your account?",
+  "@deleteAccountTitle": {
+    "description": "Confirmation dialog title."
+  },
+  "deleteAccountBody": "This deletes your name, phone number and profile, and signs you out on every phone. It cannot be undone. Your certificates will no longer show your name. You can sign up again later with the same number, starting from the beginning.",
+  "@deleteAccountBody": {
+    "description": "Explains erasure before confirming (FR-804)."
+  },
+  "deleteAccountConfirm": "Delete",
+  "@deleteAccountConfirm": {
+    "description": "Confirm erasure."
+  },
+  "dataExportFailed": "Could not download your data. Check your connection and try again.",
+  "@dataExportFailed": {
+    "description": "Export error."
   }
 }

@@ -1626,6 +1626,54 @@
           "me"
         ]
       }
+    },
+    "/v1/me/export": {
+      "get": {
+        "operationId": "PrivacyController_export",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The learner's data as JSON"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "me"
+        ]
+      }
+    },
+    "/v1/me/erase": {
+      "post": {
+        "operationId": "PrivacyController_erase",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EraseAccountDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "me"
+        ]
+      }
     }
   },
   "info": {
@@ -3367,6 +3415,19 @@
           "body",
           "startsAt",
           "endsAt"
+        ]
+      },
+      "EraseAccountDto": {
+        "type": "object",
+        "properties": {
+          "confirm": {
+            "type": "boolean",
+            "example": true,
+            "description": "Must be true: the app asks the learner first"
+          }
+        },
+        "required": [
+          "confirm"
         ]
       }
     }

@@ -31,6 +31,8 @@ void main() {
     '/v1/app/config': 'get',
     '/v1/announcements': 'get',
     '/v1/sync': 'post',
+    '/v1/me/export': 'get',
+    '/v1/me/erase': 'post',
     '/v1/packs/{level}/{version}/download': 'get',
   };
 
@@ -71,6 +73,7 @@ void main() {
       'finishedAt',
     ],
     'ActivityDto': ['date', 'seconds'],
+    'EraseAccountDto': ['confirm'],
     'SyncResponseDto': ['stored', 'lessons', 'activity'],
     'LessonResultDto': ['lessonId', 'bestScore', 'passed'],
     'MeOnboardingDto': ['profileComplete', 'batchJoined'],
