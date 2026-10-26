@@ -105,6 +105,25 @@ class OnboardingController extends ChangeNotifier {
     await _route();
   });
 
+  /// FR-802: edit the profile later. Returns whether it saved.
+  Future<bool> updateProfile(ProfileInput input) async {
+    var ok = false;
+    await _run(() async {
+      me = await api.setProfile(input);
+      ok = true;
+    });
+    return ok;
+  }
+
+  /// Districts and trades for the profile form.
+  Future<void> loadReference() => _run(() async {
+    if (districts.isEmpty) {
+      final lists = await Future.wait([api.districts(), api.trades()]);
+      districts = lists[0];
+      trades = lists[1];
+    }
+  });
+
   Future<void> joinBatch(String code) => _run(() async {
     me = await api.joinBatch(code);
     await _route();

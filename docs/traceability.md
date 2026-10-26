@@ -13,6 +13,8 @@ Updated in every PR (CLAUDE.md). Only requirements with code are listed; see `bu
 | NFR-20 | Partial | CI `.github/workflows/ci.yml`, `scripts/verify.sh`, OpenAPI `apps/api/openapi.json` + generated TS client | CI itself; `packages/api-client-ts/src/index.test.ts` |
 | FR-302 | Foundation | Pack validator: every German text must have audio in the pack | `packages/content-schema/src/index.test.ts` |
 | FR-305 | Foundation | Pack schema: video under 2 minutes | `packages/content-schema/src/index.test.ts` |
+| FR-801 | Done | Profile screen: name, trade, district, batch; lessons completed, quizzes passed, average best score, streak, progress per level (`apps/mobile/lib/src/profile/`) | `apps/mobile/test/profile_test.dart` |
+| FR-802 | Done | Edit name, district, trade, target job and level with the onboarding form (`ProfileForm`); language switch on the profile and dashboard | `apps/mobile/test/profile_test.dart`, `test/onboarding_flow_test.dart` |
 | FR-401 | Foundation | Pack schema: five lesson-quiz question types only (ADR-009) | `packages/content-schema/src/index.test.ts` |
 | 4A.2 | Done (local) | PR template, synthetic data only `tools/seed`, secret/SAST/dependency scanning | `tools/seed/src/synthetic.test.ts` |
 | FR-101 | Done (API) | `apps/api/src/identity/otp.service.ts`, `auth.controller.ts`: OTP request/verify, rate limits, resend cooldown, 5-attempt lock | `apps/api/test/auth.int-spec.ts`, `src/common/phone.spec.ts` |

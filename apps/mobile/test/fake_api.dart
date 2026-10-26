@@ -10,6 +10,7 @@ class FakeApi {
   bool profileDone = false;
   String uiLocale = 'te';
   String? batch;
+  Map<String, dynamic>? profileBody;
   int accessTokenVersion = 1;
 
   /// Published packs: level → (version, zip bytes, sha256).
@@ -133,6 +134,7 @@ class FakeApi {
         return _json(200, _me());
       case 'PUT /v1/me/profile':
         profileDone = true;
+        profileBody = body;
         return _json(200, _me());
       case 'POST /v1/me/batch':
         if (body['code'] != 'TST-001') return _problem(404, 'batch_not_found');
@@ -248,9 +250,16 @@ class FakeApi {
     'id': 'u1',
     'role': 'learner',
     'uiLocale': uiLocale,
-    'firstName': profileDone ? 'రవి' : null,
-    'lastName': null,
-    'profile': null,
+    'firstName': profileBody?['firstName'] ?? (profileDone ? 'రవి' : null),
+    'lastName': profileBody?['lastName'],
+    'profile': profileDone
+        ? {
+            'districtCode': profileBody?['districtCode'] ?? 'warangal',
+            'tradeCode': profileBody?['tradeCode'] ?? 'electrician',
+            'targetJob': profileBody?['targetJob'],
+            'selfDeclaredLevel': profileBody?['selfDeclaredLevel'] ?? 'none',
+          }
+        : null,
     'batch': batch == null
         ? null
         : {

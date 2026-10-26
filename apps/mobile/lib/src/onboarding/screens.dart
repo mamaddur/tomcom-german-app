@@ -257,22 +257,48 @@ class _ConsentScreenState extends State<ConsentScreen> {
   }
 }
 
-class ProfileScreen extends StatefulWidget {
+class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key, required this.c});
   final OnboardingController c;
 
   @override
-  State<ProfileScreen> createState() => _ProfileScreenState();
+  Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
+    return StepScaffold(
+      error: c.errorCode == null ? null : errorText(t, c.errorCode),
+      children: [
+        Text(t.profileTitle, style: Theme.of(context).textTheme.headlineSmall),
+        const SizedBox(height: 24),
+        ProfileForm(c: c, onSubmit: c.saveProfile),
+      ],
+    );
+  }
 }
 
-class _ProfileScreenState extends State<ProfileScreen> {
+/// Profile fields (FR-103), used in onboarding and to edit the profile later (FR-802).
+class ProfileForm extends StatefulWidget {
+  const ProfileForm({
+    super.key,
+    required this.c,
+    required this.onSubmit,
+    this.initial,
+  });
+  final OnboardingController c;
+  final ValueChanged<ProfileInput> onSubmit;
+  final ProfileInput? initial;
+
+  @override
+  State<ProfileForm> createState() => _ProfileFormState();
+}
+
+class _ProfileFormState extends State<ProfileForm> {
   final _form = GlobalKey<FormState>();
-  final _first = TextEditingController();
-  final _last = TextEditingController();
-  final _job = TextEditingController();
-  String? _district;
-  String? _trade;
-  String _level = 'none';
+  late final _first = TextEditingController(text: widget.initial?.firstName);
+  late final _last = TextEditingController(text: widget.initial?.lastName);
+  late final _job = TextEditingController(text: widget.initial?.targetJob);
+  late String? _district = widget.initial?.districtCode;
+  late String? _trade = widget.initial?.tradeCode;
+  late String _level = widget.initial?.selfDeclaredLevel ?? 'none';
 
   @override
   void dispose() {
@@ -296,121 +322,106 @@ class _ProfileScreenState extends State<ProfileScreen> {
       'B1': t.levelB1,
     };
 
-    return StepScaffold(
-      error: c.errorCode == null ? null : errorText(t, c.errorCode),
-      children: [
-        Form(
-          key: _form,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Text(
-                t.profileTitle,
-                style: Theme.of(context).textTheme.headlineSmall,
-              ),
-              const SizedBox(height: 24),
-              TextFormField(
-                key: const Key('firstName'),
-                controller: _first,
-                decoration: InputDecoration(
-                  labelText: t.firstName,
-                  border: const OutlineInputBorder(),
-                ),
-                validator: required,
-              ),
-              const SizedBox(height: 16),
-              TextFormField(
-                controller: _last,
-                decoration: InputDecoration(
-                  labelText: t.lastName,
-                  border: const OutlineInputBorder(),
-                ),
-              ),
-              const SizedBox(height: 16),
-              DropdownButtonFormField<String>(
-                key: const Key('district'),
-                initialValue: _district,
-                isExpanded: true,
-                decoration: InputDecoration(
-                  labelText: t.district,
-                  border: const OutlineInputBorder(),
-                ),
-                items: [
-                  for (final d in c.districts)
-                    DropdownMenuItem(
-                      value: d.code,
-                      child: Text(d.nameFor(locale)),
-                    ),
-                ],
-                onChanged: (v) => setState(() => _district = v),
-                validator: required,
-              ),
-              const SizedBox(height: 16),
-              DropdownButtonFormField<String>(
-                key: const Key('trade'),
-                initialValue: _trade,
-                isExpanded: true,
-                decoration: InputDecoration(
-                  labelText: t.trade,
-                  border: const OutlineInputBorder(),
-                ),
-                items: [
-                  for (final d in c.trades)
-                    DropdownMenuItem(
-                      value: d.code,
-                      child: Text(d.nameFor(locale)),
-                    ),
-                ],
-                onChanged: (v) => setState(() => _trade = v),
-                validator: required,
-              ),
-              const SizedBox(height: 16),
-              TextFormField(
-                controller: _job,
-                maxLength: 80,
-                decoration: InputDecoration(
-                  labelText: t.targetJob,
-                  border: const OutlineInputBorder(),
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(t.level, style: Theme.of(context).textTheme.titleMedium),
-              RadioGroup<String>(
-                groupValue: _level,
-                onChanged: (v) => setState(() => _level = v!),
-                child: Column(
-                  children: [
-                    for (final e in levels.entries)
-                      RadioListTile<String>(
-                        key: Key('level-${e.key}'),
-                        value: e.key,
-                        title: Text(e.value),
-                      ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 16),
-              PrimaryButton(
-                label: t.save,
-                busy: c.busy,
-                onPressed: () {
-                  if (!_form.currentState!.validate()) return;
-                  c.saveProfile(
-                    ProfileInput(
-                      firstName: _first.text.trim(),
-                      lastName: _last.text.trim(),
-                      districtCode: _district!,
-                      tradeCode: _trade!,
-                      targetJob: _job.text.trim(),
-                      selfDeclaredLevel: _level,
-                    ),
-                  );
-                },
-              ),
-            ],
+    return Form(
+      key: _form,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          TextFormField(
+            key: const Key('firstName'),
+            controller: _first,
+            decoration: InputDecoration(
+              labelText: t.firstName,
+              border: const OutlineInputBorder(),
+            ),
+            validator: required,
           ),
-        ),
-      ],
+          const SizedBox(height: 16),
+          TextFormField(
+            key: const Key('lastName'),
+            controller: _last,
+            decoration: InputDecoration(
+              labelText: t.lastName,
+              border: const OutlineInputBorder(),
+            ),
+          ),
+          const SizedBox(height: 16),
+          DropdownButtonFormField<String>(
+            key: const Key('district'),
+            initialValue: _district,
+            isExpanded: true,
+            decoration: InputDecoration(
+              labelText: t.district,
+              border: const OutlineInputBorder(),
+            ),
+            items: [
+              for (final d in c.districts)
+                DropdownMenuItem(value: d.code, child: Text(d.nameFor(locale))),
+            ],
+            onChanged: (v) => setState(() => _district = v),
+            validator: required,
+          ),
+          const SizedBox(height: 16),
+          DropdownButtonFormField<String>(
+            key: const Key('trade'),
+            initialValue: _trade,
+            isExpanded: true,
+            decoration: InputDecoration(
+              labelText: t.trade,
+              border: const OutlineInputBorder(),
+            ),
+            items: [
+              for (final d in c.trades)
+                DropdownMenuItem(value: d.code, child: Text(d.nameFor(locale))),
+            ],
+            onChanged: (v) => setState(() => _trade = v),
+            validator: required,
+          ),
+          const SizedBox(height: 16),
+          TextFormField(
+            controller: _job,
+            maxLength: 80,
+            decoration: InputDecoration(
+              labelText: t.targetJob,
+              border: const OutlineInputBorder(),
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(t.level, style: Theme.of(context).textTheme.titleMedium),
+          RadioGroup<String>(
+            groupValue: _level,
+            onChanged: (v) => setState(() => _level = v!),
+            child: Column(
+              children: [
+                for (final e in levels.entries)
+                  RadioListTile<String>(
+                    key: Key('level-${e.key}'),
+                    value: e.key,
+                    title: Text(e.value),
+                  ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 16),
+          PrimaryButton(
+            label: t.save,
+            busy: c.busy,
+            onPressed: () {
+              if (!_form.currentState!.validate()) return;
+              widget.onSubmit(
+                ProfileInput(
+                  firstName: _first.text.trim(),
+                  lastName: _last.text.trim(),
+                  districtCode: _district!,
+                  tradeCode: _trade!,
+                  targetJob: _job.text.trim(),
+                  selfDeclaredLevel: _level,
+                ),
+              );
+            },
+          ),
+        ],
+      ),
     );
   }
 }
