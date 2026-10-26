@@ -209,16 +209,36 @@ LessonPack demoPack() => LessonPack.fromJson({
       2,
       'మిమ్మల్ని పరిచయం చేసుకోండి',
       'Introducing yourself',
-      'మీ పేరు, ఊరు చెప్పండి',
-      'Say your name and where you are from',
+      'మీ పేరు, ఊరు, పని చెప్పండి',
+      'Say your name, where you are from and your job',
     ),
-    lesson(3, 'సంఖ్యలు', 'Numbers', '1 నుండి 20 వరకు', 'From 1 to 20'),
+    lesson(
+      3,
+      'సంఖ్యలు 1 నుండి 10',
+      'Numbers 1 to 10',
+      'ఒకటి నుండి పది వరకు',
+      'From one to ten',
+    ),
     lesson(
       4,
-      'పనిప్రదేశంలో',
+      'రోజులు, సమయం',
+      'Days and time',
+      'వారం రోజులు, సమయం అడగడం',
+      'Days of the week and asking the time',
+    ),
+    lesson(
+      5,
+      'పని ప్రదేశంలో',
       'At the workplace',
-      'పనిముట్లు, సూచనలు',
-      'Tools and instructions',
+      'పనిముట్లు, der / die / das',
+      'Tools and der / die / das',
+    ),
+    lesson(
+      6,
+      'భద్రత, సూచనలు',
+      'Safety and instructions',
+      'హెచ్చరికలు, పని సూచనలు',
+      'Warnings and work instructions',
     ),
   ],
   'vocab': [
@@ -363,7 +383,9 @@ void main() {
     final pack = demoPack();
     final progress = ProgressController(dir: root)
       ..open('u1')
-      ..recordQuiz(pack, pack.lessons.first, 1.0, passMark: 0.8)
+      ..recordQuiz(pack, pack.lessons[0], 1.0, passMark: 0.8)
+      ..recordQuiz(pack, pack.lessons[1], 0.9, passMark: 0.8)
+      ..recordQuiz(pack, pack.lessons[2], 1.0, passMark: 0.8)
       ..addLearningTime(const Duration(minutes: 6));
     await pumpApp(tester, fake, progress, root, pack: pack);
     await shoot(tester, '05-home');
@@ -399,7 +421,9 @@ void main() {
     final pack = demoPack();
     final progress = ProgressController(dir: root)
       ..open('u1')
-      ..recordQuiz(pack, pack.lessons.first, 1.0, passMark: 0.8)
+      ..recordQuiz(pack, pack.lessons[0], 1.0, passMark: 0.8)
+      ..recordQuiz(pack, pack.lessons[1], 0.9, passMark: 0.8)
+      ..recordQuiz(pack, pack.lessons[2], 1.0, passMark: 0.8)
       ..addLearningTime(const Duration(minutes: 12))
       ..toggleWord('v1');
     await pumpApp(tester, fake, progress, root, pack: pack);
@@ -414,5 +438,55 @@ void main() {
     await tester.tap(find.byKey(const Key('my-profile')));
     await tester.pumpAndSettle();
     await shoot(tester, '13-profile');
+  });
+
+  testWidgets('tutor chat', (tester) async {
+    final root = Directory.systemTemp.createTempSync('poc-d-');
+    addTearDown(() => root.deleteSync(recursive: true));
+    final fake = FakeApi()
+      ..registered = true
+      ..profileDone = true
+      ..batch = 'Synthetic batch 1'
+      ..tutorRemaining = 27
+      ..tutorAnswer = 'అద్భుతం! "ధన్యవాదాలు" అంటే <de>Danke</de>. దానికి సమాధానం: <de>Bitte</de>.'
+      ..tutorHistory = [
+        {
+          'id': 'm1',
+          'role': 'user',
+          'content': 'ఎవరినైనా ఎలా పలకరించాలి?',
+          'germanPhrases': <String>[],
+          'flagged': false,
+          'createdAt': '2026-10-26T04:00:00Z',
+        },
+        {
+          'id': 'm2',
+          'role': 'assistant',
+          'content': 'బాగుంది! ముందుగా ఉదయం పలకరింపు నేర్చుకుందాం: <de>Guten Morgen!</de> అంటే "శుభోదయం". మీరూ చెప్పి చూడండి.',
+          'germanPhrases': ['Guten Morgen!'],
+          'flagged': false,
+          'createdAt': '2026-10-26T04:00:02Z',
+        },
+      ];
+    final pack = demoPack();
+    final progress = ProgressController(dir: root)
+      ..open('u1')
+      ..recordQuiz(pack, pack.lessons[0], 1.0, passMark: 0.8)
+      ..recordQuiz(pack, pack.lessons[1], 0.9, passMark: 0.8)
+      ..addLearningTime(const Duration(minutes: 8));
+    await pumpApp(tester, fake, progress, root, pack: pack);
+    await tester.scrollUntilVisible(
+      find.byKey(const Key('tutor')),
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.tap(find.byKey(const Key('tutor')));
+    await tester.pumpAndSettle();
+    await tester.enterText(
+      find.byKey(const Key('tutor-input')),
+      'ధన్యవాదాలు ఎలా చెప్పాలి?',
+    );
+    await tester.tap(find.byKey(const Key('tutor-send')));
+    await tester.pumpAndSettle();
+    await shoot(tester, '14-tutor');
   });
 }
