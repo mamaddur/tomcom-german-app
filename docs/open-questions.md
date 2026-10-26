@@ -113,3 +113,10 @@ Learner numbers, trades and districts · target exam (Goethe / telc / ÖSD) for 
 5. **Reviewers read learner messages.** The flag queue shows what the learner wrote and the reply, without name or phone, to judge a wrong answer. A reviewer can still recognise someone from what they wrote. **Needs:** DPO sign-off on this access (DPDP Act), and whether the `reviewer` role is the right one.
 6. **Retention purge runs inside the API (hourly, safe to repeat).** It moves to the worker process when BullMQ is added (architecture §2).
 
+## From step 7b (tutor chat in the app)
+
+1. **Tapped German in the tutor plays lesson recordings only.** The tutor has no speech of its own until a speech vendor is connected (text to speech, FR-602/603), so a phrase that is not in a downloaded lesson says "no recording yet". The recordings in the demo course are placeholder tones. **Needs:** the speech vendor decision (C2) and native-speaker recordings.
+2. **Telugu strings for the tutor are my drafts** (the `tutor*` keys in `apps/mobile/lib/l10n/app_te.arb`). **Needs:** the Telugu reviewer.
+3. **Starter questions and report reasons are fixed.** Three starter questions and three report reasons (German wrong, Telugu or English wrong, not appropriate). **Needs:** a decision on whether TOMCOM wants these editable in the portal.
+4. **The chat needs a connection.** There is no offline queue for tutor messages (NFR-05 applies to learning progress). **Needs:** a quick yes.
+

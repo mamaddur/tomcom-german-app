@@ -914,5 +914,90 @@
   "wordsButton": "Words",
   "@wordsButton": {
     "description": "Dashboard button to the words screen."
+  },
+  "tutorButton": "AI tutor",
+  "@tutorButton": {
+    "description": "Dashboard button to the AI tutor."
+  },
+  "tutorTitle": "AI tutor",
+  "@tutorTitle": {
+    "description": "Title of the AI tutor screen."
+  },
+  "tutorHint": "Ask about German",
+  "@tutorHint": {
+    "description": "Placeholder in the tutor message box."
+  },
+  "tutorSend": "Send",
+  "@tutorSend": {
+    "description": "Tooltip of the send button in the tutor chat."
+  },
+  "tutorEmpty": "Ask me anything about German. Tap a question to start.",
+  "@tutorEmpty": {
+    "description": "Shown before the first message of the tutor chat."
+  },
+  "tutorSuggestGreet": "How do I greet someone?",
+  "@tutorSuggestGreet": {
+    "description": "A tap-to-send starter question in the tutor chat."
+  },
+  "tutorSuggestThanks": "How do I say thank you?",
+  "@tutorSuggestThanks": {
+    "description": "A tap-to-send starter question in the tutor chat."
+  },
+  "tutorSuggestName": "How do I say my name?",
+  "@tutorSuggestName": {
+    "description": "A tap-to-send starter question in the tutor chat."
+  },
+  "tutorDemoBanner": "Demo answers: this is a sample, not a real AI yet.",
+  "@tutorDemoBanner": {
+    "description": "Banner shown while the server uses its built-in stand-in instead of a real language model."
+  },
+  "tutorLimitReached": "You have used all of today's messages. Come back tomorrow.",
+  "@tutorLimitReached": {
+    "description": "Shown when the daily tutor message limit is reached."
+  },
+  "tutorUnavailable": "The tutor is not available right now.",
+  "@tutorUnavailable": {
+    "description": "Shown when the tutor is switched off or no model is connected."
+  },
+  "tutorOffline": "No internet. The tutor needs a connection.",
+  "@tutorOffline": {
+    "description": "Shown when the tutor cannot be reached."
+  },
+  "tutorNoAudio": "No recording for this phrase yet.",
+  "@tutorNoAudio": {
+    "description": "Shown when a tapped German phrase has no lesson recording."
+  },
+  "tutorFlagTooltip": "Report this answer",
+  "@tutorFlagTooltip": {
+    "description": "Tooltip of the report button on a tutor answer."
+  },
+  "tutorFlagTitle": "What was wrong?",
+  "@tutorFlagTitle": {
+    "description": "Title of the report sheet for a tutor answer."
+  },
+  "tutorReasonGerman": "The German is wrong",
+  "@tutorReasonGerman": {
+    "description": "Report reason."
+  },
+  "tutorReasonMeaning": "The Telugu or English is wrong",
+  "@tutorReasonMeaning": {
+    "description": "Report reason."
+  },
+  "tutorReasonUnsafe": "It is not appropriate",
+  "@tutorReasonUnsafe": {
+    "description": "Report reason."
+  },
+  "tutorFlagThanks": "Thank you. A reviewer will look at it.",
+  "@tutorFlagThanks": {
+    "description": "Shown after a tutor answer was reported."
+  },
+  "tutorRemaining": "{count} messages left today",
+  "@tutorRemaining": {
+    "description": "Messages left today in the tutor chat.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   }
 }

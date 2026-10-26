@@ -11,6 +11,7 @@ import 'package:tomcom_german/src/onboarding/onboarding_controller.dart';
 import 'package:tomcom_german/src/progress/progress_controller.dart';
 import 'package:tomcom_german/src/quiz/quiz_screen.dart';
 import 'package:tomcom_german/src/session/session_store.dart';
+import 'package:tomcom_german/src/tutor/tutor_screen.dart';
 
 import 'fake_api.dart';
 import 'fake_audio.dart';
@@ -252,6 +253,43 @@ void main() {
     await tester.pumpAndSettle();
     expect(progress.pendingAttempts, isEmpty);
     expect(fake.syncedAttempts.single['id'], 'a1');
+  });
+
+  group('AI tutor button (FR-601, FR-1103)', () {
+    Future<void> scrollToTutor(WidgetTester tester) =>
+        tester.scrollUntilVisible(
+          find.byKey(const Key('tutor')),
+          200,
+          scrollable: find.byType(Scrollable).first,
+        );
+
+    testWidgets('opens the chat at the level and lesson the learner is on', (
+      tester,
+    ) async {
+      final pack = memoryPack();
+      content.installed['A1'] = pack;
+      progress
+        ..open('u1')
+        ..recordScreen(pack, pack.lessons.first, 0);
+      await pumpApp(tester);
+      await scrollToTutor(tester);
+      await tester.tap(find.byKey(const Key('tutor')));
+      await tester.pumpAndSettle();
+      final screen = tester.widget<TutorScreen>(find.byType(TutorScreen));
+      expect(screen.level, 'A1');
+      expect(screen.lessonId, pack.lessons.first.id);
+    });
+
+    testWidgets('is hidden when TOMCOM switches the tutor off', (tester) async {
+      fake.features = {'module.tutor': false};
+      await pumpApp(tester);
+      await tester.scrollUntilVisible(
+        find.byKey(const Key('words')),
+        200,
+        scrollable: find.byType(Scrollable).first,
+      );
+      expect(find.byKey(const Key('tutor')), findsNothing);
+    });
   });
 
   group('app versions and maintenance (FR-1102)', () {
