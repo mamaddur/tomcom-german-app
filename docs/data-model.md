@@ -74,6 +74,7 @@ Draft content is edited in place. **Publishing creates an immutable `pack_versio
 
 | Table | Key columns | Notes |
 |---|---|---|
+| `batch_invites` | id, batch_id, phone_enc, phone_hmac (unique per batch), created_by, created_at, expires_at (90 days) | FR-901. Uploaded numbers that haven't registered. Claimed and deleted at registration; nothing but the number is stored. |
 | `announcements` | id, title L10n, body L10n, batch_id (null = everyone), starts_at, ends_at, created_by. Push for FR-906 is added in step 9 | FR-205, FR-906 |
 | `notification_log` | id, user_id, kind, sent_at, status | FR-803 |
 | `settings` | key PK, value jsonb, updated_by | FR-1101 pass marks, AI limits, reminder schedule, monthly budget |

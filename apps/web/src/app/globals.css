@@ -216,3 +216,28 @@ label.file input {
 .badge-published {
   background: #d6e6fb;
 }
+
+/* Admin tables and notices */
+main:has(table.data) {
+  max-width: 72rem;
+}
+table.data {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+}
+table.data th,
+table.data td {
+  text-align: left;
+  padding: 0.4rem 0.6rem;
+  border-bottom: 1px solid #e6e1d4;
+}
+.ok {
+  background: #e8f5e9;
+  padding: 0.5rem 0.75rem;
+}
+label.check {
+  display: flex;
+  gap: 0.4rem;
+  align-items: center;
+}

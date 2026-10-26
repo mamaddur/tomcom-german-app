@@ -200,6 +200,7 @@ model Batch {
   trainers      BatchTrainer[]
   enrolments    Enrolment[]
   announcements Announcement[]
+  invites       BatchInvite[]
 
   @@map("batches")
 }
@@ -570,4 +571,23 @@ model DailyActivity {
 
   @@id([learnerId, date])
   @@map("daily_activity")
+}
+
+/// FR-901. A phone number an admin uploaded for a batch. Nothing else about the person is
+/// stored. When that number registers (with its own consent, FR-104), the learner joins the
+/// batch and the invite is deleted. Unclaimed invites expire.
+model BatchInvite {
+  id        String   @id @default(uuid(7)) @db.Uuid
+  batchId   String   @map("batch_id") @db.Uuid
+  phoneEnc  Bytes    @map("phone_enc")
+  phoneHmac String   @map("phone_hmac")
+  createdBy String   @map("created_by") @db.Uuid
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+  expiresAt DateTime @map("expires_at") @db.Timestamptz
+
+  batch Batch @relation(fields: [batchId], references: [id], onDelete: Cascade)
+
+  @@unique([phoneHmac, batchId])
+  @@index([phoneHmac])
+  @@map("batch_invites")
 }

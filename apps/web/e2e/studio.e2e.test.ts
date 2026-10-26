@@ -41,7 +41,7 @@ describe('content studio (FR-1001, FR-1003, FR-1004)', () => {
     async () => {
       const page = (author = await (await browser.newContext()).newPage());
       await signIn(page, AUTHOR);
-      await page.getByRole('link', { name: 'Content studio' }).click();
+      await page.getByRole('navigation').getByRole('link', { name: 'Content studio' }).click();
       await page.waitForURL(`${WEB}/en/studio`);
 
       const a1 = page.getByRole('region', { name: 'A1' });

@@ -109,6 +109,17 @@ export class AccountService {
             deviceId: device.id,
           },
         });
+        // FR-901: a number an admin uploaded joins its batch once it registers with consent.
+        const invite = await tx.batchInvite.findFirst({
+          where: { phoneHmac: pending.phoneHmac, expiresAt: { gt: new Date() } },
+          orderBy: { createdAt: 'desc' },
+        });
+        if (invite) {
+          await tx.enrolment.create({
+            data: { learnerId: user.id, batchId: invite.batchId, source: 'bulk' },
+          });
+        }
+        await tx.batchInvite.deleteMany({ where: { phoneHmac: pending.phoneHmac } });
         return { user, deviceId: device.id };
       });
       const tokens = await this.tokens.issue({ userId: user.id, role: user.role, deviceId });

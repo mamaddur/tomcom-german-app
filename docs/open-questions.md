@@ -46,6 +46,11 @@ Planning approved on 2026-10-25 with "do it on this local machine for now". Step
 4. **Quiz answers are taps, never typing** (NFR-18). "Fill the gap" offers choices, and "word order" uses word tiles. If TOMCOM wants typed answers for B1, they would be a new question type.
 5. **Multiple-choice options keep the author's order**, so options like "all of the above" stay last. Pairs and word tiles are shuffled.
 
+## New from step 9
+
+1. **Bulk upload doesn't create accounts.** Pack §2 requires consent before personal data is saved (story 1). So an uploaded number is kept only as an invite: just the encrypted number, for 90 days. When that person registers in the app with their own consent, they join the batch automatically. People who already use the app move into the batch at once. Names in the file are ignored. **Removing expired invites needs the scheduled-jobs worker (step 10)**; until then they are only ignored after 90 days. Please confirm this matches how TOMCOM recruits.
+2. **Staff see phone numbers masked** (`+91 •••••• 0101`) in the portal. Tell me if trainers need the full number to call learners.
+
 ## New from step 8
 
 1. **Erasure is immediate (FR-804)**, with a confirmation on the phone and no waiting period. The API erases the name, phone number, profile, devices and sessions. Consent records stay, marked withdrawn, as evidence. Quiz attempts, lesson results and learning time stay under the now anonymous id, for statistics. This is the `[A]` assumption in `data-model.md` and **needs TOMCOM's DPO**. If the DPO wants those deleted too, it's a one-line change. The access token of the erased session stays valid for up to 15 minutes, but the account behind it no longer holds personal data.
