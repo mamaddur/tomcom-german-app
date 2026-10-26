@@ -16,6 +16,7 @@
     "prisma:deploy": "prisma migrate deploy",
     "prisma:generate": "prisma generate",
     "seed:dev": "node --import @swc-node/register/esm-register scripts/seed-dev.ts",
+    "seed:demo": "node --import @swc-node/register/esm-register scripts/seed-demo.ts",
     "staff:create": "node --import @swc-node/register/esm-register scripts/create-staff.ts"
   },
   "dependencies": {
