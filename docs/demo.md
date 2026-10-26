@@ -11,6 +11,7 @@ The demo loads a six-lesson A1 course, the A1 checkpoint, 40 sample learners, ce
 | Admin portal | Trainer: the numbers `+915500000001` to `+915500000004` are the four trainers | same code and password |
 | Content studio | Author `+915599990003`, reviewer `+915599990004` | same code and password |
 | Phone app | Any new `+9155…` number | code `123456` |
+| Student web (same learners, in a browser) `http://localhost:3001/te/learn/login` | The sample learners below | code `123456`; it shows lessons, quiz and tutor, not the checkpoint, words or certificate |
 
 Sample learners you can sign in as on the phone (code `123456`; their progress comes from the server):
 
@@ -22,6 +23,8 @@ Sample learners you can sign in as on the phone (code `123456`; their progress c
 | `+915500000006` | Test-Padma Demo, welder, English | The app in English |
 
 ## Script
+
+No phone or simulator? Steps 3 and 4 also work in a browser: open `http://localhost:3001/te/learn/login` and sign in as the same learner. Tip: use a narrow window to look like a phone.
 
 1. **Admin portal, Dashboard.** Numbers for any batch, district, trade or date range. Point at "Stopped here" in the lesson table. Download the Excel.
 2. **Batches, Learners.** Trainers see only their own batches. Open one learner.
