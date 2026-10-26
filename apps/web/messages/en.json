@@ -46,7 +46,9 @@
       "studio": "Content studio",
       "batches": "Batches",
       "dashboard": "Dashboard",
-      "learners": "Learners"
+      "learners": "Learners",
+      "announcements": "Announcements",
+      "audit": "Audit log"
     },
     "forbidden": "You don't have access to this page.",
     "homeIntro": "Choose what to work on.",
@@ -120,7 +122,9 @@
       "file_too_large": "The file is too large (1 MB at most).",
       "too_many_rows": "The file has more than 2,000 rows. Split it into smaller files.",
       "learner_not_found": "This learner does not exist or is not in one of your batches.",
-      "range_too_long": "Choose a date range of one year or less."
+      "range_too_long": "Choose a date range of one year or less.",
+      "batch_not_allowed": "You can only send announcements to your own batches.",
+      "announcement_not_found": "This announcement does not exist or is not yours."
     },
     "filters": {
       "title": "Filters",
@@ -154,6 +158,40 @@
     "export": {
       "xlsx": "Download Excel",
       "pdf": "Download PDF"
+    },
+    "announcements": {
+      "title": "Announcements",
+      "intro": "Learners see these as a banner on their dashboard, in their language. Push messages follow once push notifications are connected.",
+      "new": "New announcement",
+      "to": "Send to",
+      "everyone": "Everyone",
+      "titleTe": "Title (Telugu)",
+      "titleEn": "Title (English)",
+      "bodyTe": "Message (Telugu)",
+      "bodyEn": "Message (English)",
+      "startsAt": "Show from (IST)",
+      "endsAt": "Show until (IST)",
+      "send": "Send",
+      "sent": "Announcement saved. Learners see it when they next open the app.",
+      "none": "No announcements yet.",
+      "message": "Message",
+      "showing": "Showing",
+      "notShowing": "Not showing",
+      "end": "Stop showing",
+      "actions": "Actions"
+    },
+    "audit": {
+      "title": "Audit log",
+      "intro": "Every admin action, newest first. Entries can't be changed or deleted.",
+      "when": "When",
+      "who": "Who",
+      "action": "Action",
+      "entity": "Item",
+      "outcome": "Outcome",
+      "details": "Details",
+      "older": "Older entries",
+      "filteredBy": "Showing actions by {id}",
+      "clear": "Show all"
     }
   },
   "studio": {

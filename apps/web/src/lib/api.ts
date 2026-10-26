@@ -274,3 +274,25 @@ export interface LearnerDetail extends LearnerRow {
   pronunciation: unknown[];
   tutorUsage: unknown[];
 }
+
+export interface AdminAnnouncement {
+  id: string;
+  title: L10n;
+  body: L10n;
+  batchCode: string | null;
+  startsAt: string;
+  endsAt: string | null;
+  active: boolean;
+}
+
+export interface AuditEntry {
+  id: string;
+  at: string;
+  actorId: string | null;
+  actorRole: string | null;
+  action: string;
+  entityType: string | null;
+  entityId: string | null;
+  outcome: string;
+  details: unknown;
+}
