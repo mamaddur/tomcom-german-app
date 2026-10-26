@@ -10,6 +10,7 @@ import 'package:tomcom_german/src/onboarding/onboarding_controller.dart';
 import 'package:tomcom_german/src/session/session_store.dart';
 
 import 'fake_api.dart';
+import 'fake_audio.dart';
 
 /// Story 1 (pack §2.3): a new learner signs up in Telugu without help.
 void main() {
@@ -26,6 +27,7 @@ void main() {
       api: api,
       store: PackStore(() async => Directory.systemTemp),
       tempDir: () async => Directory.systemTemp,
+      audio: FakeAudio(),
     );
     await tester.pumpWidget(
       TomcomApp(

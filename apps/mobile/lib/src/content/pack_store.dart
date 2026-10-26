@@ -26,11 +26,18 @@ class PackStore {
   Future<Directory> _levelDir(String level) async =>
       Directory('${(await _root()).path}/packs/$level');
 
+  /// Installed version per level, remembered after the first read or an install, so each
+  /// audio tap does not touch the disk.
+  final _versions = <String, int?>{};
+
   /// The installed version of a level, or null.
   Future<int?> installedVersion(String level) async {
+    if (_versions.containsKey(level)) return _versions[level];
     final f = File('${(await _levelDir(level)).path}/current');
-    if (!await f.exists()) return null;
-    return int.tryParse((await f.readAsString()).trim());
+    final version = await f.exists()
+        ? int.tryParse((await f.readAsString()).trim())
+        : null;
+    return _versions[level] = version;
   }
 
   Future<LessonPack?> load(String level) async {
@@ -118,6 +125,8 @@ class PackStore {
       }
     }
     _cache.removeWhere((k, _) => k.startsWith('$level/'));
+    _cache['$level/$version'] = pack;
+    _versions[level] = version;
     return pack;
   }
 

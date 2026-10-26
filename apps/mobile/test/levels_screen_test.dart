@@ -11,6 +11,7 @@ import 'package:tomcom_german/src/content/pack_store.dart';
 import 'package:tomcom_german/src/session/session_store.dart';
 
 import 'fake_api.dart';
+import 'fake_audio.dart';
 import 'pack_fixtures.dart';
 
 void main() {
@@ -37,6 +38,7 @@ void main() {
       api: api,
       store: PackStore(() async => root),
       tempDir: () async => root,
+      audio: FakeAudio(),
     );
   });
   tearDown(() => root.deleteSync(recursive: true));

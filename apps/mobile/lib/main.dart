@@ -7,6 +7,7 @@ import 'src/config.dart';
 import 'src/content/content_controller.dart';
 import 'src/content/pack_store.dart';
 import 'src/onboarding/onboarding_controller.dart';
+import 'src/player/audio_service.dart';
 import 'src/session/session_store.dart';
 
 void main() {
@@ -18,6 +19,7 @@ void main() {
     api: api,
     store: PackStore(getApplicationSupportDirectory),
     tempDir: getTemporaryDirectory,
+    audio: JustAudioService(),
   );
   runApp(
     TomcomApp(
