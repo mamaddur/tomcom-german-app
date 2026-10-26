@@ -628,5 +628,183 @@
   "dataExportFailed": "Could not download your data. Check your connection and try again.",
   "@dataExportFailed": {
     "description": "Export error."
+  },
+  "checkpointTitle": "{level} checkpoint",
+  "@checkpointTitle": {
+    "description": "Checkpoint screen title (FR-404).",
+    "placeholders": {
+      "level": {
+        "type": "String"
+      }
+    }
+  },
+  "checkpointTake": "Take the {level} checkpoint",
+  "@checkpointTake": {
+    "description": "Button on the level card.",
+    "placeholders": {
+      "level": {
+        "type": "String"
+      }
+    }
+  },
+  "checkpointNeedsInternet": "Needs an internet connection. About {minutes} minutes.",
+  "@checkpointNeedsInternet": {
+    "description": "Shown under the checkpoint button.",
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "checkpointLocked": "Pass all lessons to open the checkpoint ({passed} of {total} passed).",
+  "@checkpointLocked": {
+    "description": "Checkpoint not yet open.",
+    "placeholders": {
+      "passed": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "checkpointPassedBadge": "Checkpoint passed · {percent}%",
+  "@checkpointPassedBadge": {
+    "description": "Level card after passing.",
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "checkpointAwaiting": "Your trainer will mark your writing soon.",
+  "@checkpointAwaiting": {
+    "description": "Waiting for trainer marking."
+  },
+  "sectionReading": "Reading",
+  "@sectionReading": {
+    "description": "Checkpoint section."
+  },
+  "sectionListening": "Listening",
+  "@sectionListening": {
+    "description": "Checkpoint section."
+  },
+  "sectionWriting": "Writing",
+  "@sectionWriting": {
+    "description": "Checkpoint section."
+  },
+  "sectionItem": "{section} · {n} of {total}",
+  "@sectionItem": {
+    "description": "Position in the checkpoint.",
+    "placeholders": {
+      "section": {
+        "type": "String"
+      },
+      "n": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "writeInGerman": "Write in German ({min}–{max} words).",
+  "@writeInGerman": {
+    "description": "Writing task instructions.",
+    "placeholders": {
+      "min": {
+        "type": "int"
+      },
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "wordCount": "{count} words",
+  "@wordCount": {
+    "description": "Live word count.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "reviewAndSubmit": "Review and submit",
+  "@reviewAndSubmit": {
+    "description": "Last page of the checkpoint."
+  },
+  "unansweredCount": "{count, plural, =0{Every question is answered.} =1{1 question is not answered yet.} other{{count} questions are not answered yet.}}",
+  "@unansweredCount": {
+    "description": "Shown before submitting.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "submit": "Submit",
+  "@submit": {
+    "description": "Submit the checkpoint."
+  },
+  "submitConfirm": "Submit your answers? You cannot change them afterwards.",
+  "@submitConfirm": {
+    "description": "Confirmation before submitting."
+  },
+  "checkpointPassed": "You passed the {level} checkpoint!",
+  "@checkpointPassed": {
+    "description": "Result.",
+    "placeholders": {
+      "level": {
+        "type": "String"
+      }
+    }
+  },
+  "checkpointFailed": "Not passed this time. You need {percent}%. You can try again: the questions change.",
+  "@checkpointFailed": {
+    "description": "Result.",
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "checkpointExpired": "Time ran out for this attempt. Start a new one when you are ready.",
+  "@checkpointExpired": {
+    "description": "Result."
+  },
+  "sectionScore": "{section}: {percent}%",
+  "@sectionScore": {
+    "description": "Score per section.",
+    "placeholders": {
+      "section": {
+        "type": "String"
+      },
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "writingTooShortOrLong": "Your writing needs {min}–{max} words (now {count}).",
+  "@writingTooShortOrLong": {
+    "description": "Writing length error.",
+    "placeholders": {
+      "min": {
+        "type": "int"
+      },
+      "max": {
+        "type": "int"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "checkpointOffline": "The checkpoint needs internet. Connect and try again.",
+  "@checkpointOffline": {
+    "description": "Network error."
+  },
+  "tooManyAttempts": "You have used today's attempts. Try again tomorrow.",
+  "@tooManyAttempts": {
+    "description": "Rate limit."
   }
 }
