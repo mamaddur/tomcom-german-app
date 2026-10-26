@@ -150,6 +150,10 @@
       "passed": "Passed",
       "averageBest": "Average best score",
       "dropOff": "Stopped here"
+    },
+    "export": {
+      "xlsx": "Download Excel",
+      "pdf": "Download PDF"
     }
   },
   "studio": {

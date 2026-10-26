@@ -58,7 +58,15 @@ export default async function AdminHome({
         <>
           <p>
             {t('dashboard.range', { from: o.from, to: o.to })} ·{' '}
-            <Link href={`/${locale}/admin/learners?${query}`}>{t('dashboard.seeLearners')}</Link>
+            <Link href={`/${locale}/admin/learners?${query}`}>{t('dashboard.seeLearners')}</Link> ·{' '}
+            {/* Plain links: these are file downloads, not pages. */}
+            <a href={`/api/reports/xlsx?${query}&locale=${locale}`} download>
+              {t('export.xlsx')}
+            </a>{' '}
+            ·{' '}
+            <a href={`/api/reports/pdf?${query}&locale=${locale}`} download>
+              {t('export.pdf')}
+            </a>
           </p>
           <dl className="tiles">
             <div>

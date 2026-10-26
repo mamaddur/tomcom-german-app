@@ -30,6 +30,19 @@ describe('dashboard and learners (FR-902, FR-903)', () => {
       await page.waitForURL(/batchId=.*level=A1/);
       expect(await page.getByLabel('Level').inputValue()).toBe('A1');
 
+      // FR-905: both downloads arrive as files with the filters applied.
+      for (const [name, ext] of [
+        ['Download Excel', 'xlsx'],
+        ['Download PDF', 'pdf'],
+      ] as const) {
+        const [download] = await Promise.all([
+          page.waitForEvent('download'),
+          page.getByRole('link', { name }).click(),
+        ]);
+        expect(download.suggestedFilename()).toMatch(new RegExp(`^tomcom-report-.*\\.${ext}$`));
+        expect(download.url()).toContain('level=A1');
+      }
+
       await page.getByRole('link', { name: 'See these learners' }).click();
       await page.waitForURL(/\/en\/admin\/learners\?.*batchId=/);
       expect(await page.getByRole('heading', { level: 1 }).textContent()).toBe('Learners');
