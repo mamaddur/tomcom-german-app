@@ -447,5 +447,128 @@
     "notFound": "No certificate has this ID. Check the code on the certificate.",
     "tooMany": "Too many checks from this network. Try again in an hour.",
     "error": "The check is not available right now. Try again later."
+  },
+  "landing": {
+    "title": "German for work",
+    "subtitle": "A free TOMCOM course, A1 to B1",
+    "student": "Student sign-in",
+    "staff": "Staff sign-in"
+  },
+  "learn": {
+    "login": {
+      "title": "Student sign-in",
+      "intro": "Enter your mobile number. We send you a 6-digit code.",
+      "phone": "Mobile number",
+      "sendCode": "Send code",
+      "code": "6-digit code",
+      "codeSent": "We sent a 6-digit code to {phone}.",
+      "verify": "Sign in",
+      "otherNumber": "Use another number",
+      "staffLink": "Staff? Sign in here",
+      "errors": {
+        "otp_invalid": "That code is wrong. Try again.",
+        "otp_attempts_exceeded": "Too many tries. Ask for a new code.",
+        "otp_expired": "That code has expired. Ask for a new code.",
+        "rate_limited": "Too many requests. Try again in {seconds} seconds.",
+        "otp_resend_too_soon": "Please wait {seconds} seconds before asking for another code.",
+        "invalid_phone": "Enter a valid mobile number.",
+        "validation_failed": "Enter a valid mobile number.",
+        "not_registered": "This number is not registered yet. Please sign up in the phone app first.",
+        "network_error": "No connection. Please try again.",
+        "generic": "Something went wrong. Please try again."
+      }
+    },
+    "nav": {
+      "label": "Student menu",
+      "home": "Home",
+      "tutor": "AI tutor",
+      "signOut": "Sign out",
+      "otherLanguage": "తెలుగు"
+    },
+    "setup": {
+      "title": "Finish signing up in the phone app",
+      "text": "Choose your language, accept the consent and fill in your details in the phone app. Then come back here."
+    },
+    "home": {
+      "welcome": "Welcome, {name}!",
+      "batch": "Batch: {name}",
+      "closeNotice": "Close",
+      "continue": "Continue",
+      "continueWith": "Continue with {title}",
+      "allDone": "You have passed every lesson of this level. Well done!",
+      "goal": "Today: {minutes} of {goal} minutes",
+      "streak": "{days} days in a row",
+      "noStreak": "No streak yet",
+      "levels": "Your levels",
+      "levelName": {
+        "A1": "A1 – Beginner",
+        "A2": "A2 – Elementary",
+        "B1": "B1 – Intermediate"
+      },
+      "levelProgress": "{passed} of {total} lessons passed",
+      "notAvailable": "Not available yet",
+      "lessons": "Lessons",
+      "passed": "Passed · best score {score}%",
+      "open": "Ready to start",
+      "locked": "Locked",
+      "minutes": "{count} min"
+    },
+    "lesson": {
+      "back": "Back to lessons",
+      "listen": "Listen",
+      "noAudio": "The recording could not be played.",
+      "words": "Words",
+      "dialogue": "Dialogue",
+      "practice": "Practice: say it out loud",
+      "takeQuiz": "Take the quiz",
+      "passMarkInfo": "Score {mark}% or more to open the next lesson.",
+      "locked": "Pass the earlier lessons first.",
+      "unavailable": "This lesson is not available."
+    },
+    "quiz": {
+      "title": "Quiz: {lesson}",
+      "questionOf": "Question {n} of {total}",
+      "check": "Check",
+      "next": "Next",
+      "seeResult": "See result",
+      "correct": "Correct!",
+      "wrong": "Not quite. The answer is:",
+      "listenAndChoose": "Listen and choose",
+      "matchHint": "Tap a German word, then its meaning.",
+      "orderHint": "Tap the words in the right order.",
+      "undo": "Undo",
+      "yourScore": "Your score: {score}%",
+      "passed": "You passed! The next lesson is open.",
+      "failed": "Not yet. You need {mark}%. Read the lesson again and try once more.",
+      "retake": "Try again",
+      "review": "Questions to review",
+      "saving": "Saving your result…",
+      "saveError": "Your result could not be saved. Check your connection and press Try again.",
+      "saveRetry": "Save again"
+    },
+    "tutor": {
+      "title": "AI tutor",
+      "hint": "Ask about German",
+      "send": "Send",
+      "empty": "Ask me anything about German. Tap a question to start.",
+      "suggestGreet": "How do I greet someone?",
+      "suggestThanks": "How do I say thank you?",
+      "suggestName": "How do I say my name?",
+      "demoBanner": "Demo answers: this is a sample, not a real AI yet.",
+      "remaining": "{count} messages left today",
+      "limitReached": "You have used all of today's messages. Come back tomorrow.",
+      "unavailable": "The tutor is not available right now.",
+      "offline": "No connection. The tutor needs the internet.",
+      "tooMany": "Too many messages. Wait a moment.",
+      "generic": "Something went wrong. Please try again.",
+      "noAudio": "No recording for this phrase yet.",
+      "flag": "Report this answer",
+      "flagTitle": "What was wrong?",
+      "reasonGerman": "The German is wrong",
+      "reasonMeaning": "The Telugu or English is wrong",
+      "reasonUnsafe": "It is not appropriate",
+      "flagThanks": "Thank you. A reviewer will look at it.",
+      "flagged": "Reported"
+    }
   }
 }
