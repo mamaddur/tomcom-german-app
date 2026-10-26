@@ -12,6 +12,8 @@ case "${1:-up}" in
           apps/api/.env.example > apps/api/.env.local
       echo "Created apps/api/.env.local with random dev keys"
     fi
+    # Config files made before the tutor existed lack this line; `dev` is the demo tutor stand-in.
+    grep -q '^LLM_PROVIDER=' apps/api/.env.local || echo 'LLM_PROVIDER=dev' >> apps/api/.env.local
     # The template ships an empty DEV_STAFF_PASSWORD= line, so test for a non-empty value.
     if ! grep -qE '^DEV_STAFF_PASSWORD=.+' apps/api/.env.local; then
       sed -i.bak '/^DEV_STAFF_PASSWORD=/d' apps/api/.env.local && rm -f apps/api/.env.local.bak
