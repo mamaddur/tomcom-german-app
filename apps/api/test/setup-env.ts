@@ -11,3 +11,4 @@ process.env.S3_ENDPOINT ??= 'http://localhost:9000';
 process.env.S3_BUCKET ??= 'tomcom-test';
 process.env.S3_ACCESS_KEY ??= 'tomcom-dev';
 process.env.S3_SECRET_KEY ??= 'tomcom-dev-secret';
+process.env.LLM_PROVIDER ??= 'dev';

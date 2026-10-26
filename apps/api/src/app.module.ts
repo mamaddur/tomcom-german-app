@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { LlmModule } from './adapters/llm/llm.module.js';
 import { SmsModule } from './adapters/sms/sms.module.js';
 import { AdminModule } from './admin/admin.module.js';
 import { AssessmentModule } from './assessment/assessment.module.js';
@@ -18,6 +19,7 @@ import { NotificationsModule } from './notifications/notifications.module.js';
 import { PrivacyModule } from './privacy/privacy.module.js';
 import { ReferenceModule } from './reference/reference.module.js';
 import { SettingsModule } from './settings/settings.module.js';
+import { TutorModule } from './tutor/tutor.module.js';
 
 @Module({
   imports: [
@@ -25,6 +27,7 @@ import { SettingsModule } from './settings/settings.module.js';
     InfraModule,
     CommonModule,
     SmsModule,
+    LlmModule,
     StorageModule,
     AuditModule,
     SettingsModule,
@@ -40,6 +43,7 @@ import { SettingsModule } from './settings/settings.module.js';
     AdminModule,
     AssessmentModule,
     CertificatesModule,
+    TutorModule,
   ],
 })
 export class AppModule {}

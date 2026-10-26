@@ -35,6 +35,7 @@ export class PrivacyService {
         quizAttempts: { orderBy: { finishedAt: 'asc' } },
         dailyActivity: { orderBy: { date: 'asc' } },
         certificates: { include: { level: { select: { code: true } } } },
+        tutorMessages: { orderBy: { createdAt: 'asc' } },
         checkpointAttempts: {
           orderBy: { startedAt: 'asc' },
           include: { level: { select: { code: true } } },
@@ -115,6 +116,12 @@ export class PrivacyService {
         startedAt: a.startedAt,
         submittedAt: a.submittedAt,
       })),
+      tutorConversations: user.tutorMessages.map((m) => ({
+        role: m.role,
+        text: m.content,
+        level: m.level,
+        sentAt: m.createdAt,
+      })),
       learningTime: user.dailyActivity.map((d) => ({
         date: d.date.toISOString().slice(0, 10),
         seconds: d.seconds,
@@ -137,6 +144,8 @@ export class PrivacyService {
         },
       });
       await tx.learnerProfile.deleteMany({ where: { userId } });
+      // What the learner wrote to the tutor, and the replies, go with them (flags cascade).
+      await tx.tutorMessage.deleteMany({ where: { learnerId: userId } });
       // Devices go, and with them every refresh token: all sessions end.
       await tx.device.deleteMany({ where: { userId } });
       await tx.refreshToken.deleteMany({ where: { userId } });

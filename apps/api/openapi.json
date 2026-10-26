@@ -3157,6 +3157,183 @@
           "admin"
         ]
       }
+    },
+    "/v1/tutor/messages": {
+      "post": {
+        "operationId": "TutorController_send",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TutorSendDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TutorReplyDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "tutor"
+        ]
+      },
+      "get": {
+        "operationId": "TutorController_history",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TutorHistoryItemDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "tutor"
+        ]
+      }
+    },
+    "/v1/tutor/messages/{id}/flag": {
+      "post": {
+        "operationId": "TutorController_flag",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TutorFlagRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "tutor"
+        ]
+      }
+    },
+    "/v1/admin/tutor/flags": {
+      "get": {
+        "operationId": "AdminTutorController_list",
+        "parameters": [
+          {
+            "name": "status",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TutorFlagQueueItemDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "admin"
+        ]
+      }
+    },
+    "/v1/admin/tutor/flags/{id}/resolve": {
+      "post": {
+        "operationId": "AdminTutorController_resolve",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TutorFlagResolveDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "admin"
+        ]
+      }
     }
   },
   "info": {
@@ -6032,6 +6209,184 @@
         "required": [
           "reason"
         ]
+      },
+      "TutorSendDto": {
+        "type": "object",
+        "properties": {
+          "text": {
+            "type": "string",
+            "description": "What the learner wrote, up to 500 characters"
+          },
+          "level": {
+            "type": "string",
+            "enum": [
+              "A1",
+              "A2",
+              "B1"
+            ],
+            "description": "The level the learner is studying"
+          },
+          "lessonId": {
+            "type": "string",
+            "description": "The lesson the learner has open, if any"
+          }
+        },
+        "required": [
+          "text",
+          "level"
+        ]
+      },
+      "TutorReplyDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "reply": {
+            "type": "string",
+            "description": "The reply; German phrases are wrapped in <de>…</de> (FR-603)"
+          },
+          "germanPhrases": {
+            "description": "The marked German phrases, in order",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "remainingToday": {
+            "type": "number",
+            "description": "Messages left today (FR-607)"
+          },
+          "demo": {
+            "type": "boolean",
+            "description": "True when the reply came from the built-in demo stand-in"
+          },
+          "filtered": {
+            "type": "boolean",
+            "description": "True when the safety filter replaced the reply (FR-606)"
+          }
+        },
+        "required": [
+          "id",
+          "reply",
+          "germanPhrases",
+          "remainingToday",
+          "demo",
+          "filtered"
+        ]
+      },
+      "TutorHistoryItemDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "user",
+              "assistant"
+            ]
+          },
+          "content": {
+            "type": "string"
+          },
+          "germanPhrases": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "flagged": {
+            "type": "boolean",
+            "description": "The learner already flagged this reply (FR-608)"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "role",
+          "content",
+          "germanPhrases",
+          "flagged",
+          "createdAt"
+        ]
+      },
+      "TutorFlagRequestDto": {
+        "type": "object",
+        "properties": {
+          "reason": {
+            "type": "string",
+            "description": "What was wrong with the answer"
+          }
+        },
+        "required": [
+          "reason"
+        ]
+      },
+      "TutorFlagQueueItemDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "open",
+              "resolved"
+            ]
+          },
+          "reason": {
+            "type": "string"
+          },
+          "level": {
+            "type": "string",
+            "enum": [
+              "A1",
+              "A2",
+              "B1",
+              "none"
+            ]
+          },
+          "question": {
+            "type": "string",
+            "nullable": true,
+            "description": "What the learner asked"
+          },
+          "answer": {
+            "type": "string",
+            "description": "The tutor reply that was flagged"
+          },
+          "note": {
+            "type": "string",
+            "nullable": true
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "status",
+          "reason",
+          "level",
+          "answer",
+          "createdAt"
+        ]
+      },
+      "TutorFlagResolveDto": {
+        "type": "object",
+        "properties": {
+          "note": {
+            "type": "string",
+            "description": "What was decided, for the record"
+          }
+        }
       }
     }
   }

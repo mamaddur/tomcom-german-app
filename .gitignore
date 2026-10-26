@@ -23,3 +23,4 @@ packages/api-client-ts/src/schema.d.ts
 tools/.venv/
 apps/api/src/generated/
 apps/web/next-env.d.ts
+dump.rdb

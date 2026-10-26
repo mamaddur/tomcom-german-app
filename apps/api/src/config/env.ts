@@ -33,6 +33,11 @@ const envSchema = z
       .default('123456'),
     /** SMS gateway for real numbers. `none` rejects real numbers (dev without a key). */
     SMS_PROVIDER: z.enum(['none']).default('none'),
+    /**
+     * Language model for the AI tutor. `none` switches the tutor off; `dev` is a built-in stand-in
+     * for local demos (not a language model). A real vendor joins this list once chosen.
+     */
+    LLM_PROVIDER: z.enum(['none', 'dev']).default('none'),
     /** S3-compatible object storage (media, lesson packs). Endpoint only for non-AWS stores. */
     S3_ENDPOINT: z.string().url().optional(),
     S3_REGION: z.string().default('ap-south-1'),
@@ -46,6 +51,10 @@ const envSchema = z
   .refine((e) => e.APP_ENV !== 'prod' || e.SMS_PROVIDER !== 'none', {
     message: 'production needs an SMS provider',
     path: ['SMS_PROVIDER'],
+  })
+  .refine((e) => e.APP_ENV !== 'prod' || e.LLM_PROVIDER !== 'dev', {
+    message: 'the demo tutor stand-in must not run in production',
+    path: ['LLM_PROVIDER'],
   })
   .refine((e) => e.APP_ENV !== 'prod' || e.VERIFY_BASE_URL.startsWith('https://'), {
     message: 'certificate QR codes must point to an https page in production',

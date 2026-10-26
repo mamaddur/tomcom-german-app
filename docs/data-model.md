@@ -60,7 +60,7 @@ Draft content is edited in place. **Publishing creates an immutable `pack_versio
 | Table | Key columns | Notes |
 |---|---|---|
 | `tutor_conversations` | id, learner_id, mode (`free`/`roleplay`), scenario nullable, reply_locale, created_at | FR-601, FR-605 |
-| `tutor_messages` | id, conversation_id, role, text, input_mode (`text`/`voice`), tokens_in, tokens_out, filter_flags[], model, created_at | **Deleted after 90 days** (NFR-15). |
+| `tutor_messages` | id, learner_id, role (user/assistant), content, level, lesson_id?, input_tokens, output_tokens, filtered, created_at | FR-601, NFR-15. **Deleted after 90 days** (hourly purge), with the account on erasure, and included in the data export. Built in step 7a as one running conversation per learner. Conversation scenarios (FR-605), voice input (FR-602) and the model name join in later steps. |
 | `tutor_flags` | id, message_id, learner_id, reason, status (`open`/`valid`/`invalid`), reviewer_id, reviewed_at | FR-608. Kept beyond 90 days as a redacted copy. |
 | `usage_counters` | learner_id, date, kind (`tutor_msg`/`stt_sec`/`tts_char`/`pron_attempt`), count | NFR-22. Hot counters live in Redis and are flushed nightly. |
 | `tts_cache` | hash PK, voice, text, asset_key | §4.3 step 6 |
@@ -94,3 +94,4 @@ Tutor messages: 90 days. Pronunciation audio: deleted right after scoring. Erasu
 
 | `certificates` | id, code (unique, public), learner_id, level_id, attempt_id, holder_name (copied at issue; erased with the account), score, issued_at, revoked_at, revoked_by, revoke_reason | FR-701–705 |
 | `word_list` | learner_id, vocab_id (PK pair), box (0–5), due (IST date), removed, updated_at (phone time, capped at server time + 1 day) | FR-308. Newest change wins. |
+| `tutor_flags` | id, message_id, learner_id, reason, status (open/resolved), resolved_by?, resolved_at?, note?, created_at; unique (message_id, learner_id) | FR-608. The reviewers' queue shows the exchange and the level, never the learner. |
