@@ -74,7 +74,7 @@ Draft content is edited in place. **Publishing creates an immutable `pack_versio
 
 | Table | Key columns | Notes |
 |---|---|---|
-| `announcements` | id, title L10n, body L10n, audience (`all`/batch_ids[]), starts_at, ends_at, push bool | FR-205, FR-906 |
+| `announcements` | id, title L10n, body L10n, batch_id (null = everyone), starts_at, ends_at, created_by. Push for FR-906 is added in step 9 | FR-205, FR-906 |
 | `notification_log` | id, user_id, kind, sent_at, status | FR-803 |
 | `settings` | key PK, value jsonb, updated_by | FR-1101 pass marks, AI limits, reminder schedule, monthly budget |
 | `feature_flags` | key PK, enabled, rollout jsonb | FR-1103 |

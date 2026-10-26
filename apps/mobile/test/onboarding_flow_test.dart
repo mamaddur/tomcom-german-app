@@ -7,6 +7,7 @@ import 'package:tomcom_german/src/app.dart';
 import 'package:tomcom_german/src/content/content_controller.dart';
 import 'package:tomcom_german/src/content/pack_store.dart';
 import 'package:tomcom_german/src/onboarding/onboarding_controller.dart';
+import 'package:tomcom_german/src/progress/progress_controller.dart';
 import 'package:tomcom_german/src/session/session_store.dart';
 
 import 'fake_api.dart';
@@ -16,6 +17,7 @@ import 'fake_audio.dart';
 void main() {
   late FakeApi fake;
   late MemorySessionStore store;
+  late Directory progressDir;
 
   Future<void> pumpApp(WidgetTester tester) async {
     final api = ApiClient(
@@ -33,6 +35,7 @@ void main() {
       TomcomApp(
         controller: OnboardingController(api: api, store: store),
         content: content,
+        progress: ProgressController(dir: progressDir),
       ),
     );
     await tester.pumpAndSettle();
@@ -48,7 +51,9 @@ void main() {
   setUp(() {
     fake = FakeApi();
     store = MemorySessionStore();
+    progressDir = Directory.systemTemp.createTempSync('progress-');
   });
+  tearDown(() => progressDir.deleteSync(recursive: true));
 
   testWidgets(
     'new learner: phone → OTP → language → consent → profile → batch → home, in Telugu',
@@ -176,8 +181,19 @@ void main() {
         'refresh-token-1-xxxxxxxxxxxx',
       );
       await pumpApp(tester);
+      // The dashboard list builds lazily; scroll down to the language switch.
+      await tester.scrollUntilVisible(
+        find.text('English'),
+        200,
+        scrollable: find.byType(Scrollable).first,
+      );
       await tester.tap(find.text('English'));
       await tester.pumpAndSettle();
+      await tester.scrollUntilVisible(
+        find.text('Welcome, రవి!'),
+        -200,
+        scrollable: find.byType(Scrollable).first,
+      );
       expect(find.text('Welcome, రవి!'), findsOneWidget);
       expect(fake.bodyOf('PUT /v1/me/locale'), {'locale': 'en'});
     },

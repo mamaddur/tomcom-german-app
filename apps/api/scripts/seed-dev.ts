@@ -107,6 +107,21 @@ async function run(): Promise<void> {
       });
     }
   }
+  // One synthetic announcement for everyone, so the app's banner shows in dev (FR-205).
+  const welcome = '00000000-0000-7000-8000-000000000205';
+  await prisma.db.announcement.upsert({
+    where: { id: welcome },
+    create: {
+      id: welcome,
+      title: { te: 'స్వాగతం!', en: 'Welcome!' },
+      body: {
+        te: 'ప్రతిరోజూ 10 నిమిషాలు నేర్చుకోండి. (పరీక్ష ప్రకటన)',
+        en: 'Learn for 10 minutes every day. (Test announcement)',
+      },
+      createdBy: trainerIds.get('super-admin')!,
+    },
+    update: {},
+  });
   await prisma.onModuleDestroy();
   console.log(
     `Seeded ${data.trainers.length} trainers, admins (super +915599990001, TOMCOM +915599990002), ` +

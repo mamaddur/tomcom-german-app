@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:archive/archive.dart';
 import 'package:crypto/crypto.dart';
+import 'package:tomcom_german/src/content/pack_models.dart';
 
 /// Builds a pack zip like the API's pack builder does. Synthetic content.
 ({List<int> zip, String sha256}) buildPackZip({
@@ -128,3 +129,33 @@ import 'package:crypto/crypto.dart';
   final zip = ZipEncoder().encodeBytes(archive);
   return (zip: zip, sha256: sha256.convert(zip).toString());
 }
+
+/// An in-memory pack with [lessons] one-screen lessons, for progress tests (no zip, no files).
+LessonPack memoryPack({String level = 'A1', int lessons = 3}) =>
+    LessonPack.fromJson({
+      'level': level,
+      'version': 1,
+      'settings': {'passMark': 0.8, 'questionsPerQuiz': 10},
+      'lessons': [
+        for (var i = 1; i <= lessons; i++)
+          {
+            'id': '$level-lesson-$i',
+            'order': i,
+            'title': {'te': 'పాఠం $i', 'en': 'Lesson $i'},
+            'description': {'te': '', 'en': ''},
+            'estMinutes': 10,
+            'screens': [
+              {
+                'id': '$level-screen-$i',
+                'order': 1,
+                'type': 'explain',
+                'body': {'te': 'వివరణ $i', 'en': 'Explanation $i'},
+                'examples': <Object>[],
+              },
+            ],
+            'questions': <Object>[],
+          },
+      ],
+      'vocab': <Object>[],
+      'media': <Object>[],
+    });

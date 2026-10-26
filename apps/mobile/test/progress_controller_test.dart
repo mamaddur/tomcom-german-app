@@ -1,0 +1,148 @@
+import 'dart:io';
+
+import 'package:flutter_test/flutter_test.dart';
+import 'package:tomcom_german/src/progress/progress_controller.dart';
+
+import 'pack_fixtures.dart';
+
+void main() {
+  late Directory dir;
+  late DateTime now;
+  ProgressController make() =>
+      ProgressController(dir: dir, clock: () => now)..open('learner-1');
+
+  setUp(() {
+    dir = Directory.systemTemp.createTempSync('progress-');
+    // 10:00 IST on 25 Oct 2026.
+    now = DateTime.utc(2026, 10, 25, 4, 30);
+  });
+  tearDown(() => dir.deleteSync(recursive: true));
+
+  group('lesson states (FR-203) and level progress (FR-201)', () {
+    test('only the first lesson is open; passing its quiz opens the next', () {
+      final p = make();
+      final pack = memoryPack();
+      final [l1, l2, l3] = pack.lessons;
+      expect(p.statusOf(pack, l1), LessonStatus.available);
+      expect(p.statusOf(pack, l2), LessonStatus.locked);
+
+      p.recordScreen(pack, l1, 0);
+      expect(p.statusOf(pack, l1), LessonStatus.inProgress);
+      // Seeing every screen is not passing: the quiz decides (FR-402).
+      p.recordScreen(pack, l1, 1);
+      expect(p.statusOf(pack, l2), LessonStatus.locked);
+
+      p.recordQuiz(pack, l1, 0.7, passMark: 0.8);
+      expect(p.statusOf(pack, l1), LessonStatus.inProgress);
+      p.recordQuiz(pack, l1, 0.9, passMark: 0.8);
+      expect(p.statusOf(pack, l1), LessonStatus.passed);
+      expect(p.statusOf(pack, l2), LessonStatus.available);
+      expect(p.statusOf(pack, l3), LessonStatus.locked);
+      expect(p.levelProgress(pack), closeTo(1 / 3, 0.001));
+    });
+
+    test('best score wins and a pass is never lost by a worse retake', () {
+      final p = make();
+      final pack = memoryPack();
+      final l1 = pack.lessons.first;
+      p.recordQuiz(pack, l1, 0.9, passMark: 0.8);
+      p.recordQuiz(pack, l1, 0.5, passMark: 0.8);
+      expect(p.recordOf(l1.id)!.bestScore, 0.9);
+      expect(p.statusOf(pack, l1), LessonStatus.passed);
+    });
+
+    test('with sequential unlocking off, every lesson is open', () {
+      final p = make()..setRules(const LearningRules(sequentialUnlock: false));
+      final pack = memoryPack();
+      expect(
+        pack.lessons.map((l) => p.statusOf(pack, l)),
+        everyElement(LessonStatus.available),
+      );
+    });
+
+    test('progress survives a restart and stays separate per learner', () {
+      final pack = memoryPack();
+      make().recordQuiz(pack, pack.lessons.first, 1, passMark: 0.8);
+      expect(make().levelProgress(pack), closeTo(1 / 3, 0.001));
+      final other = ProgressController(dir: dir, clock: () => now)
+        ..open('learner-2');
+      expect(other.levelProgress(pack), 0);
+    });
+
+    test('a damaged progress file starts fresh instead of crashing', () {
+      File('${dir.path}/progress-learner-1.json').writeAsStringSync('{oops');
+      expect(make().levelProgress(memoryPack()), 0);
+    });
+  });
+
+  group('continue card (FR-202)', () {
+    test('resumes the most recent unfinished lesson at its screen', () {
+      final p = make();
+      final a1 = memoryPack();
+      final a2 = memoryPack(level: 'A2');
+      p.recordScreen(a1, a1.lessons.first, 0);
+      now = now.add(const Duration(minutes: 5));
+      p.recordScreen(a2, a2.lessons.first, 1);
+      final target = p.continueTarget([a1, a2])!;
+      expect(target.lesson.id, 'A2-lesson-1');
+      // Every screen seen: start again from the top for the quiz.
+      expect(target.screen, 0);
+    });
+
+    test('otherwise opens the first open lesson; null when all are passed', () {
+      final p = make();
+      final pack = memoryPack(lessons: 1);
+      expect(p.continueTarget([pack])!.lesson.id, 'A1-lesson-1');
+      p.recordQuiz(pack, pack.lessons.first, 1, passMark: 0.8);
+      expect(p.continueTarget([pack]), isNull);
+      expect(p.continueTarget(const []), isNull);
+    });
+  });
+
+  group('daily goal and streak (FR-204)', () {
+    test('counts minutes per IST day against the goal', () {
+      final p = make();
+      p.addLearningTime(const Duration(minutes: 4));
+      expect(p.todayMinutes, 4);
+      expect(p.goalMetToday, isFalse);
+      p.addLearningTime(const Duration(minutes: 6));
+      expect(p.goalMetToday, isTrue);
+      expect(p.streak, 1);
+    });
+
+    test('the day changes at midnight IST, not UTC', () {
+      final p = make();
+      now = DateTime.utc(2026, 10, 25, 18, 20); // 23:50 IST on the 25th
+      p.addLearningTime(const Duration(minutes: 10));
+      now = DateTime.utc(2026, 10, 25, 18, 40); // 00:10 IST on the 26th
+      expect(p.todayMinutes, 0);
+      expect(p.streak, 1, reason: 'yesterday counts until today ends');
+    });
+
+    test('a streak counts consecutive days and breaks after a missed day', () {
+      final p = make();
+      for (final day in [20, 22, 23, 24]) {
+        now = DateTime.utc(2026, 10, day, 6);
+        p.addLearningTime(const Duration(minutes: 12));
+      }
+      now = DateTime.utc(2026, 10, 25, 6);
+      expect(p.streak, 3);
+      p.addLearningTime(const Duration(minutes: 10));
+      expect(p.streak, 4);
+      now = DateTime.utc(2026, 10, 27, 6);
+      expect(p.streak, 0);
+    });
+
+    test('one sitting counts at most an hour', () {
+      final p = make();
+      p.addLearningTime(const Duration(hours: 5));
+      expect(p.todayMinutes, 60);
+    });
+
+    test('the goal follows the server setting', () {
+      final p = make()..setRules(const LearningRules(dailyGoalMinutes: 20));
+      p.addLearningTime(const Duration(minutes: 15));
+      expect(p.goalMetToday, isFalse);
+    });
+  });
+}

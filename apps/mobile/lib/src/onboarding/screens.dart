@@ -5,8 +5,6 @@ import 'package:flutter/services.dart';
 
 import '../../l10n/app_localizations.dart';
 import '../api/models.dart';
-import '../content/content_controller.dart';
-import '../content/levels_screen.dart';
 import '../ui/widgets.dart';
 import 'onboarding_controller.dart';
 
@@ -467,63 +465,6 @@ class _BatchScreenState extends State<BatchScreen> {
           child: Text(t.later),
         ),
       ],
-    );
-  }
-}
-
-class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key, required this.c, required this.content});
-  final OnboardingController c;
-  final ContentController content;
-
-  @override
-  Widget build(BuildContext context) {
-    final t = AppLocalizations.of(context);
-    final me = c.me;
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(t.appTitle),
-        actions: [
-          IconButton(
-            tooltip: t.signOut,
-            icon: const Icon(Icons.logout),
-            onPressed: c.signOut,
-          ),
-        ],
-      ),
-      body: ListView(
-        padding: const EdgeInsets.all(24),
-        children: [
-          Text(
-            t.homeWelcome(me?.firstName ?? ''),
-            style: Theme.of(context).textTheme.headlineSmall,
-          ),
-          if (me?.batchName != null) ...[
-            const SizedBox(height: 8),
-            Text(t.homeBatch(me!.batchName!)),
-          ],
-          const SizedBox(height: 24),
-          PrimaryButton(
-            label: t.lessons,
-            onPressed: () => Navigator.of(context).push(
-              MaterialPageRoute<void>(
-                builder: (_) => LevelsScreen(content: content),
-              ),
-            ),
-          ),
-          const SizedBox(height: 32),
-          Text(t.languageLabel, style: Theme.of(context).textTheme.titleMedium),
-          const SizedBox(height: 8),
-          SegmentedButton<String>(
-            segments: [
-              ButtonSegment(value: 'te', label: Text(t.languageTelugu)),
-              ButtonSegment(value: 'en', label: Text(t.languageEnglish)),
-            ],
-            selected: {c.locale.languageCode},
-            onSelectionChanged: (s) => c.chooseLanguage(s.first),
-          ),
-        ],
-      ),
     );
   }
 }

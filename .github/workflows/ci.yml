@@ -63,6 +63,8 @@ jobs:
         with: { node-version-file: .nvmrc, cache: pnpm }
       - run: pnpm install --frozen-lockfile
       - name: ffmpeg (media conversion)
+        # The Ubuntu mirror sometimes hangs; fail fast so the job can be re-run.
+        timeout-minutes: 10
         run: sudo apt-get update -q && sudo apt-get install -y -q --no-install-recommends ffmpeg
       - run: pnpm --filter @tomcom/api prisma:deploy
       - run: pnpm --filter @tomcom/api test:int
@@ -101,6 +103,8 @@ jobs:
               apps/api/.env.example > apps/api/.env.local
       - run: pnpm --filter @tomcom/api prisma:deploy
       - name: ffmpeg (media conversion)
+        # The Ubuntu mirror sometimes hangs; fail fast so the job can be re-run.
+        timeout-minutes: 10
         run: sudo apt-get update -q && sudo apt-get install -y -q --no-install-recommends ffmpeg
       - run: pnpm --filter @tomcom/web exec playwright install --with-deps chromium
       - run: scripts/e2e-web.sh

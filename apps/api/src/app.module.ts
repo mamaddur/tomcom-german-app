@@ -10,6 +10,7 @@ import { InfraModule } from './infra/infra.module.js';
 import { LearnersModule } from './learners/learners.module.js';
 import { createLoggerModule } from './logging/logger.module.js';
 import { MediaModule } from './media/media.module.js';
+import { NotificationsModule } from './notifications/notifications.module.js';
 import { ReferenceModule } from './reference/reference.module.js';
 import { SettingsModule } from './settings/settings.module.js';
 
@@ -28,6 +29,7 @@ import { SettingsModule } from './settings/settings.module.js';
     LearnersModule,
     ContentModule,
     MediaModule,
+    NotificationsModule,
   ],
 })
 export class AppModule {}

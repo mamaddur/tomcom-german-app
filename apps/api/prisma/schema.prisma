@@ -53,6 +53,7 @@ model User {
   enrolments    Enrolment[]
   trainerOf     BatchTrainer[]
   credential    StaffCredential?
+  announcements Announcement[]   @relation("AnnouncementCreator")
 
   @@map("users")
 }
@@ -191,10 +192,11 @@ model Batch {
   createdAt    DateTime    @default(now()) @map("created_at") @db.Timestamptz
   updatedAt    DateTime    @updatedAt @map("updated_at") @db.Timestamptz
 
-  district   District?      @relation(fields: [districtCode], references: [code])
-  trade      Trade?         @relation(fields: [tradeCode], references: [code])
-  trainers   BatchTrainer[]
-  enrolments Enrolment[]
+  district      District?      @relation(fields: [districtCode], references: [code])
+  trade         Trade?         @relation(fields: [tradeCode], references: [code])
+  trainers      BatchTrainer[]
+  enrolments    Enrolment[]
+  announcements Announcement[]
 
   @@map("batches")
 }
@@ -488,4 +490,25 @@ model FeatureFlag {
   updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz
 
   @@map("feature_flags")
+}
+
+/// FR-205. A TOMCOM message shown as a banner in the learner app, to everyone or to one batch.
+/// Admins create them in the portal (FR-906, step 9).
+model Announcement {
+  id        String    @id @default(uuid(7)) @db.Uuid
+  /// Locale-keyed text, e.g. { "te": "...", "en": "..." } (ADR-007).
+  title     Json
+  body      Json
+  /// Null means every learner.
+  batchId   String?   @map("batch_id") @db.Uuid
+  startsAt  DateTime  @default(now()) @map("starts_at") @db.Timestamptz
+  endsAt    DateTime? @map("ends_at") @db.Timestamptz
+  createdBy String    @map("created_by") @db.Uuid
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz
+
+  batch   Batch? @relation(fields: [batchId], references: [id], onDelete: Cascade)
+  creator User   @relation("AnnouncementCreator", fields: [createdBy], references: [id])
+
+  @@index([startsAt])
+  @@map("announcements")
 }

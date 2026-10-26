@@ -29,6 +29,13 @@ export class SetFlagDto {
   @ApiProperty() @IsBoolean() enabled!: boolean;
 }
 
+/** Rules the app applies offline: unlocking (FR-402) and the daily goal (FR-204). */
+export class LearningRulesDto {
+  @ApiProperty({ example: 0.8 }) passMark!: number;
+  @ApiProperty({ example: true }) sequentialUnlock!: boolean;
+  @ApiProperty({ example: 10 }) dailyGoalMinutes!: number;
+}
+
 export class AppConfigDto {
   @ApiProperty({
     example: { 'module.tutor': true },
@@ -37,6 +44,8 @@ export class AppConfigDto {
   features!: Record<string, boolean>;
   @ApiProperty({ example: { 'tutor.dailyMessageLimit': 30 } })
   limits!: Record<string, number>;
+  @ApiProperty({ type: LearningRulesDto })
+  learning!: LearningRulesDto;
 }
 
 /** FR-1101, FR-1103. Super admins change settings and flags; TOMCOM admins can read them. */
@@ -97,6 +106,11 @@ export class SettingsController {
         'pronunciation.dailyAttemptLimit': await this.settings.get(
           'pronunciation.dailyAttemptLimit',
         ),
+      },
+      learning: {
+        passMark: await this.settings.get('quiz.passMark'),
+        sequentialUnlock: await this.settings.get('unlock.sequential'),
+        dailyGoalMinutes: await this.settings.get('goal.dailyMinutes'),
       },
     };
   }

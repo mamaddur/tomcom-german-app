@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -17,6 +18,9 @@ class LessonPlayerScreen extends StatefulWidget {
     required this.lesson,
     required this.mediaFile,
     required this.audio,
+    this.initialScreen = 0,
+    this.onScreen,
+    this.onTime,
     this.onFinished,
   });
 
@@ -25,16 +29,27 @@ class LessonPlayerScreen extends StatefulWidget {
   final Future<File?> Function(String mediaId) mediaFile;
   final AudioService audio;
 
-  /// Called when the learner reaches the end of the lesson (progress, step 4c).
+  /// Screen to resume at (FR-202).
+  final int initialScreen;
+
+  /// Called with each screen index reached; the "finished" page is `lesson.screens.length`.
+  final ValueChanged<int>? onScreen;
+
+  /// Time spent in the lesson while the app was in the foreground (FR-204 daily goal).
+  final ValueChanged<Duration>? onTime;
+
+  /// Called when the learner reaches the end of the lesson.
   final VoidCallback? onFinished;
 
   @override
   State<LessonPlayerScreen> createState() => _LessonPlayerScreenState();
 }
 
-class _LessonPlayerScreenState extends State<LessonPlayerScreen> {
-  final _pages = PageController();
-  int _index = 0;
+class _LessonPlayerScreenState extends State<LessonPlayerScreen>
+    with WidgetsBindingObserver {
+  late final PageController _pages;
+  late int _index;
+  final _watch = Stopwatch();
   bool _slow = false;
   bool _showOther = false;
   String? _audioError;
@@ -42,7 +57,35 @@ class _LessonPlayerScreenState extends State<LessonPlayerScreen> {
   int get _total => widget.lesson.screens.length + 1; // + the "finished" page
 
   @override
+  void initState() {
+    super.initState();
+    _index = widget.initialScreen.clamp(0, _total - 1);
+    _pages = PageController(initialPage: _index);
+    WidgetsBinding.instance.addObserver(this);
+    _watch.start();
+    // After the first frame: listeners may rebuild other screens.
+    WidgetsBinding.instance.addPostFrameCallback(
+      (_) => widget.onScreen?.call(_index),
+    );
+  }
+
+  // Only foreground time counts towards the daily goal.
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _watch.start();
+    } else {
+      _watch.stop();
+    }
+  }
+
+  @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    _watch.stop();
+    final spent = _watch.elapsed;
+    // The tree is locked during dispose; report once it is done.
+    scheduleMicrotask(() => widget.onTime?.call(spent));
     _pages.dispose();
     widget.audio.stop();
     super.dispose();
@@ -132,6 +175,7 @@ class _LessonPlayerScreenState extends State<LessonPlayerScreen> {
               controller: _pages,
               onPageChanged: (i) {
                 setState(() => _index = i);
+                widget.onScreen?.call(i);
                 if (i == _total - 1) widget.onFinished?.call();
               },
               children: [
