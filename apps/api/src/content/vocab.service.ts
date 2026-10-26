@@ -26,8 +26,17 @@ export class VocabService {
     return toDto(row);
   }
 
+  /** FR-306: trade tags are trade codes, so the app can match them to the learner's trade. */
+  private async assertTrades(tags: string[]) {
+    const unique = [...new Set(tags)];
+    if (unique.length === 0) return;
+    const found = await this.prisma.db.trade.count({ where: { code: { in: unique } } });
+    if (found !== unique.length) throw new ApiError(400, 'unknown_trade', { tradeTags: unique });
+  }
+
   async create(dto: VocabInputDto, auth: AccessClaims): Promise<VocabDto> {
     if (!isL10n(dto.meaning)) throw new ApiError(400, 'invalid_l10n', { fields: ['meaning'] });
+    await this.assertTrades(dto.tradeTags);
     return toDto(
       await this.prisma.db.vocabItem.create({
         data: { ...fields(dto), createdBy: auth.userId, updatedBy: auth.userId },
@@ -37,6 +46,7 @@ export class VocabService {
 
   async update(id: string, dto: VocabInputDto, auth: AccessClaims): Promise<VocabDto> {
     if (!isL10n(dto.meaning)) throw new ApiError(400, 'invalid_l10n', { fields: ['meaning'] });
+    await this.assertTrades(dto.tradeTags);
     await this.get(id);
     return toDto(
       await this.prisma.db.vocabItem.update({
@@ -54,7 +64,7 @@ const fields = (dto: VocabInputDto) => ({
   plural: dto.plural ?? null,
   meaning: dto.meaning,
   imageId: dto.imageId ?? null,
-  tradeTags: dto.tradeTags,
+  tradeTags: [...new Set(dto.tradeTags)],
 });
 
 function toDto(v: VocabItem): VocabDto {

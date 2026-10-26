@@ -59,6 +59,7 @@ model User {
   dailyActivity      DailyActivity[]     @relation("DailyActivity")
   checkpointAttempts CheckpointAttempt[] @relation("CheckpointAttempts")
   certificates       Certificate[]       @relation("Certificates")
+  wordList           WordListEntry[]     @relation("WordList")
 
   @@map("users")
 }
@@ -386,18 +387,19 @@ model Question {
 
 /// FR-302, FR-306. Reused across lessons; goes live when a level is next published.
 model VocabItem {
-  id        String   @id @default(uuid(7)) @db.Uuid
+  id        String          @id @default(uuid(7)) @db.Uuid
   german    String
-  audioId   String?  @map("audio_id") @db.Uuid
+  audioId   String?         @map("audio_id") @db.Uuid
   article   String?
   plural    String?
   meaning   Json
-  imageId   String?  @map("image_id") @db.Uuid
-  tradeTags String[] @map("trade_tags")
-  createdBy String   @map("created_by") @db.Uuid
-  updatedBy String   @map("updated_by") @db.Uuid
-  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz
+  imageId   String?         @map("image_id") @db.Uuid
+  tradeTags String[]        @map("trade_tags")
+  createdBy String          @map("created_by") @db.Uuid
+  updatedBy String          @map("updated_by") @db.Uuid
+  createdAt DateTime        @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt DateTime        @updatedAt @map("updated_at") @db.Timestamptz
+  wordList  WordListEntry[]
 
   @@index([german])
   @@map("vocab_items")
@@ -677,4 +679,22 @@ model Certificate {
 
   @@unique([learnerId, levelId])
   @@map("certificates")
+}
+
+/// FR-308. A word the learner bookmarked, with its spaced-repetition box and next review day.
+/// Synced from the app; the newest change (by the phone's `updatedAt`) wins. Removing keeps a
+/// tombstone so other phones remove it too.
+model WordListEntry {
+  learnerId String   @map("learner_id") @db.Uuid
+  vocabId   String   @map("vocab_id") @db.Uuid
+  box       Int
+  due       DateTime @db.Date
+  removed   Boolean  @default(false)
+  updatedAt DateTime @map("updated_at") @db.Timestamptz
+
+  learner User      @relation("WordList", fields: [learnerId], references: [id], onDelete: Cascade)
+  vocab   VocabItem @relation(fields: [vocabId], references: [id], onDelete: Cascade)
+
+  @@id([learnerId, vocabId])
+  @@map("word_list")
 }

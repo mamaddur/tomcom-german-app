@@ -212,4 +212,70 @@ void main() {
       },
     );
   });
+
+  group('word list with spaced repetition (FR-308)', () {
+    test('save, review up the boxes, a miss goes back to tomorrow, remove', () {
+      final p = make(); // 25 Oct, 10:00 IST
+      p.toggleWord('w1');
+      expect(p.isSaved('w1'), isTrue);
+      expect(p.dueWords, ['w1'], reason: 'new words are due at once');
+
+      p.reviewWord('w1', knew: true); // box 1 → in 2 days
+      expect(p.dueWords, isEmpty);
+      now = DateTime.utc(2026, 10, 27, 4, 30);
+      expect(p.dueWords, ['w1']);
+      p.reviewWord('w1', knew: true); // box 2 → in 4 days
+      now = DateTime.utc(2026, 10, 30, 4, 30);
+      expect(p.dueWords, isEmpty);
+      now = DateTime.utc(2026, 10, 31, 4, 30);
+      p.reviewWord('w1', knew: false); // back to box 0, tomorrow
+      expect(p.dueWords, isEmpty);
+      now = DateTime.utc(2026, 11, 1, 4, 30);
+      expect(p.dueWords, ['w1']);
+
+      p.toggleWord('w1');
+      expect(p.isSaved('w1'), isFalse);
+      expect(p.savedWords, isEmpty);
+      // The removal is kept so other phones remove it too.
+      expect(p.wordsForSync().single, containsPair('removed', true));
+    });
+
+    test('survives a restart, and the newest change from the server wins', () {
+      final p = make();
+      p.toggleWord('w1');
+      expect(make().isSaved('w1'), isTrue);
+      p.applySync({
+        'stored': <Object>[],
+        'lessons': <Object>[],
+        'activity': <Object>[],
+        'words': [
+          // Older than the phone's change: ignored.
+          {
+            'vocabId': 'w1',
+            'box': 4,
+            'due': '2026-12-01',
+            'removed': true,
+            'updatedAt': '2026-10-24T00:00:00Z',
+          },
+          // Saved on another phone.
+          {
+            'vocabId': 'w2',
+            'box': 1,
+            'due': '2026-10-25',
+            'removed': false,
+            'updatedAt': '2026-10-25T00:00:00Z',
+          },
+        ],
+      });
+      expect(p.isSaved('w1'), isTrue);
+      expect(p.savedWords, containsAll(['w1', 'w2']));
+    });
+
+    test('modules are on until the server turns them off (FR-1103)', () {
+      final p = make();
+      expect(p.feature('module.bookmarks'), isTrue);
+      p.setFeatures({'module.bookmarks': false});
+      expect(make().feature('module.bookmarks'), isFalse);
+    });
+  });
 }

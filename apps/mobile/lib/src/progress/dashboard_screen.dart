@@ -7,6 +7,7 @@ import '../content/levels_screen.dart';
 import '../onboarding/onboarding_controller.dart';
 import '../ui/widgets.dart';
 import '../profile/profile_screen.dart';
+import '../words/words_screen.dart';
 import 'dashboard_controller.dart';
 import 'open_lesson.dart';
 import 'progress_controller.dart';
@@ -153,6 +154,26 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               const SizedBox(height: 16),
               PrimaryButton(label: t.lessons, onPressed: _openLevels),
+              if (widget.progress.feature('module.tradePacks') ||
+                  widget.progress.feature('module.bookmarks')) ...[
+                const SizedBox(height: 12),
+                OutlinedButton.icon(
+                  key: const Key('words'),
+                  icon: const Icon(Icons.translate),
+                  label: Text(t.wordsButton),
+                  onPressed: () => Navigator.of(context)
+                      .push(
+                        MaterialPageRoute<void>(
+                          builder: (_) => WordsScreen(
+                            content: widget.content,
+                            progress: widget.progress,
+                            tradeCode: c.me?.profile?.tradeCode,
+                          ),
+                        ),
+                      )
+                      .then((_) => dashboard.syncProgress()),
+                ),
+              ],
               const SizedBox(height: 32),
               Text(
                 t.languageLabel,

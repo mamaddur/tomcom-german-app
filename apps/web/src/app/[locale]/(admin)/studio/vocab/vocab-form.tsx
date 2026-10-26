@@ -2,9 +2,10 @@
 
 import { useTranslations } from 'next-intl';
 import { useState, useTransition } from 'react';
+import type { ReferenceItem } from '@/lib/api';
 import { createVocab, uploadMedia } from '../actions';
 
-export function VocabForm() {
+export function VocabForm({ trades, locale }: { trades: ReferenceItem[]; locale: string }) {
   const t = useTranslations('studio');
   const [pending, start] = useTransition();
   const [audioId, setAudioId] = useState('');
@@ -23,6 +24,7 @@ export function VocabForm() {
             plural: String(f.get('plural') || '') || undefined,
             meaning: { te: String(f.get('te')), en: String(f.get('en')) },
             audioId: audioId || undefined,
+            tradeTags: f.getAll('trade').map(String),
           });
           if (r.ok) {
             form.reset();
@@ -53,6 +55,14 @@ export function VocabForm() {
       <input id="v-te" name="te" lang="te" required />
       <label htmlFor="v-en">{t('editor.meaningEn')}</label>
       <input id="v-en" name="en" required />
+      <fieldset>
+        <legend>{t('vocab.trades')}</legend>
+        {trades.map((tr) => (
+          <label key={tr.code} className="check">
+            <input type="checkbox" name="trade" value={tr.code} /> {tr.name[locale] ?? tr.name.en}
+          </label>
+        ))}
+      </fieldset>
       <label htmlFor="v-audio">{t('editor.upload')}</label>
       <input
         id="v-audio"

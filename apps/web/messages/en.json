@@ -372,7 +372,10 @@
       "article": "Article",
       "plural": "Plural",
       "none": "No words found.",
-      "id": "ID"
+      "id": "ID",
+      "trades": "Trades this word is useful for",
+      "noTrades": "No trade",
+      "saveTrades": "Save trades"
     },
     "errors": {
       "revision_conflict": "Someone saved this lesson after you opened it. Reload the page to see their changes.",
@@ -396,7 +399,8 @@
       "validation_failed": "Please check the fields.",
       "session_expired": "Your session ended. Please sign in again.",
       "generic": "Something went wrong. Please try again.",
-      "checkpoint_incomplete": "This checkpoint is not complete yet."
+      "checkpoint_incomplete": "This checkpoint is not complete yet.",
+      "unknown_trade": "That trade does not exist."
     },
     "checkpoints": {
       "title": "Checkpoint tests",

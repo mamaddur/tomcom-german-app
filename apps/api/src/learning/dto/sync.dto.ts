@@ -1,4 +1,4 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import {
   ArrayMaxSize,
@@ -8,6 +8,7 @@ import {
   IsDefined,
   IsInt,
   IsNumber,
+  IsOptional,
   IsString,
   IsUUID,
   Matches,
@@ -52,6 +53,17 @@ export class ActivityDto {
   @ApiProperty({ maximum: 86_400 }) @IsInt() @Min(0) @Max(86_400) seconds!: number;
 }
 
+/** FR-308: one word-list entry as the phone last saw it. */
+export class WordDto {
+  @ApiProperty() @IsUUID() vocabId!: string;
+  @ApiProperty({ minimum: 0, maximum: 5 }) @IsInt() @Min(0) @Max(5) box!: number;
+  @ApiProperty({ example: '2026-10-27', description: 'Next review day (IST)' })
+  @Matches(/^\d{4}-\d{2}-\d{2}$/)
+  due!: string;
+  @ApiProperty() @IsBoolean() removed!: boolean;
+  @ApiProperty() @IsDateString() updatedAt!: string;
+}
+
 export class SyncRequestDto {
   @ApiProperty({ type: [AttemptDto], maxItems: 100 })
   @IsArray()
@@ -66,6 +78,14 @@ export class SyncRequestDto {
   @ValidateNested({ each: true })
   @Type(() => ActivityDto)
   activity!: ActivityDto[];
+
+  @ApiPropertyOptional({ type: [WordDto], maxItems: 500 })
+  @IsOptional()
+  @IsArray()
+  @ArrayMaxSize(500)
+  @ValidateNested({ each: true })
+  @Type(() => WordDto)
+  words?: WordDto[];
 }
 
 export class LessonResultDto {
@@ -84,4 +104,6 @@ export class SyncResponseDto {
   lessons!: LessonResultDto[];
   @ApiProperty({ type: [ActivityDto], description: 'Learning time for the last 60 days' })
   activity!: ActivityDto[];
+  @ApiProperty({ type: [WordDto], description: 'The whole word list, including removals' })
+  words!: WordDto[];
 }
