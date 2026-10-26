@@ -75,6 +75,8 @@ export interface Me {
   uiLocale: string;
   firstName: string | null;
   lastName: string | null;
+  batch?: { name: string } | null;
+  onboarding?: { profileComplete: boolean; batchJoined: boolean };
 }
 
 export type L10n = Record<string, string>;

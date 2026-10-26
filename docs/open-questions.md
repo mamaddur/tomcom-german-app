@@ -120,3 +120,14 @@ Learner numbers, trades and districts · target exam (Goethe / telc / ÖSD) for 
 3. **Starter questions and report reasons are fixed.** Three starter questions and three report reasons (German wrong, Telugu or English wrong, not appropriate). **Needs:** a decision on whether TOMCOM wants these editable in the portal.
 4. **The chat needs a connection.** There is no offline queue for tutor messages (NFR-05 applies to learning progress). **Needs:** a quick yes.
 
+## From step 11 (student web)
+
+The owner asked for the student experience to work in a browser too, so the demo can be shown without a phone. It is outside the original FR list (the learner app is a phone app, BR-02/NFR-01), so it is recorded here rather than assumed.
+
+1. **Scope.** Sign-in (phone and code), home with progress, lessons with audio, lesson quiz, and tutor chat, under `/{te,en}/learn`. Only learning is covered; there is no checkpoint, word list or certificate page. **Needs:** whether TOMCOM wants this kept after the demo or removed before go-live.
+2. **Registration is not on the web.** A number that is not registered is told to sign up in the phone app (consent-first registration stays in one place). **Needs:** a quick yes.
+3. **Online only.** The browser reads packs and saves quiz results through the API; there is no offline mode (NFR-05 applies to the phone app).
+4. **Telugu strings are my drafts** (the `landing` and `learn` groups in `apps/web/messages/te.json`). **Needs:** the Telugu reviewer.
+5. **Audio is Ogg Opus.** Some Safari versions cannot play it; the page shows "no recording" instead. **Needs:** whether to also publish an AAC copy.
+6. **Flagged tutor answers have no web page yet.** Reviewers still have only the API. Offered, not built.
+
