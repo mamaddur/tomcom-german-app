@@ -103,3 +103,13 @@ Learner numbers, trades and districts · target exam (Goethe / telc / ÖSD) for 
 
 - **Store ID.** The Android `applicationId` is `in.gov.telangana.tomcom.tomcom_german` (iOS: `in.gov.telangana.tomcom.tomcomGerman`), a placeholder chosen at scaffold time. It cannot change after the first Play Store / App Store upload. Who owns the store accounts (TOMCOM or a Telangana government account), and which ID should they use?
 - **Release signing.** Release APKs are signed with the debug key so CI can build them. The upload key must be created by the store-account owner and kept in the vault; Claude Code must not create or hold it.
+
+## From step 7a (AI tutor API)
+
+1. **No LLM vendor yet, so the tutor runs on a stand-in.** `LLM_PROVIDER=dev` answers a few greetings and otherwise suggests a first phrase. It is not a language model, the app labels its answers as a demo (`demo: true`), and the API refuses to start in production with it. **Needs:** the vendor decision (C2). Adding a vendor is one class in `src/adapters/llm/` plus the key; nothing else changes.
+2. **First version differs from the architecture sketch (`docs/architecture.md` §3.2).** One running conversation per learner (no conversation object), plain JSON replies instead of an SSE stream, and the remaining count comes back with each reply instead of a separate usage endpoint. Scenarios (FR-605), voice (FR-602) and streaming follow with the vendor. **Needs:** a quick yes that this order is fine.
+3. **Safety filter is a baseline.** A short list of unsafe topics in English and German, a 500-character limit, and a system prompt that limits topics. It has no Telugu word list and no topic classifier. **Needs:** the DPO/child-safety view on what must be blocked, and the vendor's own moderation once chosen (FR-606).
+4. **The refusal text in Telugu is my draft.** It is in `apps/api/src/tutor/tutor-guard.ts`. **Needs:** the Telugu reviewer.
+5. **Reviewers read learner messages.** The flag queue shows what the learner wrote and the reply, without name or phone, to judge a wrong answer. A reviewer can still recognise someone from what they wrote. **Needs:** DPO sign-off on this access (DPDP Act), and whether the `reviewer` role is the right one.
+6. **Retention purge runs inside the API (hourly, safe to repeat).** It moves to the worker process when BullMQ is added (architecture §2).
+

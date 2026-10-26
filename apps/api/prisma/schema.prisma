@@ -60,6 +60,8 @@ model User {
   checkpointAttempts CheckpointAttempt[] @relation("CheckpointAttempts")
   certificates       Certificate[]       @relation("Certificates")
   wordList           WordListEntry[]     @relation("WordList")
+  tutorMessages      TutorMessage[]      @relation("TutorMessages")
+  tutorFlags         TutorFlag[]         @relation("TutorFlags")
 
   @@map("users")
 }
@@ -697,4 +699,56 @@ model WordListEntry {
 
   @@id([learnerId, vocabId])
   @@map("word_list")
+}
+
+enum TutorRole {
+  user
+  assistant
+}
+
+enum TutorFlagStatus {
+  open
+  resolved
+}
+
+/// FR-601. A learner's conversation with the AI tutor. NFR-15: kept 90 days, then purged.
+model TutorMessage {
+  id           String      @id @default(uuid(7)) @db.Uuid
+  learnerId    String      @map("learner_id") @db.Uuid
+  role         TutorRole
+  content      String
+  level        GermanLevel
+  lessonId     String?     @map("lesson_id") @db.Uuid
+  inputTokens  Int         @default(0) @map("input_tokens")
+  outputTokens Int         @default(0) @map("output_tokens")
+  /// True when the topic or safety filter replaced the reply (FR-606).
+  filtered     Boolean     @default(false)
+  createdAt    DateTime    @default(now()) @map("created_at") @db.Timestamptz
+
+  learner User        @relation("TutorMessages", fields: [learnerId], references: [id], onDelete: Cascade)
+  flags   TutorFlag[]
+
+  @@index([learnerId, createdAt])
+  @@index([createdAt])
+  @@map("tutor_messages")
+}
+
+/// FR-608. A learner reports a wrong or unsafe tutor answer; reviewers work the queue.
+model TutorFlag {
+  id         String          @id @default(uuid(7)) @db.Uuid
+  messageId  String          @map("message_id") @db.Uuid
+  learnerId  String          @map("learner_id") @db.Uuid
+  reason     String
+  status     TutorFlagStatus @default(open)
+  resolvedBy String?         @map("resolved_by") @db.Uuid
+  resolvedAt DateTime?       @map("resolved_at") @db.Timestamptz
+  note       String?
+  createdAt  DateTime        @default(now()) @map("created_at") @db.Timestamptz
+
+  message TutorMessage @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  learner User         @relation("TutorFlags", fields: [learnerId], references: [id], onDelete: Cascade)
+
+  @@unique([messageId, learnerId])
+  @@index([status, createdAt])
+  @@map("tutor_flags")
 }

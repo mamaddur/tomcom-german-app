@@ -1,6 +1,6 @@
 # Traceability: requirement → code → tests
 
-Updated in every PR (CLAUDE.md). Only requirements with code are listed; see `build-plan.md` for where the rest land.
+Updated in every PR (CLAUDE.md). Requirements with code are listed first; the ones not built yet, and what each is waiting for, are in the last section.
 
 | Req | Status | Code | Tests |
 |---|---|---|---|
@@ -77,3 +77,29 @@ Updated in every PR (CLAUDE.md). Only requirements with code are listed; see `bu
 | FR-1101 / FR-1103 (portal) | Done | `/admin/settings`: module switches and every setting with a form per type (number, text, list, maintenance message); super admins change, TOMCOM admins read; out-of-range values explained | `apps/web/e2e/staff-login.e2e.test.ts`, `apps/api/test/settings.int-spec.ts` |
 | FR-306 | Done | Vocabulary is tagged with trade codes in the studio (checked against the trade list); the app's Words screen shows the words of the learner's trade from downloaded levels, with audio. Switchable (`module.tradePacks`) | `apps/api/test/studio.int-spec.ts`, `apps/mobile/test/words_test.dart` |
 | FR-308 | Done | Star a word in a lesson or the Words screen; "My word list" with Leitner review (1, 2, 4, 7, 15, 30 days; a miss comes back tomorrow); synced through `/v1/sync` (newest change wins, removals reach other phones). Switchable (`module.bookmarks`) | `apps/api/test/sync.int-spec.ts`, `apps/mobile/test/progress_controller_test.dart`, `test/words_test.dart` |
+| FR-601 (API) | Partial | `POST /v1/tutor/messages` and `GET /v1/tutor/messages` in `apps/api/src/tutor/`: one running conversation per learner, reply in the learner's language, German phrases marked `<de>…</de>`. The model sits behind `LlmProvider` (`src/adapters/llm/`, ADR-010); with no vendor chosen, `LLM_PROVIDER=dev` is a stand-in that is not a language model and is refused in production. Streaming, scenarios and voice wait for the vendor | `apps/api/test/tutor.int-spec.ts`, `apps/api/src/tutor/tutor-guard.spec.ts` |
+| FR-604 | Partial | The prompt carries level, the open lesson and the prompts of recently missed quiz questions (`buildSystemPrompt`) | `src/tutor/tutor-guard.spec.ts`, `test/tutor.int-spec.ts` |
+| FR-606 | Partial | Input filter (empty, over 500 characters, unsafe topics in English and German) before the model; output filter after; the system prompt limits topics. A baseline: the vendor's moderation and a Telugu word list are still to add | `test/tutor.int-spec.ts` |
+| FR-607 | Done (API) | Daily message limit from the `tutor.dailyMessageLimit` setting, per IST day; 429 `tutor_daily_limit` with `resumesAt`; a reply that failed does not use up the day | `test/tutor.int-spec.ts` |
+| FR-608 | Done (API) | A learner flags a reply; reviewers, TOMCOM admins and the super admin see a queue with the exchange and level, not the learner, and resolve it (audited) | `test/tutor.int-spec.ts` |
+| NFR-15 | Partial | The model gets first name, level, language, lesson title and missed-question prompts only (tested against phone, surname, district and trade); conversations are deleted after 90 days by an hourly purge and on account erasure; the data export includes them | `test/tutor.int-spec.ts` |
+
+## Not built yet, and what each is waiting for
+
+| Req | Why it is not built | Needs from a person or vendor |
+|---|---|---|
+| FR-501, FR-502, FR-503 | Pronunciation scoring (step 6) | Speech vendor with India-region processing, dev key (open questions A.3, NFR-14) |
+| FR-601 (real model) | The built tutor answers with a stand-in until a vendor is chosen | LLM vendor and key (open questions A.3, C2) |
+| FR-602, FR-605, streaming | Voice, role-play scenarios and the token stream need the vendor's model and speech service | Speech and LLM vendors |
+| FR-603 (app) | Tappable German phrases and the chat screen: PR 7b | None; next PR |
+| FR-1006 | AI help to draft questions and Telugu translations (Could), after the tutor | LLM vendor and key; always reviewed by a human |
+| NFR-22 | Per-learner caps are in (FR-607); the monthly budget and alerts need real usage and cost | Vendor pricing and a monthly budget |
+| FR-105 | Optional placement test (Should): how it scores and which level it unlocks is a scope decision | TOMCOM decision (open questions) |
+| FR-406 | Mock exams in the external exam format (Should): which exam (Goethe, telc, ÖSD) is undecided | TOMCOM decision (open questions) |
+| NFR-14 | Data residency: needs the hosting region and vendor regions | Hosting decision; vendor choice |
+| NFR-06, NFR-07, NFR-08 | Scale, availability and backups are properties of the hosting set-up | Hosting decision (C4); Terraform in `infra/` |
+| NFR-12 | Third-party security test before go-live | External auditor, TOMCOM's call on CERT-In empanelment |
+| NFR-21 | Handover of code and credentials, apps under TOMCOM's store accounts | Store account owner; end of project |
+| NFR-03 | Cold start under 3 s and API p95 under 500 ms are not measured yet | A mid-range Android phone and a hosted API to measure against |
+| NFR-17 (app) | Large text and screen readers in the app are not yet tested by hand. The admin portal is built to WCAG 2.1 AA | A test pass on a real phone with TalkBack or VoiceOver |
+| BR-01 | A business outcome, measured by the readiness and checkpoint reports once learners use the app | Real use by learners |

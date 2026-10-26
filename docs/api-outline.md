@@ -47,6 +47,16 @@ All writes from the mobile app accept `Idempotency-Key` or carry a `clientId`.
 | POST | `/tutor/conversations/{id}/messages` `{text}` or multipart audio → **SSE stream** of tokens, with `<de>` phrase markup | FR-601–604, FR-606 |
 | GET | `/tutor/usage` → `{used, limit, resumesAt}` | FR-607 |
 | POST | `/tutor/messages/{id}/flag` | FR-608 |
+
+Built in step 7a (one running conversation per learner, plain JSON reply; the SSE stream, scenarios and voice follow with the vendor):
+
+| Method | Path | Req |
+|---|---|---|
+| POST | `/tutor/messages` `{text, level, lessonId?}` → `{id, reply, germanPhrases, remainingToday, demo, filtered}`; 429 `tutor_daily_limit` with `resumesAt` | FR-601, FR-603, FR-604, FR-606, FR-607 |
+| GET | `/tutor/messages` → the learner's last 50 messages | FR-601 |
+| POST | `/tutor/messages/{id}/flag` `{reason}` → 204 | FR-608 |
+| GET | `/admin/tutor/flags?status=open\|resolved` → the reviewers' queue (exchange and level, no identity) | FR-608 |
+| POST | `/admin/tutor/flags/{id}/resolve` `{note?}` → 204 | FR-608 |
 | GET | `/tts?text=&voice=` → cached audio URL (German phrases only) | FR-603 |
 
 ## Certificates and profile
