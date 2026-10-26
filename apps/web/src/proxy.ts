@@ -4,6 +4,9 @@ import { routing } from './i18n/routing';
 import {
   ACCESS_COOKIE,
   cookieOptions,
+  LEARNER_ACCESS_COOKIE,
+  LEARNER_REFRESH_COOKIE,
+  LEARNER_REFRESH_MAX_AGE,
   REFRESH_COOKIE,
   REFRESH_MAX_AGE,
   secondsUntilExpiry,
@@ -13,14 +16,31 @@ const intl = createMiddleware(routing);
 const API_BASE_URL = process.env.API_BASE_URL ?? 'http://localhost:3000';
 
 /**
- * Next.js 16 proxy: locale routing, plus renewing the staff session. When the 5-minute access
+ * Next.js 16 proxy: locale routing, plus renewing the staff and student sessions. When the 5-minute access
  * token is about to expire, it is swapped using the refresh token. If the API refuses (30 minutes
  * idle, 12-hour cap, revoked), the session cookies are cleared and pages redirect to the login.
  */
 export default async function proxy(request: NextRequest) {
-  const response = intl(request);
-  const access = request.cookies.get(ACCESS_COOKIE)?.value;
-  const refresh = request.cookies.get(REFRESH_COOKIE)?.value;
+  let response = intl(request);
+  response = await renewSession(request, response, ACCESS_COOKIE, REFRESH_COOKIE, REFRESH_MAX_AGE);
+  return renewSession(
+    request,
+    response,
+    LEARNER_ACCESS_COOKIE,
+    LEARNER_REFRESH_COOKIE,
+    LEARNER_REFRESH_MAX_AGE,
+  );
+}
+
+async function renewSession(
+  request: NextRequest,
+  response: NextResponse,
+  accessName: string,
+  refreshName: string,
+  refreshMaxAge: number,
+): Promise<NextResponse> {
+  const access = request.cookies.get(accessName)?.value;
+  const refresh = request.cookies.get(refreshName)?.value;
   if (!refresh || (access && secondsUntilExpiry(access) > 30)) return response;
 
   const res = await fetch(`${API_BASE_URL}/v1/auth/refresh`, {
@@ -37,17 +57,17 @@ export default async function proxy(request: NextRequest) {
       expiresInSeconds: number;
     };
     // Pass the new token to this render too, not only to the browser.
-    request.cookies.set(ACCESS_COOKIE, tokens.accessToken);
+    request.cookies.set(accessName, tokens.accessToken);
     const next = rewriteWithCookies(request, response);
-    next.cookies.set(ACCESS_COOKIE, tokens.accessToken, cookieOptions(tokens.expiresInSeconds));
-    next.cookies.set(REFRESH_COOKIE, tokens.refreshToken, cookieOptions(REFRESH_MAX_AGE));
+    next.cookies.set(accessName, tokens.accessToken, cookieOptions(tokens.expiresInSeconds));
+    next.cookies.set(refreshName, tokens.refreshToken, cookieOptions(refreshMaxAge));
     return next;
   }
   if (res && res.status === 401) {
-    request.cookies.delete(ACCESS_COOKIE);
+    request.cookies.delete(accessName);
     const next = rewriteWithCookies(request, response);
-    next.cookies.delete(ACCESS_COOKIE);
-    next.cookies.delete(REFRESH_COOKIE);
+    next.cookies.delete(accessName);
+    next.cookies.delete(refreshName);
     return next;
   }
   return response; // API unreachable: leave the session alone.

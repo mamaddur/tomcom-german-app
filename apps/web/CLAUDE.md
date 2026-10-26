@@ -13,6 +13,7 @@ Read the root `CLAUDE.md` first; its rules apply here.
 ## Conventions
 - Locale routing with next-intl: `/te/...` and `/en/...`. Default `te`. Strings live in `messages/<locale>.json`; the parity test fails if a key is missing in any locale.
 - Route groups (from step 2): `(admin)` for TOMCOM/trainers/super admin, `(studio)` for authors/reviewers, `c/[code]` public verify page. Role checks happen on the server for every route group, never only in the UI.
+- Student web (`learn/`, step 11): `/{locale}/learn` for learners, separate cookies from staff (`src/lib/session.ts`), server actions in `learn/actions.ts`, server-only helpers in `src/lib/learner.ts`/`packs.ts`/`progress.ts`/`quiz.ts`. Online only; no registration. Quiz answers follow the API rules (indices; match_pairs answer[i] is the right-index for left[i]).
 - **Sessions:** the browser never holds API tokens. Server actions (`src/app/[locale]/login/actions.ts`) call the API and store tokens in httpOnly, SameSite=Strict cookies (`src/lib/session.ts`). `src/proxy.ts` renews the 5-minute access token; when the API refuses (30 min idle, 12 h cap), the cookies are cleared and the `(admin)` layout redirects to the login.
 - Pages under `src/app/[locale]/(admin)/` require a staff session (checked in that layout). Server code calls the API through `src/lib/api.ts` (`server-only`).
 - React 19 resets forms after a server action: return any value that must stay filled (never passwords) in the action state and use it as `defaultValue`.

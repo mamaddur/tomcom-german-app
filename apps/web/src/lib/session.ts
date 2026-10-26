@@ -10,6 +10,12 @@ export const REFRESH_COOKIE = 'tomcom_rt';
 export const CHALLENGE_COOKIE = 'tomcom_challenge';
 export const DEVICE_COOKIE = 'tomcom_device';
 
+/** Students have their own cookies, so a staff member and a student can use one browser. */
+export const LEARNER_ACCESS_COOKIE = 'tomcom_l_at';
+export const LEARNER_REFRESH_COOKIE = 'tomcom_l_rt';
+export const LEARNER_DEVICE_COOKIE = 'tomcom_l_device';
+export const LEARNER_REFRESH_MAX_AGE = 7 * 86400;
+
 const secure = process.env.NODE_ENV === 'production';
 
 export const cookieOptions = (maxAgeSeconds: number) => ({
