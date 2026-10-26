@@ -159,3 +159,86 @@ LessonPack memoryPack({String level = 'A1', int lessons = 3}) =>
       'vocab': <Object>[],
       'media': <Object>[],
     });
+
+/// One question of each lesson-quiz type (FR-401), in content-schema shape.
+List<Map<String, dynamic>> allQuestionTypes() {
+  Map<String, dynamic> q(
+    String id,
+    String type,
+    Map<String, dynamic> payload,
+    Object answer,
+  ) => {
+    'id': id,
+    'type': type,
+    'prompt': {'te': 'ప్రశ్న $id', 'en': 'Question $id'},
+    'payload': payload,
+    'answer': answer,
+    'explanation': {'te': 'వివరణ $id', 'en': 'Explanation $id'},
+    'difficulty': 1,
+  };
+  return [
+    q('q-mcq', 'mcq', {
+      'options': ['Hallo', 'Tschüss', 'Danke'],
+    }, 0),
+    q('q-listen', 'listen_choose', {
+      'audio': 'audio-1',
+      'options': ['Guten Morgen', 'Gute Nacht'],
+    }, 0),
+    q('q-gap', 'fill_gap', {
+      'text': 'Ich ___ Ravi.',
+      'options': ['heiße', 'bist'],
+    }, 0),
+    q(
+      'q-pairs',
+      'match_pairs',
+      {
+        'left': ['Hallo', 'Danke'],
+        'right': ['Thanks', 'Hello'],
+      },
+      [1, 0],
+    ),
+    q(
+      'q-order',
+      'word_order',
+      {
+        'words': ['Ich', 'heiße', 'Ravi'],
+      },
+      [0, 1, 2],
+    ),
+  ];
+}
+
+/// A level whose first lesson has [questions] (default: one of each type).
+LessonPack quizPack({
+  List<Map<String, dynamic>>? questions,
+  int questionsPerQuiz = 10,
+  double passMark = 0.8,
+}) {
+  final base = memoryPack(lessons: 2);
+  return LessonPack(
+    level: base.level,
+    version: base.version,
+    settings: PackSettings(
+      passMark: passMark,
+      questionsPerQuiz: questionsPerQuiz,
+    ),
+    lessons: [
+      PackLesson(
+        id: base.lessons[0].id,
+        order: 1,
+        title: base.lessons[0].title,
+        description: base.lessons[0].description,
+        estMinutes: 10,
+        tradeTags: const [],
+        screens: base.lessons[0].screens,
+        questions: [
+          for (final j in questions ?? allQuestionTypes())
+            QuizQuestion.fromJson(j),
+        ],
+      ),
+      base.lessons[1],
+    ],
+    vocab: const {},
+    media: const {},
+  );
+}

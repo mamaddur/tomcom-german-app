@@ -42,7 +42,9 @@ Planning approved on 2026-10-25 with "do it on this local machine for now". Step
 
 1. **Daily goal (FR-204) is minutes, not lessons.** The pack doesn't define it. I count minutes in lessons per day (IST), default 10, which admins can change (`goal.dailyMinutes`, 5–60). The streak is the number of days in a row with the goal met. One sitting counts at most an hour. Tell me if TOMCOM wants "one lesson a day" instead.
 2. **Progress is kept on the phone until step 5.** Lesson states, minutes and streak are stored per learner on the device. They reach the server (and other devices) with quiz attempts and offline sync in step 5.
-3. **Lessons pass only by their quiz (FR-402).** Until quizzes arrive (step 5), only the first lesson of a level is open, unless an admin turns off `unlock.sequential`.
+3. **Lessons pass only by their quiz (FR-402).** A lesson with no questions passes when the learner finishes it.
+4. **Quiz answers are taps, never typing** (NFR-18). "Fill the gap" offers choices, and "word order" uses word tiles. If TOMCOM wants typed answers for B1, they would be a new question type.
+5. **Multiple-choice options keep the author's order**, so options like "all of the above" stay last. Pairs and word tiles are shuffled.
 
 ## B. Decisions on the plan (my recommendation first)
 

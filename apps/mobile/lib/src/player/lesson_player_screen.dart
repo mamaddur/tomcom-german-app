@@ -22,6 +22,8 @@ class LessonPlayerScreen extends StatefulWidget {
     this.onScreen,
     this.onTime,
     this.onFinished,
+    this.onStartQuiz,
+    this.passMark = 0.8,
   });
 
   final LessonPack pack;
@@ -40,6 +42,12 @@ class LessonPlayerScreen extends StatefulWidget {
 
   /// Called when the learner reaches the end of the lesson.
   final VoidCallback? onFinished;
+
+  /// Opens the lesson quiz (FR-401); null when the lesson has no questions.
+  final VoidCallback? onStartQuiz;
+
+  /// Shown on the last page: the score that opens the next lesson (FR-402).
+  final double passMark;
 
   @override
   State<LessonPlayerScreen> createState() => _LessonPlayerScreenState();
@@ -188,7 +196,10 @@ class _LessonPlayerScreenState extends State<LessonPlayerScreen>
                     play: _play,
                     mediaFile: widget.mediaFile,
                   ),
-                _FinishedView(lesson: widget.lesson, locale: locale),
+                _FinishedView(
+                  passMark: widget.passMark,
+                  onStartQuiz: widget.onStartQuiz,
+                ),
               ],
             ),
           ),
@@ -204,14 +215,20 @@ class _LessonPlayerScreenState extends State<LessonPlayerScreen>
                     label: Text(t.back),
                   ),
                   const Spacer(),
-                  FilledButton.icon(
-                    key: const Key('next'),
-                    onPressed: isLast
-                        ? () => Navigator.of(context).pop()
-                        : () => _go(1),
-                    icon: Icon(isLast ? Icons.check : Icons.arrow_forward),
-                    label: Text(isLast ? t.backToLessons : t.next),
-                  ),
+                  if (isLast && widget.onStartQuiz != null)
+                    OutlinedButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      child: Text(t.backToLessons),
+                    )
+                  else
+                    FilledButton.icon(
+                      key: const Key('next'),
+                      onPressed: isLast
+                          ? () => Navigator.of(context).pop()
+                          : () => _go(1),
+                      icon: Icon(isLast ? Icons.check : Icons.arrow_forward),
+                      label: Text(isLast ? t.backToLessons : t.next),
+                    ),
                 ],
               ),
             ),
@@ -411,9 +428,9 @@ class _VocabCard extends StatelessWidget {
 }
 
 class _FinishedView extends StatelessWidget {
-  const _FinishedView({required this.lesson, required this.locale});
-  final PackLesson lesson;
-  final String locale;
+  const _FinishedView({required this.passMark, required this.onStartQuiz});
+  final double passMark;
+  final VoidCallback? onStartQuiz;
 
   @override
   Widget build(BuildContext context) {
@@ -431,8 +448,20 @@ class _FinishedView extends StatelessWidget {
               style: Theme.of(context).textTheme.headlineSmall,
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 8),
-            Text(t.quizNext, textAlign: TextAlign.center),
+            if (onStartQuiz != null) ...[
+              const SizedBox(height: 8),
+              Text(
+                t.quizIntro((passMark * 100).round()),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 16),
+              FilledButton.icon(
+                key: const Key('start-quiz'),
+                icon: const Icon(Icons.quiz),
+                label: Text(t.startQuiz),
+                onPressed: onStartQuiz,
+              ),
+            ],
           ],
         ),
       ),

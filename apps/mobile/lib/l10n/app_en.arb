@@ -387,10 +387,6 @@
   "@lessonFinished": {
     "description": "End of a lesson."
   },
-  "quizNext": "The quiz for this lesson unlocks the next one. Quizzes come in the next update.",
-  "@quizNext": {
-    "description": "Explains that quizzes follow (step 5)."
-  },
   "backToLessons": "Back to lessons",
   "@backToLessons": {
     "description": "Close the lesson."
@@ -477,5 +473,92 @@
   "notDownloadedShort": "Not downloaded",
   "@notDownloadedShort": {
     "description": "Level card on the dashboard when its pack is not installed."
+  },
+  "startQuiz": "Take the quiz",
+  "@startQuiz": {
+    "description": "Button at the end of a lesson (FR-401)."
+  },
+  "quizIntro": "Score {percent}% or more to open the next lesson.",
+  "@quizIntro": {
+    "description": "Shown at the end of a lesson (FR-402).",
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "quizTitle": "Quiz",
+  "@quizTitle": {
+    "description": "Quiz screen title."
+  },
+  "questionOf": "Question {n} of {total}",
+  "@questionOf": {
+    "description": "Quiz position.",
+    "placeholders": {
+      "n": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "check": "Check",
+  "@check": {
+    "description": "Check the answer."
+  },
+  "answerCorrect": "Correct!",
+  "@answerCorrect": {
+    "description": "Feedback for a right answer."
+  },
+  "answerWrong": "Not quite. The answer is:",
+  "@answerWrong": {
+    "description": "Feedback for a wrong answer, followed by the right answer."
+  },
+  "tapToPair": "Tap a German word, then its meaning.",
+  "@tapToPair": {
+    "description": "Hint for match-the-pairs."
+  },
+  "tapWords": "Tap the words in the right order.",
+  "@tapWords": {
+    "description": "Hint for word order."
+  },
+  "listenAndChoose": "Listen and choose",
+  "@listenAndChoose": {
+    "description": "Play button label for listening questions."
+  },
+  "quizScore": "{percent}% correct",
+  "@quizScore": {
+    "description": "Quiz result.",
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "quizPassed": "Passed! The next lesson is open.",
+  "@quizPassed": {
+    "description": "Quiz passed."
+  },
+  "quizFailed": "You need {percent}% to pass. Try again: the questions change each time.",
+  "@quizFailed": {
+    "description": "Quiz not passed (FR-402, FR-403).",
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "reviewMistakes": "Review your mistakes",
+  "@reviewMistakes": {
+    "description": "Heading for the wrong-answer review."
+  },
+  "retake": "Try again",
+  "@retake": {
+    "description": "Retake the quiz with a new draw."
+  },
+  "clearAnswer": "Clear",
+  "@clearAnswer": {
+    "description": "Clear a word-order or pairs answer."
   }
 }

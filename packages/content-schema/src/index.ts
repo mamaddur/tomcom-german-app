@@ -17,9 +17,59 @@ const vocabValidator = ajv.getSchema(`${SCHEMA_ID}#/$defs/vocabItem`)!;
  * questions well-formed. Used by the studio API before a lesson can go to review.
  */
 export function validateLesson(lesson: unknown): ValidationResult {
-  return lessonValidator(lesson)
-    ? { valid: true, errors: [] }
-    : { valid: false, errors: (lessonValidator.errors ?? []).map(formatError) };
+  if (!lessonValidator(lesson)) {
+    return { valid: false, errors: (lessonValidator.errors ?? []).map(formatError) };
+  }
+  const errors = questionErrors((lesson as LessonShape).questions);
+  return { valid: errors.length === 0, errors };
+}
+
+interface QuestionShape {
+  id: string;
+  type: 'mcq' | 'listen_choose' | 'fill_gap' | 'match_pairs' | 'word_order';
+  payload: {
+    options?: string[];
+    left?: string[];
+    right?: string[];
+    words?: string[];
+    audio?: string;
+  };
+  answer: unknown;
+}
+interface LessonShape {
+  id: string;
+  questions: QuestionShape[];
+}
+
+const isPermutation = (a: number[], n: number) =>
+  a.length === n && new Set(a).size === n && a.every((i) => i < n);
+
+/** Answer keys that fit their question (FR-401); JSON Schema checks the shapes, this the sizes. */
+function questionErrors(questions: QuestionShape[]): string[] {
+  const errors: string[] = [];
+  for (const q of questions) {
+    const p = q.payload;
+    const where = `question ${q.id}`;
+    switch (q.type) {
+      case 'mcq':
+      case 'listen_choose':
+      case 'fill_gap':
+        if ((q.answer as number) >= p.options!.length)
+          errors.push(`${where}: answer is not one of the options`);
+        break;
+      case 'match_pairs':
+        if (p.left!.length !== p.right!.length)
+          errors.push(`${where}: left and right need the same number of items`);
+        else if (!isPermutation(q.answer as number[], p.left!.length))
+          errors.push(`${where}: answer must match every left item to a different right item`);
+        break;
+      case 'word_order':
+        if (!isPermutation(q.answer as number[], p.words!.length))
+          errors.push(`${where}: answer must use every word exactly once`);
+        break;
+    }
+  }
+  return errors;
 }
 
 export function validateVocabItem(item: unknown): ValidationResult {
@@ -42,19 +92,23 @@ export function validateLessonPack(pack: unknown): ValidationResult {
 }
 
 interface PackShape {
-  lessons: Array<{ id: string; screens: Array<{ vocabIds?: string[] }>; video?: string }>;
+  lessons: Array<LessonShape & { screens: Array<{ vocabIds?: string[] }>; video?: string }>;
   vocab: Array<{ id: string; german: { audio: string }; image?: string }>;
   media: Array<{ id: string }>;
 }
 
 function referenceErrors(pack: PackShape): ValidationResult {
-  const errors: string[] = [];
+  const errors: string[] = pack.lessons.flatMap((l) => questionErrors(l.questions));
   const media = new Set(pack.media.map((m) => m.id));
   const vocab = new Set(pack.vocab.map((v) => v.id));
   const lessonIds = new Set<string>();
   for (const lesson of pack.lessons) {
     if (lessonIds.has(lesson.id)) errors.push(`duplicate lesson id ${lesson.id}`);
     lessonIds.add(lesson.id);
+    for (const q of lesson.questions) {
+      if (q.payload.audio && !media.has(q.payload.audio))
+        errors.push(`question ${q.id}: missing audio media ${q.payload.audio}`);
+    }
     if (lesson.video && !media.has(lesson.video))
       errors.push(`lesson ${lesson.id}: missing video media`);
     for (const screen of lesson.screens) {

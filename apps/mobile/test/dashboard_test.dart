@@ -8,6 +8,7 @@ import 'package:tomcom_german/src/content/content_controller.dart';
 import 'package:tomcom_german/src/content/pack_store.dart';
 import 'package:tomcom_german/src/onboarding/onboarding_controller.dart';
 import 'package:tomcom_german/src/progress/progress_controller.dart';
+import 'package:tomcom_german/src/quiz/quiz_screen.dart';
 import 'package:tomcom_german/src/session/session_store.dart';
 
 import 'fake_api.dart';
@@ -148,5 +149,46 @@ void main() {
     await pumpApp(tester);
     expect(find.text('A1 · పాఠం 1'), findsOneWidget);
     expect(find.byIcon(Icons.campaign), findsNothing);
+  });
+
+  testWidgets(
+    'story 2 path: continue → lesson → "take the quiz" → quiz screen (FR-401)',
+    (tester) async {
+      final pack = quizPack();
+      content.installed['A1'] = pack;
+      await pumpApp(tester);
+      await tester.tap(find.byKey(const Key('continue')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('next')));
+      await tester.pumpAndSettle();
+      expect(
+        find.text(
+          'తదుపరి పాఠం తెరవడానికి 80% లేదా అంతకంటే ఎక్కువ స్కోరు చేయండి.',
+        ),
+        findsOneWidget,
+      );
+      await tester.tap(find.byKey(const Key('start-quiz')));
+      await tester.pumpAndSettle();
+      expect(find.text('5లో 1వ ప్రశ్న'), findsOneWidget);
+
+      // Leaving the quiz: the continue card now offers the quiz directly.
+      Navigator.of(tester.element(find.byType(QuizScreen))).pop();
+      await tester.pumpAndSettle();
+      expect(find.text('క్విజ్ రాయండి'), findsOneWidget);
+    },
+  );
+
+  testWidgets('a lesson without questions passes when it is finished', (
+    tester,
+  ) async {
+    final pack = memoryPack();
+    content.installed['A1'] = pack;
+    await pumpApp(tester);
+    await tester.tap(find.byKey(const Key('continue')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('next')));
+    await tester.pumpAndSettle();
+    expect(progress.statusOf(pack, pack.lessons[0]), LessonStatus.passed);
+    expect(progress.statusOf(pack, pack.lessons[1]), LessonStatus.available);
   });
 }

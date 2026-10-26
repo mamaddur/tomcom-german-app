@@ -286,7 +286,7 @@
       }
     },
     "question": {
-      "description": "Lesson-quiz types only (FR-401). Writing and speaking belong to online checkpoints.",
+      "description": "Lesson-quiz types only (FR-401). Writing and speaking belong to online checkpoints. Answers are indices, so the app needs no typing (NFR-18): mcq/listen_choose/fill_gap: index into options; match_pairs: answer[i] is the index in `right` that matches left[i]; word_order: indices of `words` in the correct order.",
       "type": "object",
       "additionalProperties": false,
       "required": ["id", "type", "prompt", "payload", "answer", "explanation", "difficulty"],
@@ -310,7 +310,215 @@
         "difficulty": {
           "enum": [1, 2, 3]
         }
-      }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "mcq"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "payload": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["options"],
+                "properties": {
+                  "options": {
+                    "type": "array",
+                    "minItems": 2,
+                    "maxItems": 6,
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  },
+                  "audio": {
+                    "$ref": "#/$defs/id"
+                  }
+                }
+              },
+              "answer": {
+                "type": "integer",
+                "minimum": 0
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "listen_choose"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "payload": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["audio", "options"],
+                "properties": {
+                  "audio": {
+                    "$ref": "#/$defs/id",
+                    "description": "Recording the learner listens to"
+                  },
+                  "options": {
+                    "type": "array",
+                    "minItems": 2,
+                    "maxItems": 6,
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  }
+                }
+              },
+              "answer": {
+                "type": "integer",
+                "minimum": 0
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "fill_gap"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "payload": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["text", "options"],
+                "properties": {
+                  "text": {
+                    "type": "string",
+                    "pattern": "___",
+                    "description": "German sentence with ___ for the gap"
+                  },
+                  "audio": {
+                    "$ref": "#/$defs/id",
+                    "description": "The full sentence, spoken"
+                  },
+                  "options": {
+                    "type": "array",
+                    "minItems": 2,
+                    "maxItems": 6,
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  }
+                }
+              },
+              "answer": {
+                "type": "integer",
+                "minimum": 0
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "match_pairs"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "payload": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["left", "right"],
+                "properties": {
+                  "left": {
+                    "type": "array",
+                    "minItems": 2,
+                    "maxItems": 6,
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  },
+                  "right": {
+                    "type": "array",
+                    "minItems": 2,
+                    "maxItems": 6,
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  }
+                }
+              },
+              "answer": {
+                "type": "array",
+                "minItems": 2,
+                "maxItems": 6,
+                "items": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "uniqueItems": true
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "word_order"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "payload": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["words"],
+                "properties": {
+                  "words": {
+                    "type": "array",
+                    "minItems": 2,
+                    "maxItems": 10,
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  },
+                  "audio": {
+                    "$ref": "#/$defs/id",
+                    "description": "The correct sentence, spoken"
+                  }
+                }
+              },
+              "answer": {
+                "type": "array",
+                "minItems": 2,
+                "maxItems": 10,
+                "items": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "uniqueItems": true
+              }
+            }
+          }
+        }
+      ]
     },
     "mediaRef": {
       "type": "object",

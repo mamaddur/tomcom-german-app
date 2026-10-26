@@ -83,3 +83,90 @@ describe('validateLesson / validateVocabItem', () => {
     );
   });
 });
+
+describe('quiz question shapes (FR-401)', () => {
+  const qid = (n: number) => `00000000-0000-4000-8000-${String(800 + n).padStart(12, '0')}`;
+  const base = {
+    prompt: { te: 'ప్రశ్న', en: 'Question' },
+    explanation: { te: 'వివరణ', en: 'Explanation' },
+    difficulty: 1,
+  };
+  const withQuestions = (questions: object[]) => {
+    const pack = samplePack();
+    (pack.lessons[0]!.questions as object[]) = questions.map((q, i) => ({
+      id: qid(i),
+      ...base,
+      ...q,
+    }));
+    return validateLessonPack(pack);
+  };
+
+  it('accepts one question of each type', () => {
+    expect(
+      withQuestions([
+        { type: 'mcq', payload: { options: ['Hallo', 'Tschüss'] }, answer: 0 },
+        {
+          type: 'listen_choose',
+          payload: { audio: AUDIO_MORGEN, options: ['Guten Morgen', 'Gute Nacht'] },
+          answer: 0,
+        },
+        {
+          type: 'fill_gap',
+          payload: { text: 'Ich ___ Ravi.', options: ['heiße', 'bist'] },
+          answer: 0,
+        },
+        {
+          type: 'match_pairs',
+          payload: { left: ['Hallo', 'Danke'], right: ['Thanks', 'Hello'] },
+          answer: [1, 0],
+        },
+        {
+          type: 'word_order',
+          payload: { words: ['Ravi', 'heiße', 'Ich'] },
+          answer: [2, 1, 0],
+        },
+      ]),
+    ).toEqual({ valid: true, errors: [] });
+  });
+
+  it.each([
+    ['an answer outside the options', { type: 'mcq', payload: { options: ['a', 'b'] }, answer: 2 }],
+    [
+      'a gap sentence without a gap',
+      { type: 'fill_gap', payload: { text: 'Ich bin', options: ['a', 'b'] }, answer: 0 },
+    ],
+    [
+      'pairs of different lengths',
+      {
+        type: 'match_pairs',
+        payload: { left: ['a', 'b'], right: ['c', 'd', 'e'] },
+        answer: [0, 1],
+      },
+    ],
+    [
+      'two left items matched to the same right item',
+      { type: 'match_pairs', payload: { left: ['a', 'b'], right: ['c', 'd'] }, answer: [0, 0] },
+    ],
+    [
+      'a word order that skips a word',
+      { type: 'word_order', payload: { words: ['a', 'b', 'c'] }, answer: [0, 1] },
+    ],
+    [
+      'listening without audio',
+      { type: 'listen_choose', payload: { options: ['a', 'b'] }, answer: 0 },
+    ],
+    [
+      'typing answers (NFR-18: no free text)',
+      { type: 'fill_gap', payload: { text: 'Ich ___', options: ['a', 'b'] }, answer: 'bin' },
+    ],
+  ])('rejects %s', (_label, q) => {
+    expect(withQuestions([q]).valid).toBe(false);
+  });
+
+  it('reports question audio that is not in the pack (FR-302)', () => {
+    const result = withQuestions([
+      { type: 'listen_choose', payload: { audio: qid(99), options: ['a', 'b'] }, answer: 0 },
+    ]);
+    expect(result.errors.join()).toMatch(/missing audio media/);
+  });
+});

@@ -11,16 +11,23 @@ enum LessonStatus { locked, available, inProgress, passed }
 /// Rules from the server (`GET /v1/app/config` → `learning`), kept for offline use.
 class LearningRules {
   const LearningRules({
+    this.passMark,
     this.sequentialUnlock = true,
     this.dailyGoalMinutes = 10,
   });
   factory LearningRules.fromJson(Map<String, dynamic> j) => LearningRules(
+    passMark: (j['passMark'] as num?)?.toDouble(),
     sequentialUnlock: j['sequentialUnlock'] as bool? ?? true,
     dailyGoalMinutes: j['dailyGoalMinutes'] as int? ?? 10,
   );
+
+  /// Current admin pass mark (FR-402); null until the server has been reached, then the
+  /// pack's own pass mark applies.
+  final double? passMark;
   final bool sequentialUnlock;
   final int dailyGoalMinutes;
   Map<String, dynamic> toJson() => {
+    if (passMark != null) 'passMark': passMark,
     'sequentialUnlock': sequentialUnlock,
     'dailyGoalMinutes': dailyGoalMinutes,
   };
@@ -66,7 +73,13 @@ class LessonRecord {
 }
 
 /// The next lesson to open from the dashboard (FR-202).
-typedef ContinueTarget = ({LessonPack pack, PackLesson lesson, int screen});
+/// [quiz] is true when the learner has seen every screen and only the quiz is left.
+typedef ContinueTarget = ({
+  LessonPack pack,
+  PackLesson lesson,
+  int screen,
+  bool quiz,
+});
 
 /// Learning progress, daily goal and streak (FR-201–FR-204). Kept in one small JSON file per
 /// learner, so it works offline. Server sync arrives with quiz attempts in step 5.
@@ -83,6 +96,10 @@ class ProgressController extends ChangeNotifier {
   String? _userId;
   final Map<String, LessonRecord> _lessons = {};
 
+  /// Quiz attempts not yet sent to the server (FR-405), each with a client UUID so a resend
+  /// is harmless (CLAUDE.md idempotency rule).
+  final List<Map<String, dynamic>> _outbox = [];
+
   /// Learning seconds per IST day (`yyyy-mm-dd`).
   final Map<String, int> _seconds = {};
   LearningRules rules = const LearningRules();
@@ -95,6 +112,7 @@ class ProgressController extends ChangeNotifier {
     _userId = userId;
     _lessons.clear();
     _seconds.clear();
+    _outbox.clear();
     rules = const LearningRules();
     if (_file.existsSync()) {
       try {
@@ -106,6 +124,9 @@ class ProgressController extends ChangeNotifier {
         (j['seconds'] as Map<String, dynamic>? ?? {}).forEach(
           (day, v) => _seconds[day] = v as int,
         );
+        for (final a in j['outbox'] as List? ?? const []) {
+          _outbox.add(Map<String, dynamic>.from(a as Map));
+        }
         if (j['rules'] case final Map<String, dynamic> r) {
           rules = LearningRules.fromJson(r);
         }
@@ -124,6 +145,7 @@ class ProgressController extends ChangeNotifier {
         jsonEncode({
           'lessons': {for (final e in _lessons.entries) e.key: e.value},
           'seconds': _seconds,
+          'outbox': _outbox,
           'rules': rules,
         }),
         flush: true,
@@ -174,6 +196,7 @@ class ProgressController extends ChangeNotifier {
             pack: pack,
             lesson: lesson,
             screen: r.finished ? 0 : r.screen,
+            quiz: r.finished,
           );
         }
       }
@@ -182,7 +205,7 @@ class ProgressController extends ChangeNotifier {
     for (final pack in packs) {
       for (final lesson in pack.lessons) {
         if (statusOf(pack, lesson) == LessonStatus.available) {
-          return (pack: pack, lesson: lesson, screen: 0);
+          return (pack: pack, lesson: lesson, screen: 0, quiz: false);
         }
       }
     }
@@ -202,12 +225,26 @@ class ProgressController extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Quiz result (step 5). Best score wins (ADR-008); passing is final.
-  void recordQuiz(
+  /// Attempts waiting to be sent to the server.
+  List<Map<String, dynamic>> get pendingAttempts => List.unmodifiable(_outbox);
+
+  /// Removes attempts the server has stored.
+  void markSent(Iterable<String> attemptIds) {
+    final ids = attemptIds.toSet();
+    _outbox.removeWhere((a) => ids.contains(a['id']));
+    _save();
+  }
+
+  /// Quiz result (FR-402, FR-405). Best score wins (ADR-008); passing is final.
+  /// Returns whether this attempt passed.
+  bool recordQuiz(
     LessonPack pack,
     PackLesson lesson,
     double score, {
     required double passMark,
+    String? attemptId,
+    Duration duration = Duration.zero,
+    List<Map<String, dynamic>> answers = const [],
   }) {
     final r = _lessons.putIfAbsent(
       lesson.id,
@@ -219,8 +256,22 @@ class ProgressController extends ChangeNotifier {
           : r.bestScore
       ..passed = r.passed || score >= passMark
       ..updatedAt = _clock();
+    if (attemptId != null) {
+      _outbox.add({
+        'id': attemptId,
+        'lessonId': lesson.id,
+        'level': pack.level,
+        'packVersion': pack.version,
+        'score': score,
+        'passed': score >= passMark,
+        'durationMs': duration.inMilliseconds,
+        'answers': answers,
+        'finishedAt': _clock().toUtc().toIso8601String(),
+      });
+    }
     _save();
     notifyListeners();
+    return score >= passMark;
   }
 
   // ── Daily goal and streak (FR-204). Days are IST calendar days. ──
